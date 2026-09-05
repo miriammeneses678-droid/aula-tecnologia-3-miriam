@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082f5b">
+  <meta name="description" content="Laboratorio seguro para practicar HTML básico.">
+  <title>Laboratorio HTML · Tecnología 3.º</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="curso.css">
+  <script src="laboratorio.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#laboratorio">Saltar al editor</a>
+  <header class="school-header compact-header">
+    <div class="school-header__brand"><img src="assets/logo-miriam.png" alt="Logotipo de la Mtra. Miriam"><div><p class="eyebrow">Tecnología 3.º</p><h1>Laboratorio HTML</h1><p>Escribe → prueba → corrige → guarda</p></div></div>
+    <a class="header-back" href="primer-periodo.html">← Primer periodo</a>
+  </header>
+  <main class="lab-shell" id="laboratorio">
+    <section class="lab-intro">
+      <div><p class="eyebrow">Práctica guiada</p><h2>Mira lo que hace tu código</h2><p class="lead">Edita el código de la izquierda. El resultado aparecerá a la derecha. Después descarga <strong>index.html</strong> y guárdalo dentro de tu carpeta de proyecto.</p></div>
+      <a class="button button--ghost" href="clase.html?tema=html">Ver la clase paso a paso</a>
+    </section>
+    <div class="class-tools lab-actions">
+      <button type="button" id="run-code">Actualizar resultado</button>
+      <button type="button" id="download-code">Descargar index.html</button>
+      <button type="button" id="reset-code">Restablecer ejemplo</button>
+      <span id="save-message" aria-live="polite">El borrador se guarda en este dispositivo.</span>
+    </div>
+    <section class="lab-grid">
+      <div class="editor-panel"><div class="panel-head"><span>index.html</span><span>Código</span></div><label class="visually-hidden" for="html-editor">Código HTML</label><textarea id="html-editor" spellcheck="false"></textarea></div>
+      <div class="preview-panel"><div class="panel-head"><span>Resultado</span><span>Navegador</span></div><iframe id="html-preview" title="Vista previa del código HTML" sandbox=""></iframe></div>
+    </section>
+    <section class="lab-help">
+      <article><h3>Reto 1 · Texto</h3><p>Cambia el contenido de <code>&lt;h1&gt;</code> y agrega un segundo párrafo.</p></article>
+      <article><h3>Reto 2 · Lista</h3><p>Agrega dos elementos <code>&lt;li&gt;</code> con aprendizajes del periodo.</p></article>
+      <article><h3>Reto 3 · Error</h3><p>Borra temporalmente un signo <code>&gt;</code>, observa el resultado y vuelve a corregirlo.</p></article>
+    </section>
+    <div class="security-note"><strong>Tu trabajo se guarda en esta computadora.</strong> Antes de escribir, revisa <a href="html-desde-cero.html"><strong>HTML desde cero</strong></a>. Después descarga <code>index.html</code>, colócalo dentro de tu carpeta y sigue la <a href="configurar-vscode.html"><strong>guía de Visual Studio Code y Go Live</strong></a>. Al terminar, guarda con Ctrl+S y muestra el resultado a la maestra.</div>
+  </main>
+  <footer><img src="assets/escuela.jpg" alt="Escudo escolar"><div><strong>Aula de Tecnología 3.º</strong><p>Mtra. Miriam Meneses Rojas</p></div><a href="primer-periodo.html">Primer periodo</a></footer>
+</body>
+</html>

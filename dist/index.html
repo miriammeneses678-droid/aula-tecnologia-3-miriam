@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082f5b">
+  <meta name="description" content="Aula virtual de Tecnología 3.º de la Mtra. Miriam Meneses Rojas.">
+  <title>Aula de Tecnología 3.º · Mtra. Miriam</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="school-header">
+    <div class="school-header__brand">
+      <img src="assets/logo-miriam.png" alt="Logotipo de la Mtra. Miriam, Educación Tecnológica">
+      <div>
+        <p class="eyebrow">Escuela Secundaria Mixta 41</p>
+        <h1>Aula de Tecnología 3.º</h1>
+        <p>Luis Donaldo Colosio Murrieta · CCT 14EES0030M</p>
+      </div>
+    </div>
+    <div class="school-header__meta">
+      <span>Ciclo 2026–2027</span>
+      <span>Mtra. Miriam Meneses Rojas</span>
+    </div>
+  </header>
+
+  <nav class="main-nav" aria-label="Navegación principal">
+    <div class="main-nav__inner">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">☰ Menú</button>
+      <div class="nav-links" id="nav-links">
+        <a class="active" href="#inicio">Inicio</a>
+        <a href="#semana">Clases 7–9 sep.</a>
+        <a href="primer-periodo.html">Primer periodo</a>
+        <a href="teclado-interactivo.html">Teclado interactivo</a>
+        <a href="configurar-vscode.html">Aprender VS Code</a>
+      </div>
+      <label class="shift-picker">
+        <span>Mi turno</span>
+        <select id="turno" aria-label="Selecciona tu turno">
+          <option value="matutino">Matutino</option>
+          <option value="vespertino">Vespertino</option>
+        </select>
+      </label>
+    </div>
+  </nav>
+
+  <main id="contenido">
+    <section class="welcome section" id="inicio">
+      <div class="welcome__copy">
+        <p class="eyebrow">Tu clase, paso a paso</p>
+        <h2>¿Qué clase te toca hoy?</h2>
+        <p class="lead">Elige la fecha. Después sigue únicamente los pasos que aparezcan en pantalla.</p>
+        <div class="quick-actions">
+          <a class="button button--primary" href="#clase-7">7 de septiembre</a>
+          <a class="button button--ghost" href="#clase-8">8 de septiembre</a>
+          <a class="button button--ghost" href="#clase-9">9 de septiembre</a>
+          <a class="button button--ghost" href="primer-periodo.html">Otras fechas</a>
+        </div>
+      </div>
+      <aside class="today-card" aria-label="Indicaciones rápidas">
+        <span class="today-card__label">Haz siempre esto</span>
+        <ol>
+          <li>Escribe fecha, tema y objetivo.</li>
+          <li>Escucha la explicación.</li>
+          <li>Sigue los pasos sin saltarte ninguno.</li>
+          <li>Muestra tu trabajo.</li>
+          <li>Escribe qué hicimos.</li>
+        </ol>
+        <p class="small">No necesitas cuenta, correo ni celular.</p>
+      </aside>
+    </section>
+
+    <section class="notice section section--narrow" aria-labelledby="regla-cero">
+      <div class="notice__icon" aria-hidden="true">✓</div>
+      <div>
+        <h2 id="regla-cero">Regla de evidencia</h2>
+        <p>Aunque la clase sea práctica y no haya una actividad extensa, en tu cuaderno siempre debe quedar: <strong>fecha, tema, objetivo y qué hicimos</strong>.</p>
+      </div>
+    </section>
+
+    <section class="section" id="semana">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Semana del 7 al 9 de septiembre</p>
+          <h2>Elige la clase que necesitas</h2>
+        </div>
+        <p class="shift-message" id="shift-message">Contenido homologado para el turno matutino.</p>
+      </div>
+
+      <div class="class-tabs" role="tablist" aria-label="Clases disponibles">
+        <button class="class-tab active" type="button" role="tab" aria-selected="true" aria-controls="clase-7" data-class="clase-7">
+          <span>Lun. 7 sep.</span><strong>Firewall de protección</strong>
+        </button>
+        <button class="class-tab" type="button" role="tab" aria-selected="false" aria-controls="clase-8" data-class="clase-8">
+          <span>Mar. 8 sep.</span><strong>Diagnóstico y glosario</strong>
+        </button>
+        <button class="class-tab" type="button" role="tab" aria-selected="false" aria-controls="clase-9" data-class="clase-9">
+          <span>Mié. 9 sep.</span><strong>Cierre diagnóstico</strong>
+        </button>
+      </div>
+
+      <article class="lesson active" id="clase-7" role="tabpanel">
+        <div class="lesson-hero lesson-hero--gold">
+          <div>
+            <span class="status">Disponible</span>
+            <p class="eyebrow">Clase 1 · 50 minutos · Trabajo en parejas</p>
+            <h3>Firewall de protección: programa una ruta segura</h3>
+            <p>Usaremos el pensamiento computacional para ordenar una ruta de protección ante una situación de riesgo. Trabajaremos únicamente con casos ficticios y no se pedirán experiencias personales.</p>
+          </div>
+          <div class="lesson-hero__symbol" aria-hidden="true">01</div>
+        </div>
+
+        <div class="lesson-grid">
+          <section class="lesson-main">
+            <div class="objective">
+              <span>Objetivo</span>
+              <p>Reconocer señales de alerta y representar, mediante un algoritmo y un prototipo de pantalla, una ruta segura para pedir ayuda.</p>
+            </div>
+
+            <div class="concept-card">
+              <h4>Primero entiende esto</h4>
+              <p>Un <strong>firewall</strong> es una barrera de seguridad que revisa lo que intenta entrar a un sistema y aplica reglas para protegerlo. Nuestra ruta funciona igual: detecta una señal, detiene la acción insegura y activa apoyos.</p>
+              <div class="route" aria-label="Ruta de protección">
+                <span>Detecto</span><b>→</b><span>Detengo</span><b>→</b><span>Me alejo o bloqueo</span><b>→</b><span>Pido ayuda</span><b>→</b><span>Insisto</span>
+              </div>
+            </div>
+
+            <section class="case-projector" aria-labelledby="case-heading">
+              <p class="eyebrow">Material visible para la actividad</p>
+              <h4 id="case-heading">Casos ficticios para proyectar</h4>
+              <p>La maestra asigna un número a cada pareja. Pulsa el número para mostrar el caso completo. No se comparten experiencias personales.</p>
+              <div class="case-numbers" id="case-numbers" aria-label="Seleccionar caso ficticio"></div>
+              <article class="projected-case" aria-live="polite"><span id="case-number">Caso 1</span><h5 id="case-title">Mensaje insistente</h5><p id="case-text">Una cuenta desconocida envía mensajes repetidos y solicita una imagen privada.</p><strong id="case-question">¿Qué detectas? ¿Qué haces primero?</strong></article>
+              <div class="case-controls"><button type="button" id="previous-case">← Caso anterior</button><button type="button" id="next-case">Caso siguiente →</button></div>
+            </section>
+
+            <div class="steps">
+              <h4>Ahora hazlo paso a paso</h4>
+              <article class="step-card">
+                <span class="step-number">1</span>
+                <div><h5>Prepara el cuaderno</h5><p>Escribe la fecha, el tema y el objetivo. Deja espacio para anotar al final qué hicimos.</p></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-1"> Listo</label>
+              </article>
+              <article class="step-card">
+                <span class="step-number">2</span>
+                <div><h5>Lee la situación ficticia</h5><p>Busca en la proyección el número asignado a tu pareja. Lee el caso, identifica la señal de alerta y no inventes nombres ni datos personales.</p></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-2"> Listo</label>
+              </article>
+              <article class="step-card">
+                <span class="step-number">3</span>
+                <div><h5>Construye el algoritmo</h5><p>Ordena los cinco pasos de la ruta. Agrega por lo menos una decisión con estructura <strong>SI… ENTONCES…</strong>.</p><div class="code-example"><code>SI la primera persona no escucha<br>ENTONCES pido ayuda a otra persona adulta.</code></div></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-3"> Listo</label>
+              </article>
+              <article class="step-card">
+                <span class="step-number">4</span>
+                <div><h5>Dibuja el diagrama de flujo</h5><p>Usa óvalo para inicio y fin, rectángulo para acción, rombo para decisión y flechas para indicar el orden.</p></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-4"> Listo</label>
+              </article>
+              <article class="step-card">
+                <span class="step-number">5</span>
+                <div><h5>Diseña una pantalla de ayuda</h5><p>En media hoja crea un prototipo con un botón visible y tres redes de apoyo: familia o persona cuidadora, escuela y una institución de protección o emergencia.</p></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-5"> Listo</label>
+              </article>
+              <article class="step-card">
+                <span class="step-number">6</span>
+                <div><h5>Depura y cierra</h5><p>Revisa si tu ruta contiene un paso inseguro, corrígelo y completa el ticket: una señal de alerta, una acción segura y dos personas a quienes acudir.</p></div>
+                <label class="check-action"><input type="checkbox" data-progress="7-6"> Listo</label>
+              </article>
+            </div>
+
+            <section class="exit-ticket" aria-labelledby="ticket-heading">
+              <p class="eyebrow">Trabajo individual · Copia y responde en tu cuaderno</p>
+              <h4 id="ticket-heading">Ticket de salida individual</h4>
+              <p class="exit-ticket__instruction">Escribe el título <strong>“Ticket de salida”</strong> y completa las cuatro respuestas con tus propias palabras.</p>
+              <ol>
+                <li><strong>Señal de alerta que aprendí a reconocer:</strong> ______________________________</li>
+                <li><strong>Primera acción segura que realizaría:</strong> ______________________________</li>
+                <li><strong>Dos personas adultas a quienes puedo pedir ayuda:</strong> __________________ y __________________</li>
+                <li><strong>Si la primera persona no me escucha, entonces:</strong> ______________________________</li>
+              </ol>
+              <div class="exit-ticket__reminder"><strong>Antes de mostrarlo:</strong> no escribas nombres reales, datos personales ni experiencias privadas.</div>
+            </section>
+
+            <details class="example">
+              <summary>Ver un ejemplo completo</summary>
+              <p><strong>Caso ficticio:</strong> una cuenta desconocida envía mensajes insistentes y solicita una imagen privada.</p>
+              <ol>
+                <li>Detecto: la solicitud invade la privacidad.</li>
+                <li>Detengo: no respondo ni envío información.</li>
+                <li>Me alejo o bloqueo: cierro la conversación y bloqueo la cuenta.</li>
+                <li>Pido ayuda: informo a una persona adulta de confianza.</li>
+                <li>Insisto: si no recibo apoyo, acudo a otra persona adulta o autoridad escolar.</li>
+              </ol>
+              <p><strong>Decisión:</strong> SI continúan los mensajes, ENTONCES no interactúo, conservo la evidencia sin difundirla y pido ayuda.</p>
+            </details>
+          </section>
+
+          <aside class="lesson-side">
+            <div class="side-card">
+              <h4>Materiales</h4>
+              <ul><li>Cuaderno y lápiz</li><li>Colores</li><li>Media hoja</li><li>Caso visible en la proyección</li><li>Modelo de diagrama visible en la explicación</li></ul>
+            </div>
+            <div class="side-card">
+              <h4>Evidencia</h4>
+              <ul><li>Diagrama de flujo por pareja</li><li>Prototipo de pantalla de ayuda</li><li>Ticket de salida individual</li><li>Bitácora breve en cuaderno</li></ul>
+            </div>
+            <div class="side-card side-card--check">
+              <h4>Antes de entregar</h4>
+              <label><input type="checkbox"> Reconocimos la señal.</label>
+              <label><input type="checkbox"> Ordenamos acciones seguras.</label>
+              <label><input type="checkbox"> Incluimos una decisión.</label>
+              <label><input type="checkbox"> Anotamos tres apoyos.</label>
+              <label><input type="checkbox"> No usamos datos personales.</label>
+            </div>
+            <a class="button button--primary button--full" href="#clase-7">Volver al inicio de la actividad</a>
+          </aside>
+        </div>
+      </article>
+
+      <article class="lesson" id="clase-8" role="tabpanel" hidden>
+        <div class="lesson-hero lesson-hero--teal">
+          <div>
+            <span class="status">Disponible</span>
+            <p class="eyebrow">Clase 2 · 50 minutos · Trabajo individual</p>
+            <h3>Diagnóstico inicial y glosario técnico</h3>
+            <p>El diagnóstico permite saber qué conocimientos necesitamos reforzar. No genera calificación: responde con honestidad y sin copiar.</p>
+          </div>
+          <div class="lesson-hero__symbol" aria-hidden="true">02</div>
+        </div>
+        <div class="lesson-grid">
+          <section class="lesson-main">
+            <div class="objective"><span>Objetivo</span><p>Completar el diagnóstico inicial y recuperar conceptos fundamentales de Tecnología mediante un glosario claro y ejemplos cotidianos.</p></div>
+            <div class="decision-box">
+              <h4>¿Qué ruta te corresponde?</h4>
+              <div class="decision-options">
+                <button type="button" class="choice active" data-route="pendiente">Aún no termino el diagnóstico</button>
+                <button type="button" class="choice" data-route="terminado">Ya terminé el diagnóstico</button>
+              </div>
+              <div class="route-panel active" data-panel="pendiente">
+                <ol><li>Escribe el encabezado de la clase.</li><li>Ingresa al diagnóstico con la indicación de tu maestra.</li><li>Lee cada pregunta antes de responder.</li><li>Al finalizar, espera la confirmación de envío.</li><li>Anota en el cuaderno qué hicimos y una dificultad que encontraste.</li></ol>
+              </div>
+              <div class="route-panel" data-panel="terminado" hidden>
+                <p>Realiza un glosario de siete conceptos: <strong>técnica, tecnología, algoritmo, máquina, herramienta, instrumento y material</strong>.</p>
+                <ol><li>Divide una hoja en tres columnas: concepto, explicación con tus palabras y ejemplo.</li><li>Evita copiar definiciones que no entiendas.</li><li>Dibuja o describe un ejemplo cotidiano.</li><li>Subraya la diferencia entre herramienta, máquina e instrumento.</li></ol>
+              </div>
+            </div>
+            <details class="example" open><summary>Modelo de glosario</summary><div class="table-scroll"><table><thead><tr><th>Concepto</th><th>Explicación sencilla</th><th>Ejemplo</th></tr></thead><tbody><tr><td>Algoritmo</td><td>Conjunto ordenado de pasos para resolver una tarea.</td><td>Pasos para guardar un archivo.</td></tr><tr><td>Herramienta</td><td>Objeto que amplía nuestras capacidades al realizar una acción.</td><td>Destornillador o teclado.</td></tr></tbody></table></div></details>
+          </section>
+          <aside class="lesson-side">
+            <div class="side-card"><h4>Materiales</h4><ul><li>Cuaderno</li><li>Lápiz o pluma</li><li>Dispositivo, si la maestra lo indica</li></ul></div>
+            <div class="side-card"><h4>Evidencia</h4><ul><li>Diagnóstico enviado, o</li><li>Glosario técnico de siete conceptos</li><li>Bitácora en cuaderno</li></ul></div>
+            <div class="callout"><strong>Importante</strong><p>El diagnóstico es formativo. Su propósito es mejorar las clases, no asignar una calificación.</p></div>
+          </aside>
+        </div>
+      </article>
+
+      <article class="lesson" id="clase-9" role="tabpanel" hidden>
+        <div class="lesson-hero lesson-hero--blue">
+          <div>
+            <span class="status">Disponible</span>
+            <p class="eyebrow">Clase 3 · 50 minutos · Trabajo individual</p>
+            <h3>Cierre diagnóstico y conceptos esenciales</h3>
+            <p>Concluiremos aplicaciones pendientes y revisaremos los conceptos que servirán como base para teclado, algoritmos y HTML.</p>
+          </div>
+          <div class="lesson-hero__symbol" aria-hidden="true">03</div>
+        </div>
+        <div class="lesson-grid">
+          <section class="lesson-main">
+            <div class="objective"><span>Objetivo</span><p>Concluir el diagnóstico correspondiente y explicar con ejemplos la relación entre técnica, tecnología, herramientas y algoritmos.</p></div>
+            <div class="steps">
+              <h4>Ruta de trabajo</h4>
+              <article class="step-card"><span class="step-number">1</span><div><h5>Registra el encabezado</h5><p>Fecha, tema, objetivo y espacio para “qué hicimos”.</p></div></article>
+              <article class="step-card"><span class="step-number">2</span><div><h5>Termina lo pendiente</h5><p>Completa el diagnóstico o el glosario indicado por tu maestra.</p></div></article>
+              <article class="step-card"><span class="step-number">3</span><div><h5>Conecta los conceptos</h5><p>Escribe un ejemplo donde una persona aplique una técnica, use una herramienta y siga un algoritmo para resolver una necesidad.</p></div></article>
+              <article class="step-card"><span class="step-number">4</span><div><h5>Autoevalúate</h5><p>Marca cada concepto con verde “lo explico”, amarillo “tengo dudas” o rojo “necesito apoyo”.</p></div></article>
+              <article class="step-card"><span class="step-number">5</span><div><h5>Cierra la bitácora</h5><p>Completa “qué hicimos” con dos o tres oraciones. No escribas solamente “trabajamos”. Sé específico.</p></div></article>
+            </div>
+            <div class="concept-card"><h4>Ejemplo de conexión</h4><p>Para organizar archivos escolares, una persona sigue una <strong>técnica</strong> de clasificación, usa la computadora como <strong>máquina</strong>, el teclado como <strong>instrumento de interacción</strong> y aplica un <strong>algoritmo</strong>: crear carpeta → nombrar → mover archivos → verificar.</p></div>
+          </section>
+          <aside class="lesson-side">
+            <div class="side-card"><h4>Producto mínimo</h4><p>Diagnóstico completo o glosario revisado, ejemplo integrador y bitácora de clase.</p></div>
+            <div class="side-card"><h4>Cuando faltes</h4><ol><li>Copia el encabezado.</li><li>Realiza el glosario.</li><li>Escribe el ejemplo integrador.</li><li>Presenta el trabajo al regresar.</li></ol></div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section class="notebook section" id="cuaderno">
+      <div class="section-heading"><div><p class="eyebrow">Bitácora obligatoria</p><h2>Así debe quedar tu cuaderno</h2><p id="notebook-day">Ejemplo correspondiente al 7 de septiembre de 2026</p></div></div>
+      <div class="notebook-sheet">
+        <div class="notebook-line"><span>Fecha:</span><strong id="notebook-date">7 de septiembre de 2026</strong></div>
+        <div class="notebook-line"><span>Tema:</span><strong id="notebook-topic">Firewall de protección: programa una ruta segura</strong></div>
+        <div class="notebook-line"><span>Objetivo:</span><strong id="notebook-objective">Reconocer señales de alerta y ordenar una ruta segura mediante un algoritmo.</strong></div>
+        <div class="notebook-line notebook-line--large"><span>¿Qué hicimos?</span><strong id="notebook-work">Analizamos un caso ficticio, construimos un diagrama de flujo y diseñamos una pantalla de ayuda con tres redes de apoyo.</strong></div>
+      </div>
+      <p class="tip"><strong>Tip:</strong> “Hicimos una actividad” no explica nada. Escribe qué aprendiste, qué pasos seguiste y qué producto realizaste.</p>
+    </section>
+
+    <section class="section" id="periodo">
+      <div class="section-heading"><div><p class="eyebrow">31 de agosto al 11 de noviembre</p><h2>Ruta del primer periodo</h2></div><span class="evaluation">Evaluación: 60% actividades · 30% proyecto · 10% examen</span></div>
+      <div class="timeline">
+        <article class="timeline-item done"><span>31 ago.–2 sep.</span><h3>Encuadre y diagnóstico</h3><p>Reglas, taller, saberes previos y diagnóstico.</p></article>
+        <article class="timeline-item current"><span>7–9 sep.</span><h3>Protección y diagnóstico</h3><p>Ruta segura, cierre diagnóstico y glosario.</p></article>
+        <a class="timeline-item" href="clase.html?tema=nivelacion"><span>14–15 sep.</span><h3>Nivelación</h3><p>Conceptos técnicos esenciales.</p></a>
+        <a class="timeline-item" href="clase.html?tema=teclado"><span>21–23 sep.</span><h3>Teclado</h3><p>Teclas, funciones y práctica guiada.</p></a>
+        <a class="timeline-item" href="clase.html?tema=atajos"><span>28–30 sep.</span><h3>Atajos</h3><p>Combinaciones y pseudocódigo cotidiano.</p></a>
+        <a class="timeline-item" href="clase.html?tema=algoritmos"><span>5–7 oct.</span><h3>Algoritmos</h3><p>Entrada, proceso, salida, decisión y repetición.</p></a>
+        <a class="timeline-item" href="clase.html?tema=html"><span>12–28 oct.</span><h3>HTML y portafolio</h3><p>Primera página, tabla de herramientas y avance del proyecto.</p></a>
+        <a class="timeline-item" href="clase.html?tema=evaluacion"><span>3–11 nov.</span><h3>Evaluación y cierre</h3><p>Examen, correcciones y reflexión final.</p></a>
+      </div>
+    </section>
+
+    <section class="section resources" id="recursos">
+      <div class="section-heading"><div><p class="eyebrow">Actividades proyectadas</p><h2>Observa, participa y pasa lo indicado al cuaderno</h2></div></div>
+      <div class="resource-grid">
+        <a class="resource-card" href="#clase-7"><span>Clase guiada</span><h3>Firewall de protección</h3><p>La maestra proyecta el caso y el grupo construye la ruta en el cuaderno.</p><b>Abrir clase →</b></a>
+        <a class="resource-card" href="teclado-interactivo.html"><span>Actividad interactiva</span><h3>Explora el teclado</h3><p>Presiona una tecla en pantalla y descubre qué hace, cómo se usa y qué debes anotar.</p><b>Comenzar →</b></a>
+        <a class="resource-card" href="laboratorio-html.html"><span>Práctica</span><h3>Laboratorio HTML</h3><p>Escribe código, revisa el resultado y prepara tu archivo para Visual Studio Code.</p><b>Comenzar práctica →</b></a>
+        <a class="resource-card" href="configurar-vscode.html"><span>Guía desde cero</span><h3>Visual Studio Code y Go Live</h3><p>Abre la carpeta correcta, crea index.html, guarda, visualiza y resuelve errores comunes.</p><b>Abrir guía →</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <img src="assets/escuela.jpg" alt="Escudo de la Escuela Secundaria Mixta 41">
+    <div><strong>Aula de Tecnología 3.º</strong><p>Mtra. Miriam Meneses Rojas · Escuela Secundaria Mixta 41</p></div>
+    <a href="#inicio">Volver arriba ↑</a>
+  </footer>
+</body>
+</html>

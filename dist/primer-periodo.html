@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082f5b">
+  <meta name="description" content="Primer periodo de Tecnología 3.º: teclado, atajos, algoritmos y HTML.">
+  <title>Primer periodo · Aula de Tecnología 3.º</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="curso.css">
+  <script src="contenido-periodo.js" defer></script>
+  <script src="periodo.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <header class="school-header compact-header">
+    <div class="school-header__brand">
+      <img src="assets/logo-miriam.png" alt="Logotipo de la Mtra. Miriam">
+      <div><p class="eyebrow">Escuela Secundaria Mixta 41</p><h1>Aula de Tecnología 3.º</h1><p>Primer periodo · 31 de agosto al 11 de noviembre de 2026</p></div>
+    </div>
+    <a class="header-back" href="index.html">← Volver al inicio</a>
+  </header>
+  <nav class="main-nav" aria-label="Navegación del periodo">
+    <div class="main-nav__inner">
+      <a class="course-home" href="index.html">Inicio</a>
+      <div class="nav-links always-open"><a class="active" href="#modulos">Clases</a><a href="#libro">Libro</a><a href="#evaluacion">Evaluación</a><a href="#materiales">Actividades</a></div>
+      <label class="shift-picker"><span>Mi turno</span><select id="turno"><option value="matutino">Matutino</option><option value="vespertino">Vespertino</option></select></label>
+    </div>
+  </nav>
+
+  <main id="contenido">
+    <section class="course-intro section">
+      <div>
+        <p class="eyebrow">Proyecto: Mi primera web tecnológica</p>
+        <h2>Del teclado al portafolio digital</h2>
+        <p class="lead">Busca la fecha de tu clase, abre el tema y sigue los pasos en orden. La página te dirá qué escribir, qué hacer y qué mostrar a la maestra.</p>
+      </div>
+      <aside class="progress-card"><strong>En todas las clases</strong><ol><li>Copia fecha, tema y objetivo.</li><li>Lee la explicación.</li><li>Realiza la práctica.</li><li>Muestra la evidencia.</li><li>Escribe qué hicimos.</li></ol></aside>
+    </section>
+
+    <section class="section section--tight" id="modulos">
+      <div class="section-heading"><div><p class="eyebrow">Ruta completa</p><h2>Módulos del primer periodo</h2></div><p class="shift-message" id="shift-note">Mismos aprendizajes para ambos turnos.</p></div>
+      <div class="module-grid" id="module-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="section section--tight" id="libro">
+      <div class="section-heading"><div><p class="eyebrow">Seguimiento del libro · Primer periodo</p><h2>Páginas que deben quedar terminadas</h2></div><span class="evaluation">Tecnología 3 · pp. 22–28</span></div>
+      <p class="lead">Esta ruta acompaña las clases del 15 al 21 de octubre. Lleva el libro y muéstralo al terminar cada fecha para evitar páginas pendientes.</p>
+      <div class="book-route-grid">
+        <article class="book-route-card"><span>15 de octubre</span><h3>Páginas 22–23</h3><p>Lee “Herramientas y tecnología”. Escribe en el cuaderno tres ideas importantes y una palabra que necesites aclarar.</p></article>
+        <article class="book-route-card"><span>19 de octubre</span><h3>Páginas 24–26</h3><p>Continúa la lectura. Localiza ejemplos de herramienta, máquina e instrumento y explica cómo se acciona cada uno.</p></article>
+        <article class="book-route-card"><span>20 de octubre</span><h3>Página 27</h3><p>Responde individualmente la actividad de identificación y clasificación. Revisa que no queden espacios sin contestar.</p></article>
+        <article class="book-route-card"><span>21 de octubre</span><h3>Página 28</h3><p>Termina la actividad, corrige con la explicación del grupo y elige cinco ejemplos para crear la tabla HTML.</p></article>
+      </div>
+      <div class="equity-note"><strong>Meta al 21 de octubre:</strong> las páginas 22–28 estarán leídas, trabajadas y revisadas. La actividad calificable del libro corresponde a las páginas 27–28.</div>
+    </section>
+
+    <section class="section section--tight" id="evaluacion">
+      <div class="section-heading"><div><p class="eyebrow">Cómo se obtiene la calificación</p><h2>Evaluación del periodo</h2></div><span class="evaluation">Cierre de actividades: 28 de octubre</span></div>
+      <div class="grading-grid">
+        <article class="grade-card"><strong>60%</strong><h3>Actividades, prácticas y tareas</h3><ul><li>Firewall: 8 puntos</li><li>Teclado: 10</li><li>Atajos: 8</li><li>Algoritmos: 10</li><li>Libro pp. 27–28: 10</li><li>HTML: 10</li><li>Bitácora y orden: 4</li></ul></article>
+        <article class="grade-card grade-card--project"><strong>30%</strong><h3>Proyecto integrador</h3><p>Portafolio web básico en parejas: carpeta, archivo <code>index.html</code>, estructura, sección de Jornada, tabla de herramientas y bitácora.</p><a href="clase.html?tema=proyecto">Ver rúbrica completa →</a></article>
+        <article class="grade-card"><strong>10%</strong><h3>Examen</h3><p>Teclado, atajos, conceptos de Tecnología, algoritmos y lectura de HTML básico.</p><a href="clase.html?tema=evaluacion">Ver guía de estudio →</a></article>
+      </div>
+      <div class="equity-note"><strong>Misma meta, distintas rutas:</strong> si temporalmente no hay computadora, la evidencia se prepara en el cuaderno y se captura cuando corresponda la práctica en el taller. La falta de equipo no reduce la calificación.</div>
+    </section>
+
+    <section class="section section--tight" id="materiales">
+      <div class="section-heading"><div><p class="eyebrow">Para proyectar y practicar</p><h2>Actividades del periodo</h2></div></div>
+      <div class="resource-grid">
+        <a class="resource-card" href="index.html#clase-7"><span>Clase guiada</span><h3>Firewall de protección</h3><p>Explicación, algoritmo, ejemplo y evidencia en el cuaderno.</p><b>Abrir clase →</b></a>
+        <a class="resource-card" href="teclado-interactivo.html"><span>Actividad proyectada</span><h3>Teclado interactivo</h3><p>Haz clic en cada tecla para descubrir su función y un ejemplo.</p><b>Explorar teclado →</b></a>
+        <a class="resource-card" href="laboratorio-html.html"><span>Interactivo</span><h3>Laboratorio HTML</h3><p>Escribe código y mira el resultado antes de usar VS Code.</p><b>Practicar →</b></a>
+        <a class="resource-card" href="html-desde-cero.html"><span>Explicación interactiva</span><h3>HTML desde cero</h3><p>Comprende html, head, body, etiquetas, listas y tablas línea por línea.</p><b>Comenzar clase →</b></a>
+        <a class="resource-card" href="configurar-vscode.html"><span>Guía desde cero</span><h3>Aprender VS Code y Go Live</h3><p>Incluye apertura, carpeta, index.html, Live Server, ruta sin extensión, errores y guardado.</p><b>Abrir guía →</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer><img src="assets/escuela.jpg" alt="Escudo escolar"><div><strong>Aula de Tecnología 3.º</strong><p>Mtra. Miriam Meneses Rojas · Ciclo 2026–2027</p></div><a href="#contenido">Volver arriba ↑</a></footer>
+</body>
+</html>

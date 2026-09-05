@@ -1,0 +1,12 @@
+PLANTILLA HTML - TECNOLOGÍA 3.º
+
+1. Cambia el nombre de esta carpeta con el formato indicado por la maestra.
+2. Abre Visual Studio Code.
+3. Elige Archivo > Abrir carpeta y selecciona esta carpeta completa.
+4. Abre index.html desde el panel izquierdo.
+5. Modifica solamente los textos indicados.
+6. Guarda con Ctrl+S.
+7. Pulsa Go Live o abre index.html con doble clic desde el Explorador.
+8. Al terminar, guarda con Ctrl+S y muestra el resultado a la maestra.
+
+No necesitas iniciar sesión ni usar correo electrónico.

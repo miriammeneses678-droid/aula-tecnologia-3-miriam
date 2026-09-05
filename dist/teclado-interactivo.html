@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#082f5b">
+  <meta name="description" content="Teclado interactivo para reconocer las teclas y sus funciones en Tecnología 3.º.">
+  <title>Teclado interactivo · Tecnología 3.º</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="curso.css">
+  <style>
+    .keyboard-page{max-width:1400px;margin:0 auto;padding:1.4rem 1rem 4rem}.simple-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}.simple-top h2{margin:.15rem 0;font-size:clamp(1.7rem,4vw,2.7rem)}.back-link{display:inline-flex;padding:.65rem .9rem;color:var(--navy);background:#fff;border:2px solid #b6c8d3;border-radius:10px;text-decoration:none;font-weight:900}.student-route{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin:1rem 0}.student-route div{padding:.75rem;text-align:center;background:#fff;border:1px solid var(--line);border-radius:10px;font-weight:850}.student-route strong{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:.3rem;color:#fff;background:var(--teal);border-radius:50%}.activity-layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:1rem;align-items:start}.keyboard-wrap{overflow:auto;padding:1rem;background:#173b50;border:4px solid #082f5b;border-radius:16px;box-shadow:var(--shadow)}.keyboard{min-width:970px;display:grid;gap:.45rem}.key-row{display:flex;gap:.38rem}.key{min-width:52px;height:54px;display:grid;place-items:center;padding:.25rem;color:#102d3e;background:#fff;border:0;border-bottom:5px solid #a9bbc5;border-radius:8px;font:900 .86rem/1.05 system-ui;cursor:pointer;transition:transform .1s,outline .1s}.key:hover,.key:focus-visible{transform:translateY(-2px);outline:4px solid #f2bf49;outline-offset:1px}.key.selected{outline:4px solid #f2bf49;transform:translateY(2px);border-bottom-width:2px}.key.wide{min-width:88px}.key.wider{min-width:116px}.key.space{flex:1;min-width:350px}.key.function{background:#ffe8a9}.key.writing{background:#eaf4ff}.key.control{background:#dff4ee}.key.editing{background:#ffe3e3}.key.navigation{background:#e8def8}.key.numeric{background:#e8f1d5}.info-panel{position:sticky;top:1rem;overflow:hidden;background:#fff;border:2px solid var(--teal);border-radius:16px;box-shadow:var(--shadow)}.info-head{padding:1rem;color:#fff;background:linear-gradient(120deg,var(--navy),var(--teal))}.info-head span{font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.info-head h3{margin:.25rem 0 0;color:#fff;font-size:2rem}.info-body{padding:1.1rem}.info-block{margin-bottom:1rem}.info-block strong{display:block;color:var(--teal);font-size:.8rem;text-transform:uppercase}.info-block p{margin:.3rem 0 0}.copy-note{padding:.8rem;background:var(--gold-light);border-left:5px solid var(--gold);border-radius:8px}.legend{display:flex;flex-wrap:wrap;gap:.55rem;margin:1rem 0}.legend span{padding:.35rem .55rem;border:1px solid var(--line);border-radius:8px;font-size:.85rem;font-weight:850}.legend .function{background:#ffe8a9}.legend .writing{background:#eaf4ff}.legend .control{background:#dff4ee}.legend .editing{background:#ffe3e3}.legend .navigation{background:#e8def8}.legend .numeric{background:#e8f1d5}.challenge{margin-top:1rem;padding:1.2rem;background:#fff;border:1px solid var(--line);border-radius:14px}.challenge h3{margin-top:0}.challenge-buttons{display:flex;flex-wrap:wrap;gap:.5rem}.challenge button{padding:.55rem .75rem;color:#fff;background:var(--navy);border:0;border-radius:8px;font-weight:850;cursor:pointer}.challenge-result{min-height:52px;margin-top:.7rem;padding:.75rem;background:#edf6f7;border-radius:8px;font-weight:800}
+    @media(max-width:1000px){.activity-layout{grid-template-columns:1fr}.info-panel{position:static}.student-route{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.school-header{display:none}.simple-top{align-items:flex-start}.student-route{grid-template-columns:1fr}.keyboard-page{padding:.8rem}.key{height:50px}}
+  </style>
+  <script src="teclado-interactivo.js" defer></script>
+</head>
+<body>
+  <header class="school-header compact-header"><div class="school-header__brand"><img src="assets/logo-miriam.png" alt="Logotipo de la Mtra. Miriam"><div><p class="eyebrow">Tecnología 3.º</p><h1>Teclado interactivo</h1><p>Observa · toca · comprende · registra</p></div></div><a class="header-back" href="primer-periodo.html">← Primer periodo</a></header>
+  <main class="keyboard-page">
+    <div class="simple-top"><div><p class="eyebrow">Actividad proyectada</p><h2>Haz clic en una tecla</h2><p>La explicación aparecerá a la derecha. Después localiza la misma tecla en el teclado físico.</p></div><a class="back-link" href="primer-periodo.html">← Regresar</a></div>
+    <div class="student-route"><div><strong>1</strong> Mira la tecla</div><div><strong>2</strong> Lee su función</div><div><strong>3</strong> Pruébala</div><div><strong>4</strong> Anótala</div></div>
+    <div class="legend" aria-label="Familias del teclado"><span class="function">Funciones</span><span class="writing">Escritura</span><span class="control">Control</span><span class="editing">Edición</span><span class="navigation">Navegación</span><span class="numeric">Numéricas</span></div>
+    <div class="activity-layout">
+      <section class="keyboard-wrap" aria-label="Teclado para explorar"><div class="keyboard" id="keyboard"></div></section>
+      <aside class="info-panel" aria-live="polite">
+        <div class="info-head"><span>Tecla seleccionada</span><h3 id="key-name">Elige una tecla</h3></div>
+        <div class="info-body"><div class="info-block"><strong>¿Qué hace?</strong><p id="key-function">Haz clic sobre cualquier tecla del teclado.</p></div><div class="info-block"><strong>Ejemplo</strong><p id="key-example">La maestra puede comenzar con Enter, Espacio o Retroceso.</p></div><div class="copy-note"><strong>En el cuaderno:</strong><p id="key-note">Escribe el nombre de la tecla y su función con tus palabras.</p></div></div>
+      </aside>
+    </div>
+    <section class="challenge"><h3>Reto: encuentra la tecla</h3><p>La maestra lee una pista. Un alumno señala la respuesta en la proyección y el grupo comprueba la función.</p><div class="challenge-buttons"><button type="button" data-challenge="corregir">Quiero borrar a la izquierda</button><button type="button" data-challenge="aceptar">Quiero aceptar una instrucción</button><button type="button" data-challenge="mayuscula">Quiero una sola mayúscula</button><button type="button" data-challenge="mover">Quiero mover el cursor</button><button type="button" data-challenge="guardar">Quiero guardar</button></div><div class="challenge-result" id="challenge-result">Selecciona una pista para comenzar.</div></section>
+  </main>
+  <footer><img src="assets/escuela.jpg" alt="Escudo escolar"><div><strong>Aula de Tecnología 3.º</strong><p>Mtra. Miriam Meneses Rojas</p></div><a href="primer-periodo.html">Primer periodo</a></footer>
+</body>
+</html>
