@@ -9,6 +9,9 @@ Sitio web estático para la Escuela Secundaria Mixta 41. Está diseñado para fu
 - Clases completas del primer periodo, del 31 de agosto al 11 de noviembre de 2026.
 - Módulos actualizados conforme a la planeación: teclado aplicado a Excel, tabla de herramientas, análisis de datos, algoritmos y HTML con Bloc de notas.
 - Práctica interactiva de 20 pasos para Enter, Tab, Shift, Retroceso, Supr, flechas, Inicio, Fin, Esc, F2 y atajos Ctrl+A/C/V/X/Z/Y/F/S/P.
+- Excel desde cero con modelo para copiar en el cuaderno, identificación de diez partes, práctica de celda/fila/columna/rango, tabla, bordes, operaciones y funciones SUMA, PROMEDIO, MIN y MAX.
+- Tabla de herramientas completamente guiada: títulos exactos de A1 a G1, significado de cada columna, ejemplo del destornillador y formato del rango A1:G6.
+- Navegación unificada: todas las actividades regresan directamente al inicio tipo muro mediante el botón “Inicio del aula”.
 - Formato obligatorio para registrar fecha, tema, objetivo y “qué hicimos” en el cuaderno.
 - Laboratorio HTML: editor, vista previa y descarga de `index.html`.
 - Guía desde cero para crear `index.html` con Bloc de notas, sin instalar programas ni depender de Go Live.
@@ -37,6 +40,7 @@ Entre a `dist` y abra `index.html` en el navegador. No necesita instalar program
 - `dist/periodo.js` y `dist/clase.js`: creación automática de tarjetas y clases.
 - `dist/laboratorio-html.html`: práctica interactiva de HTML.
 - `dist/practica-teclado-atajos.html`: práctica comprobable de teclas especiales y atajos.
+- `dist/excel-desde-cero.html`: ruta visual y progresiva de Excel para cuaderno y computadora.
 - `dist/html-bloc-notas.html`: guía principal para crear HTML sin instalar programas.
 - `dist/clases-septiembre.html`: archivo histórico de las actividades del 7, 8 y 9 de septiembre.
 - `dist/descargas/Plantilla_HTML_Tecnologia3.zip`: carpeta base para repartir al alumnado.

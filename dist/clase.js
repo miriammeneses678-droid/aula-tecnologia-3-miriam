@@ -24,7 +24,8 @@
   document.title = `${lesson.titulo} · Tecnología 3.º`;
   const resources = (lesson.recursos || []).map(r => `<a href="${r.url}">${escapeHtml(r.texto)}</a>`).join("");
   const code = lesson.codigo ? `<div class="code-panel"><pre><code>${escapeHtml(lesson.codigo)}</code></pre></div>` : "";
-  const dataTable = lesson.tabla ? `<section class="lesson-table-section"><p class="eyebrow">Información para copiar</p><h3>${escapeHtml(lesson.tablaTitulo || "Tabla de apoyo")}</h3><p class="table-instruction">Traza tres columnas en tu cuaderno y copia cada fila. Después realiza la práctica.</p><div class="table-scroll"><table class="lesson-data-table"><thead><tr><th>Combinación</th><th>Función</th><th>¿Qué hace?</th></tr></thead><tbody>${lesson.tabla.map(row => `<tr><td><kbd>${escapeHtml(row[0])}</kbd></td><td><strong>${escapeHtml(row[1])}</strong></td><td>${escapeHtml(row[2])}</td></tr>`).join("")}</tbody></table></div></section>` : "";
+  const tableHeadings = lesson.tablaEncabezados || ["Combinación", "Función", "¿Qué hace?"];
+  const dataTable = lesson.tabla ? `<section class="lesson-table-section"><p class="eyebrow">Información para copiar</p><h3>${escapeHtml(lesson.tablaTitulo || "Tabla de apoyo")}</h3><p class="table-instruction">${escapeHtml(lesson.tablaInstruccion || "Traza tres columnas en tu cuaderno y copia cada fila. Después realiza la práctica.")}</p><div class="table-scroll"><table class="lesson-data-table"><thead><tr>${tableHeadings.map(heading => `<th>${escapeHtml(heading)}</th>`).join("")}</tr></thead><tbody>${lesson.tabla.map(row => `<tr>${row.map((cell, index) => `<td>${!lesson.tablaEncabezados && index === 0 ? `<kbd>${escapeHtml(cell)}</kbd>` : index === 0 ? `<strong>${escapeHtml(cell)}</strong>` : escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>` : "";
   const challenges = lesson.retos ? `<section class="visible-material"><p class="eyebrow">Material visible para proyectar</p><h3>${escapeHtml(lesson.retosTitulo || "Retos de la clase")}</h3><p class="table-instruction">La maestra asignará o leerá uno de estos retos. No necesitas una hoja impresa.</p><div class="visible-challenge-grid">${lesson.retos.map(item => `<article><strong>${escapeHtml(item[0])}</strong><p>${escapeHtml(item[1])}</p></article>`).join("")}</div></section>` : "";
   const bookRoute = lesson.libro ? `<section class="lesson-table-section"><p class="eyebrow">Seguimiento del libro</p><h3>${escapeHtml(lesson.libroTitulo || "Páginas del periodo")}</h3><p class="table-instruction">Al terminar cada fecha, revisa que las páginas indicadas estén completas y muestra el libro a la maestra.</p><div class="table-scroll"><table class="lesson-data-table"><thead><tr><th>Fecha</th><th>Páginas</th><th>Trabajo que debe quedar terminado</th></tr></thead><tbody>${lesson.libro.map(row => `<tr><td><strong>${escapeHtml(row[0])}</strong></td><td>${escapeHtml(row[1])}</td><td>${escapeHtml(row[2])}</td></tr>`).join("")}</tbody></table></div></section>` : "";
   const shiftPlan = lesson.turnos ? `<section class="shift-plan"><h3>Organización por turno</h3><p><strong>Matutino:</strong> ${escapeHtml(lesson.turnos.matutino)}</p><p><strong>Vespertino:</strong> ${escapeHtml(lesson.turnos.vespertino)}</p></section>` : "";
@@ -49,7 +50,7 @@
       <div class="class-number" aria-hidden="true">${escapeHtml(lesson.numero)}</div>
     </section>
     <div class="class-tools">
-      <a href="primer-periodo.html">← Todos los módulos</a>
+      <a href="index.html">⌂ Inicio del aula</a>
       ${resources}
     </div>
     ${dailyRoute}
