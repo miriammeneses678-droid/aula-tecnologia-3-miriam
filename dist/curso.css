@@ -1,7 +1,7 @@
 .compact-header { min-height: 92px; }
 .compact-header .school-header__brand img { width: 70px; height: 70px; }
 .compact-header h1 { font-size: clamp(1.55rem, 3vw, 2rem); }
-.header-back { flex: 0 0 auto; color: #fff; border: 1px solid rgba(255,255,255,.45); border-radius: 9px; padding: .55rem .8rem; text-decoration: none; font-weight: 800; }
+.header-back { flex: 0 0 auto; color: #fff; background: transparent; border: 1px solid rgba(255,255,255,.45); border-radius: 9px; padding: .55rem .8rem; text-decoration: none; font: inherit; font-weight: 800; cursor: pointer; }
 .header-back:hover { background: rgba(255,255,255,.12); }
 .course-home { color: var(--navy); font-weight: 900; text-decoration: none; }
 .nav-links.always-open { display: flex; }

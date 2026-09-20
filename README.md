@@ -92,3 +92,7 @@ Cada vez que cambie un archivo dentro de `dist` y lo guarde en GitHub, la págin
 ## Trabajo local del alumnado
 
 No se utilizarán cuentas, correos ni celulares. Cada estudiante o pareja trabaja en la carpeta local que indique la maestra, guarda con `Ctrl+S` y muestra el resultado directamente durante la clase. El portal del alumno contiene solamente las explicaciones y actividades que necesita el grupo; los guiones docentes se conservan por separado.
+
+## Navegación de regreso
+
+En las actividades, el botón **← Regresar** vuelve a la pantalla exacta desde la cual entró el usuario. Si alguien abre una actividad mediante un enlace directo y no existe una pantalla anterior del aula, el botón lo lleva al inicio principal.

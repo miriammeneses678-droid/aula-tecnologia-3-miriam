@@ -50,7 +50,7 @@
       <div class="class-number" aria-hidden="true">${escapeHtml(lesson.numero)}</div>
     </section>
     <div class="class-tools">
-      <a href="index.html">⌂ Inicio del aula</a>
+      <button type="button" data-go-back>← Regresar</button>
       ${resources}
     </div>
     ${dailyRoute}
