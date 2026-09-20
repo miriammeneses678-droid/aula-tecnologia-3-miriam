@@ -1,0 +1,43 @@
+(function(){
+  "use strict";
+  const $=s=>document.querySelector(s), editor=$("#editor"), feedback=$("#feedback"), next=$("#next");
+  const original=editor.value, store="practicaTecladoMiriamV1";
+  let step=0, done=false, clipboard="", undoText=original, altPressed=false;
+  const steps=[
+    {type:"UBICA",title:"Haz clic en el documento",text:"Coloca el cursor dentro del recuadro blanco.",keys:["Clic"],hint:"El cursor es la línea que parpadea.",test:e=>e.type==="focus"},
+    {type:"ESCRIBE",title:"Pulsa Enter",text:"Coloca el cursor al final y crea una línea nueva.",keys:["Enter"],hint:"Enter baja el cursor a un nuevo renglón.",key:"Enter"},
+    {type:"ORDENA",title:"Pulsa Tab",text:"Al inicio de la línea, crea una sangría.",keys:["Tab"],hint:"Aquí Tab escribirá un espacio amplio sin salir del documento.",key:"Tab"},
+    {type:"MAYÚSCULA",title:"Escribe una A mayúscula",text:"Mantén Shift y pulsa la letra A.",keys:["Shift","A"],hint:"Shift se mantiene presionada mientras pulsas la otra tecla.",test:e=>e.key==="A"&&e.shiftKey},
+    {type:"CORRIGE",title:"Usa Retroceso",text:"Borra el carácter que está a la izquierda del cursor.",keys:["Retroceso"],hint:"La tecla puede mostrar una flecha hacia la izquierda.",key:"Backspace"},
+    {type:"CORRIGE",title:"Usa Supr",text:"Borra el carácter que está a la derecha del cursor.",keys:["Supr"],hint:"Supr también puede llamarse Delete.",key:"Delete"},
+    {type:"NAVEGA",title:"Muévete con las flechas",text:"Pulsa una flecha izquierda o derecha.",keys:["←","→"],hint:"Las flechas mueven el cursor sin borrar.",test:e=>["ArrowLeft","ArrowRight"].includes(e.key)},
+    {type:"NAVEGA",title:"Ve al inicio del renglón",text:"Pulsa la tecla Inicio.",keys:["Inicio"],hint:"Inicio mueve el cursor al principio de la línea.",key:"Home"},
+    {type:"NAVEGA",title:"Ve al final del renglón",text:"Pulsa la tecla Fin.",keys:["Fin"],hint:"Fin mueve el cursor al final de la línea.",key:"End"},
+    {type:"CANCELA",title:"Pulsa Esc",text:"Cancela o cierra una ventana activa.",keys:["Esc"],hint:"La simulación mostrará que el modo activo se canceló.",key:"Escape"},
+    {type:"EDITA",title:"Pulsa F2",text:"En Excel, F2 permite editar la celda activa.",keys:["F2"],hint:"Aquí activará el modo edición como demostración.",key:"F2"},
+    {type:"SELECCIONA",title:"Selecciona todo",text:"Mantén Ctrl y pulsa A.",keys:["Ctrl","A"],hint:"Todo el texto debe quedar marcado.",combo:"a"},
+    {type:"COPIA",title:"Copia lo seleccionado",text:"Mantén Ctrl y pulsa C.",keys:["Ctrl","C"],hint:"Copiar conserva el original.",combo:"c"},
+    {type:"PEGA",title:"Pega una copia",text:"Coloca el cursor al final y usa Ctrl + V.",keys:["Ctrl","V"],hint:"La práctica usa un portapapeles interno.",combo:"v"},
+    {type:"CORTA",title:"Corta una parte",text:"Selecciona unas letras y usa Ctrl + X.",keys:["Ctrl","X"],hint:"Cortar retira el texto para moverlo.",combo:"x",prepare:"select"},
+    {type:"CORRIGE",title:"Deshaz el cambio",text:"Mantén Ctrl y pulsa Z.",keys:["Ctrl","Z"],hint:"Deshacer regresa al estado anterior.",combo:"z"},
+    {type:"RECUPERA",title:"Rehaz el cambio",text:"Mantén Ctrl y pulsa Y.",keys:["Ctrl","Y"],hint:"Rehacer recupera lo que acabas de deshacer.",combo:"y"},
+    {type:"BUSCA",title:"Busca una palabra",text:"Mantén Ctrl y pulsa F.",keys:["Ctrl","F"],hint:"Aparecerá una caja de búsqueda dentro de la práctica.",combo:"f"},
+    {type:"GUARDA",title:"Guarda los cambios",text:"Mantén Ctrl y pulsa S.",keys:["Ctrl","S"],hint:"En Excel y en otros programas debes guardar con frecuencia.",combo:"s"},
+    {type:"RECONOCE",title:"Abre la vista de impresión",text:"Mantén Ctrl y pulsa P. No se imprimirá nada.",keys:["Ctrl","P"],hint:"La práctica detiene la impresión y solamente explica la función.",combo:"p"}
+  ];
+  const keys=["Esc","F2","Tab","Shift","Ctrl","Alt","Alt Gr","Enter","Retroceso","Supr","Inicio","Fin","←","→","Ctrl+A","Ctrl+C","Ctrl+V","Ctrl+X","Ctrl+Z","Ctrl+Y","Ctrl+F","Ctrl+S","Ctrl+P"];
+  $("#keyboard-buttons").innerHTML=keys.map(k=>`<button type="button" data-key="${k}">${k}</button>`).join("");
+  function render(){const s=steps[step];done=false;next.disabled=true;$("#step-count").textContent=`Paso ${step+1} de ${steps.length}`;$("#step-number").textContent=step+1;$("#progress").style.width=`${(step+1)/steps.length*100}%`;$("#step-type").textContent=s.type;$("#step-title").textContent=s.title;$("#step-text").textContent=s.text;$("#hint").textContent=s.hint;$("#keys-to-press").innerHTML=s.keys.map(k=>`<span class="keycap">${k}</span>`).join("");feedback.className="feedback";feedback.textContent="Esperando tu acción…";document.querySelectorAll("[data-key]").forEach(b=>b.classList.toggle("active",s.keys.includes(b.dataset.key)||s.keys.join("+").replaceAll(" ","")===b.dataset.key.replaceAll(" ","")));if(s.prepare==="select"){editor.focus();editor.setSelectionRange(0,10)}}
+  function success(message){if(done)return;done=true;feedback.className="feedback success";feedback.textContent="✓ "+message;next.disabled=false;try{localStorage.setItem(store,String(step+1))}catch(_e){}}
+  function wrong(){feedback.className="feedback error shake";feedback.textContent="Aún no. Revisa las teclas indicadas y vuelve a intentar.";setTimeout(()=>feedback.classList.remove("shake"),300)}
+  function insert(text){const a=editor.selectionStart,b=editor.selectionEnd;undoText=editor.value;editor.setRangeText(text,a,b,"end");editor.dispatchEvent(new Event("input"))}
+  function handle(e){if(!$("#practice-panel").hidden&&!done){const s=steps[step];if(["Tab","F2"].includes(e.key)||(e.ctrlKey&&["a","c","v","x","z","y","f","s","p"].includes(e.key.toLowerCase())))e.preventDefault();if(e.key==="Alt")altPressed=true;if(s.key&&e.key===s.key){if(e.key==="Tab")insert("    ");if(e.key==="F2")$("#mode").textContent="Modo edición";if(e.key==="Escape"){$("#mode").textContent="Modo normal";$("#searchbox").hidden=true}success(`Usaste ${s.keys.join(" + ")} correctamente.`);return}if(s.combo&&e.ctrlKey&&e.key.toLowerCase()===s.combo){const k=s.combo;if(k==="a")editor.select();if(k==="c")clipboard=editor.value.slice(editor.selectionStart,editor.selectionEnd)||editor.value;if(k==="v")insert(clipboard||"Texto copiado");if(k==="x"){clipboard=editor.value.slice(editor.selectionStart,editor.selectionEnd);insert("")}if(k==="z"){const now=editor.value;editor.value=undoText;undoText=now}if(k==="y"){const now=editor.value;editor.value=undoText;undoText=now}if(k==="f"){$("#searchbox").hidden=false;$("#search-input").focus()}if(k==="s"){$("#save-state").textContent="Guardado ✓"}if(k==="p")$("#screen-help").textContent="Vista de impresión reconocida. En esta práctica no se imprime.";success(`Ejecutaste Ctrl + ${k.toUpperCase()}.`);return}if(s.test&&s.test(e)){success("Acción correcta. Observa el resultado.");return}if(e.type==="keydown"&&!(["Shift","Control"].includes(e.key)))wrong()}}
+  editor.addEventListener("focus",handle);document.addEventListener("keydown",handle);
+  $("#start").addEventListener("click",()=>{$("#welcome").hidden=true;$("#practice-panel").hidden=false;step=Math.min(Number(localStorage.getItem(store)||0),steps.length-1);render();scrollTo(0,0)});
+  next.addEventListener("click",()=>{if(step<steps.length-1){step++;render();editor.focus()}else{$("#practice-panel").hidden=true;$("#finish").hidden=false;try{localStorage.setItem(store,"20")}catch(_e){}scrollTo(0,0)}});
+  $("#retry").addEventListener("click",()=>{editor.value=original;$("#save-state").textContent="Sin guardar";$("#mode").textContent="Modo normal";$("#searchbox").hidden=true;render();editor.focus()});
+  $("#reset").addEventListener("click",()=>{localStorage.removeItem(store);location.reload()});
+  $("#close-search").addEventListener("click",()=>{$("#searchbox").hidden=true;editor.focus()});
+  document.querySelectorAll("[data-demo]").forEach(b=>b.addEventListener("click",()=>{if(b.dataset.demo==="find")$("#searchbox").hidden=false;else $("#save-state").textContent="Guardado ✓"}));
+  document.querySelectorAll("[data-key]").forEach(b=>b.addEventListener("click",()=>{const map={"Esc":"Escape","Retroceso":"Backspace","Supr":"Delete","Inicio":"Home","Fin":"End","←":"ArrowLeft","→":"ArrowRight"};const label=b.dataset.key;if(label.startsWith("Ctrl+"))handle({type:"keydown",key:label.slice(-1).toLowerCase(),ctrlKey:true,preventDefault(){}});else if(label==="Shift"){editor.focus();insert("A");handle({type:"keydown",key:"A",shiftKey:true,preventDefault(){}})}else if(label==="Alt Gr"){$("#screen-help").textContent="Alt Gr permite escribir el tercer símbolo de algunas teclas, por ejemplo @."}else handle({type:"keydown",key:map[label]||label,preventDefault(){}})}));
+})();

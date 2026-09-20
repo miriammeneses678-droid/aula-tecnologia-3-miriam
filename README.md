@@ -2,15 +2,16 @@
 
 Sitio web estático para la Escuela Secundaria Mixta 41. Está diseñado para funcionar en celular y computadora, sin base de datos y sin solicitar cuentas al alumnado.
 
-## Qué contiene esta versión
+## Qué contiene esta versión actualizada
 
-- Inicio con instrucciones simples para estudiantes.
+- Inicio tipo muro de publicaciones: la actividad actual aparece primero y el alumnado no necesita recorrer toda la plataforma.
 - Selector de turno matutino o vespertino; el contenido académico está homologado.
 - Clases completas del primer periodo, del 31 de agosto al 11 de noviembre de 2026.
-- Módulos detallados de nivelación, teclado, atajos, algoritmos, HTML, herramientas, proyecto, evaluación y cierre.
+- Módulos actualizados conforme a la planeación: teclado aplicado a Excel, tabla de herramientas, análisis de datos, algoritmos y HTML con Bloc de notas.
+- Práctica interactiva de 20 pasos para Enter, Tab, Shift, Retroceso, Supr, flechas, Inicio, Fin, Esc, F2 y atajos Ctrl+A/C/V/X/Z/Y/F/S/P.
 - Formato obligatorio para registrar fecha, tema, objetivo y “qué hicimos” en el cuaderno.
 - Laboratorio HTML: editor, vista previa y descarga de `index.html`.
-- Guía desde cero para abrir Visual Studio Code, trabajar con carpetas, instalar/verificar Live Server, usar **Go Live** y resolver errores comunes.
+- Guía desde cero para crear `index.html` con Bloc de notas, sin instalar programas ni depender de Go Live.
 - Teclado interactivo para proyectar: cada tecla muestra función, ejemplo y registro para el cuaderno.
 - Actividades proyectables para que el alumnado trabaje en el cuaderno o en la computadora.
 - Guía docente accesible mediante una dirección directa que no aparece en los menús del alumnado.
@@ -20,29 +21,24 @@ Sitio web estático para la Escuela Secundaria Mixta 41. Está diseñado para fu
 - Veinticuatro casos ficticios visibles para proyectar en la actividad “Firewall de protección”.
 - Ticket de salida individual visible en la clase del 7 de septiembre, con cuatro respuestas para copiar en el cuaderno.
 - Tabla completa de nueve atajos, retos de algoritmos y preguntas de repaso visibles dentro de sus clases.
-- Ruta del libro Tecnología 3, páginas 22–28, distribuida del 15 al 21 de octubre.
+- Ruta del libro Tecnología 3, páginas 22–30, distribuida del 21 de septiembre al 7 de octubre y vinculada con las prácticas de Excel.
 - Selector de fecha dentro de cada módulo: muestra actividades, evidencia y bitácora específicas para cada día.
 
-## Abrir en Visual Studio Code
+## Abrir la página localmente
 
-1. Abra esta carpeta completa en Visual Studio Code.
-2. Entre a la carpeta `dist`.
-3. Abra `index.html`.
-4. Para verla como página, utilice la extensión Live Server y elija **Open with Live Server**.
-
-La guía completa para alumnos está en `dist/configurar-vscode.html`. La extensión recomendada es `ritwickdey.LiveServer`; si no hay internet puede instalarse desde un archivo `.vsix` previamente descargado por la docente o el responsable técnico. La alternativa sin extensión es guardar `index.html`, abrirlo con doble clic y actualizar con F5.
-
-La página también se puede revisar abriendo `dist/index.html` directamente en un navegador. No necesita instalar programas adicionales ni ejecutar comandos.
+Entre a `dist` y abra `index.html` en el navegador. No necesita instalar programas adicionales. Para la práctica del alumnado, la guía principal está en `dist/html-bloc-notas.html`: editar en Bloc de notas, guardar con Ctrl+S y actualizar el navegador con F5.
 
 ## Archivos que se editan
 
-- `dist/index.html`: textos, fechas, clases, objetivos y actividades.
+- `dist/index.html`: inicio sencillo tipo muro y acceso a la actividad actual.
 - `dist/primer-periodo.html`: portada y módulos completos del periodo.
 - `dist/clase.html`: plantilla automática de cada clase.
-- `dist/contenido-periodo.js`: contenido editable de las clases del periodo.
+- `dist/planeacion-actualizada.js`: secuencia, clases y actividades por día de la planeación vigente.
 - `dist/periodo.js` y `dist/clase.js`: creación automática de tarjetas y clases.
 - `dist/laboratorio-html.html`: práctica interactiva de HTML.
-- `dist/configurar-vscode.html`: guía paso a paso de VS Code, Go Live, solución de problemas y cierre de práctica.
+- `dist/practica-teclado-atajos.html`: práctica comprobable de teclas especiales y atajos.
+- `dist/html-bloc-notas.html`: guía principal para crear HTML sin instalar programas.
+- `dist/clases-septiembre.html`: archivo histórico de las actividades del 7, 8 y 9 de septiembre.
 - `dist/descargas/Plantilla_HTML_Tecnologia3.zip`: carpeta base para repartir al alumnado.
 - `dist/styles.css`: colores, tamaños y distribución.
 - `dist/script.js`: pestañas, selector de turno y casillas de los pasos de las clases iniciales.

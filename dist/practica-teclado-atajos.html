@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b4f71">
+  <title>Práctica guiada del teclado · Tecnología 3.º</title>
+  <link rel="stylesheet" href="practica-teclado.css">
+  <script src="practica-teclado.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#practica">Ir a la práctica</a>
+  <header class="topbar">
+    <a href="index.html" class="brand"><img src="assets/logo-miriam.png" alt=""><span><b>Tecnología 3.º</b><small>Práctica guiada del teclado</small></span></a>
+    <a class="back" href="clase.html?tema=teclado_excel">Volver a la clase</a>
+  </header>
+
+  <main id="practica">
+    <section class="welcome" id="welcome">
+      <p class="tag">ANTES DE EMPEZAR</p>
+      <h1>Aprende una tecla a la vez</h1>
+      <p>No necesitas saber computación. Lee una instrucción, pulsa la tecla y espera la señal verde.</p>
+      <div class="rules"><span>1. Lee</span><span>2. Pulsa</span><span>3. Comprueba</span><span>4. Continúa</span></div>
+      <p><strong>Importante:</strong> esta práctica no imprime ni envía archivos. El avance se guarda solamente en esta computadora.</p>
+      <button class="primary" id="start">Comenzar práctica</button>
+    </section>
+
+    <section class="practice" id="practice-panel" hidden>
+      <header class="progress-head">
+        <div><p class="tag">PRÁCTICA PASO A PASO</p><h1>Teclas especiales y atajos</h1></div>
+        <div class="counter"><strong id="step-count">Paso 1 de 20</strong><div class="bar"><span id="progress"></span></div></div>
+      </header>
+
+      <div class="workspace">
+        <aside class="instruction" aria-live="polite">
+          <span class="step-number" id="step-number">1</span>
+          <p class="tag" id="step-type">UBICA</p>
+          <h2 id="step-title">Haz clic en el documento</h2>
+          <p id="step-text">Coloca el cursor dentro del recuadro blanco.</p>
+          <div class="keys-to-press" id="keys-to-press"></div>
+          <p class="hint" id="hint">El cursor es la línea que parpadea.</p>
+          <div class="feedback" id="feedback">Esperando tu acción…</div>
+          <div class="actions"><button id="retry">Repetir paso</button><button class="primary" id="next" disabled>Siguiente</button></div>
+        </aside>
+
+        <section class="computer">
+          <div class="window-bar"><span>Documento de práctica</span><span id="save-state">Sin guardar</span></div>
+          <div class="toolbar"><button type="button" data-demo="find">Buscar</button><button type="button" data-demo="save">Guardar</button><span id="mode">Modo normal</span></div>
+          <textarea id="editor" spellcheck="false" aria-label="Documento de práctica">TECNOLOGÍA 3
+Aprendo a usar el teclado.
+Esta palabra tiene un herror.
+Dato para copiar.</textarea>
+          <div class="searchbox" id="searchbox" hidden><label>Buscar palabra <input id="search-input" value="teclado"></label><button id="close-search" type="button">Cerrar con Esc</button></div>
+          <p class="screen-help" id="screen-help">Haz clic en el texto antes de pulsar una tecla.</p>
+        </section>
+      </div>
+
+      <section class="keyboard" aria-label="Teclado de apoyo">
+        <p><strong>Teclado de apoyo:</strong> usa de preferencia el teclado físico. También puedes pulsar estos botones durante la explicación.</p>
+        <div id="keyboard-buttons"></div>
+      </section>
+      <section class="keyboard" aria-label="Otras teclas especiales">
+        <h2>Teclas que también debes reconocer</h2>
+        <p><strong>Alt:</strong> activa opciones o se combina con otra tecla. · <strong>Alt Gr:</strong> escribe el tercer símbolo, como @. · <strong>Bloq Mayús:</strong> mantiene mayúsculas.</p>
+        <p><strong>F1:</strong> ayuda. · <strong>F5:</strong> actualiza el navegador. · <strong>F11:</strong> pantalla completa. · <strong>F12:</strong> cambia según el programa; úsala solamente cuando se indique.</p>
+      </section>
+    </section>
+
+    <section class="finish" id="finish" hidden>
+      <p class="tag">PRÁCTICA TERMINADA</p><h1>¡Ya puedes usar el teclado con más seguridad!</h1>
+      <p>Mostraste que puedes escribir, corregir, moverte y usar atajos. Ahora aplica lo aprendido en Excel.</p>
+      <div class="excel-map"><article><b>Enter</b><span>Baja a la celda siguiente.</span></article><article><b>Tab</b><span>Avanza a la derecha.</span></article><article><b>Shift + Tab</b><span>Regresa a la izquierda.</span></article><article><b>F2</b><span>Edita la celda activa.</span></article><article><b>Ctrl + S</b><span>Guarda el archivo.</span></article><article><b>Supr</b><span>Borra el contenido seleccionado.</span></article></div>
+      <p class="notebook"><strong>En tu cuaderno:</strong> escribe tres teclas que ya dominas y una que necesitas practicar.</p>
+      <div class="finish-actions"><a class="primary link" href="clase.html?tema=teclado_excel">Continuar con Excel</a><button id="reset">Volver a practicar desde cero</button></div>
+    </section>
+  </main>
+</body>
+</html>

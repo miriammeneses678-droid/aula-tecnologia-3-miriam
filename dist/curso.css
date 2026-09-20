@@ -138,3 +138,5 @@
   .class-layout{display:block}.class-content,.class-sidebar>section,.teacher-guide{break-inside:avoid;box-shadow:none;margin-bottom:10px}
   .class-sidebar{display:grid;grid-template-columns:1fr 1fr}.teacher-guide{display:block}
 }
+/* Organización diferenciada de ambos turnos */
+.shift-plan{background:#e9f6f5!important;border-color:#8dc8c6!important}.shift-plan p{font-size:.92rem}
