@@ -6,18 +6,36 @@
   <meta name="theme-color" content="#0b4f71">
   <title>Práctica guiada del teclado · Tecnología 3.º</title>
   <link rel="stylesheet" href="practica-teclado.css">
+  <link rel="stylesheet" href="inicio-social.css">
+  <link rel="stylesheet" href="navegacion-comun.css">
   <style>.topbar .back{color:#fff;background:transparent;font:inherit;cursor:pointer}</style>
   <script src="navegacion-regreso.js" defer></script>
   <script src="practica-teclado.js" defer></script>
 </head>
-<body>
+<body class="social-body">
   <a class="skip" href="#practica">Ir a la práctica</a>
-  <header class="topbar">
-    <a href="index.html" class="brand"><img src="assets/logo-miriam.png" alt=""><span><b>Tecnología 3.º</b><small>Práctica guiada del teclado</small></span></a>
-    <button class="back" type="button" data-go-back>← Regresar</button>
+  <header class="social-topbar">
+    <a class="social-brand" href="index.html"><img src="assets/logo-miriam.png" alt=""><div><strong>Aula de Tecnología 3.º</strong><span>Escuela Secundaria Mixta 41</span></div></a>
+    <div class="social-topbar__center"><span>↹</span><strong>Práctica paso a paso</strong></div>
+    <button class="excel-home" type="button" data-go-back>← Regresar</button>
   </header>
 
-  <main id="practica">
+  <div class="tool-shell">
+    <aside class="social-left" aria-label="Menú principal">
+      <nav class="social-menu">
+        <a href="index.html"><span>⌂</span> Inicio</a>
+        <a href="index.html#aviso-familias"><span>★</span> Aviso a familias</a>
+        <a href="index.html#actividades-realizadas"><span>✓</span> Actividades realizadas</a>
+        <a href="teclado-interactivo.html"><span>⌨</span> Teclado interactivo</a>
+        <a class="active" href="practica-teclado-atajos.html"><span>↹</span> Práctica paso a paso</a>
+        <a href="excel-desde-cero.html"><span>▦</span> Excel desde cero</a>
+        <a href="index.html#proximamente"><span>→</span> Próximas actividades</a>
+        <a href="index.html#reglamento"><span>☰</span> Reglamento y evaluación</a>
+      </nav>
+      <section class="profile-card"><img src="assets/logo-miriam.png" alt=""><div><strong>Mtra. Miriam</strong><span>Educación Tecnológica</span></div></section>
+      <p class="privacy-note">No se necesita correo, cuenta ni celular. Las prácticas se guardan localmente en la computadora del taller.</p>
+    </aside>
+  <main class="practice-main tool-main" id="practica">
     <section class="welcome" id="welcome">
       <p class="tag">ANTES DE EMPEZAR</p>
       <h1>Aprende una tecla a la vez</h1>
@@ -76,5 +94,7 @@ Dato para copiar.</textarea>
       <div class="finish-actions"><a class="primary link" href="excel-desde-cero.html">Continuar con Excel</a><a class="link" href="index.html">Ir al inicio</a><button id="reset">Volver a practicar desde cero</button></div>
     </section>
   </main>
+  </div>
+  <nav class="mobile-nav"><a href="index.html">⌂<span>Inicio</span></a><a href="teclado-interactivo.html">⌨<span>Teclado</span></a><a href="excel-desde-cero.html">▦<span>Excel</span></a></nav>
 </body>
 </html>

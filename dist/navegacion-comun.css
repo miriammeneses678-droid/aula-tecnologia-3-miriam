@@ -1,0 +1,13 @@
+/* Navegación uniforme para el muro y todas las herramientas del aula. */
+.social-shell.excel-shell{grid-template-columns:250px minmax(0,760px) 310px}
+.tool-shell{max-width:1420px;margin:0 auto;display:grid;grid-template-columns:250px minmax(0,1fr);gap:1.25rem;padding:1.4rem 1.2rem 5rem}
+.tool-main{min-width:0;margin:0;padding:0}
+.tool-main.keyboard-page,.tool-main.practice-main{max-width:none}
+.excel-home{justify-self:end;padding:.55rem .8rem;color:#fff;background:transparent;border:1px solid #ffffff80;border-radius:9px;font:inherit;font-weight:800;cursor:pointer}
+@media(max-width:1160px){
+  .social-shell.excel-shell{grid-template-columns:220px minmax(0,760px)}
+  .tool-shell{grid-template-columns:220px minmax(0,1fr)}
+}
+@media(max-width:800px){
+  .social-shell.excel-shell,.tool-shell{display:block;padding:.8rem .7rem 5.5rem}
+}
