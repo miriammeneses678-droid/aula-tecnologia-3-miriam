@@ -4,7 +4,7 @@ window.INITIAL_DATA = {
     "teacher": "Mtra. Miriam Meneses Rojas",
     "subject": "Tecnología 3.º",
     "cycle": "2026–2027",
-    "version": "Firebase v9 — 14 oct 2026"
+    "version": "Firebase v10 — 14 oct 2026"
   },
   "periods": {
     "P1": {"name":"Primer periodo","weights":{"activities":60,"project":30,"exam":10},"closed":false},

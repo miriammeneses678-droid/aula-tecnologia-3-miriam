@@ -72,7 +72,46 @@
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>{const p=pending;pending=null;if(p)saveStateNow(p).catch(()=>{});},650);
   }
-  async function seedState(state){await saveStateNow(state)}
+  async function seedState(state){
+    if(!enabled) throw new Error('Firebase no disponible');
+    // En algunos navegadores auth.currentUser tarda un instante en reflejarse
+    // después del inicio de sesión. Esperamos explícitamente antes de sembrar.
+    let user=auth.currentUser;
+    if(!user) user=await waitForAuthState();
+    if(!user) throw new Error('No hay sesión autenticada');
+    emitStatus('sync','Subiendo base inicial…');
+    const snap=JSON.parse(JSON.stringify(state));
+    // Guardamos el documento de configuración primero. Así podemos verificar
+    // inmediatamente que Firestore aceptó la escritura.
+    await db.collection('system').doc('config').set({
+      meta:snap.meta||{},
+      periods:snap.periods||{},
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy:user.email||user.uid,
+      seededAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+
+    // Los grupos se escriben por separado para evitar que un error de un lote
+    // deje toda la carga inicial sin guardar y para facilitar la verificación.
+    for(const [key,g] of Object.entries(snap.groups||{})){
+      await db.collection('groups').doc(safeDocId(key)).set({
+        groupKey:key,
+        data:g,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      },{merge:true});
+    }
+    for(const x of (snap.journal||[])){
+      if(x?.id) await db.collection('journal').doc(String(x.id)).set(x,{merge:true});
+    }
+    for(const x of (snap.studentFollowups||[])){
+      if(x?.id) await db.collection('followups').doc(String(x.id)).set(x,{merge:true});
+    }
+    // Verificación real de lectura después de sembrar.
+    const check=await db.collection('system').doc('config').get({source:'server'});
+    if(!check.exists) throw new Error('La verificación de la carga inicial falló');
+    emitStatus('online','Base en línea lista');
+    return true;
+  }
   function onStatus(fn){statusListeners.push(fn)}
   window.CLOUD={enabled,waitForAuthState,login,logout,currentUser,loadState,queueSave,saveStateNow,seedState,onStatus};
 })();
