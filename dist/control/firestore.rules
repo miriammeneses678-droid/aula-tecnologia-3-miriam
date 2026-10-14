@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Etapa 1: solo usuarios creados manualmente en Firebase Authentication.
+    // No existe registro público dentro de la app.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

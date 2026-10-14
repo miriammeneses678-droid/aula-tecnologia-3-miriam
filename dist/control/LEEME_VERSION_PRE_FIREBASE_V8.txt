@@ -1,0 +1,19 @@
+SISTEMA DE CONTROL DE TECNOLOGÍA 3.º — PRE-FIREBASE V8
+Fecha: 14 octubre 2026
+
+CAMBIOS PRINCIPALES
+- Selector Primer / Segundo / Tercer periodo.
+- Cada periodo tiene encuadre independiente.
+- Primer periodo: 60% actividades, tareas y prácticas + 30% proyecto + 10% examen.
+- Actividades existentes quedan asignadas al Primer periodo.
+- Actividades nuevas se guardan en el periodo seleccionado.
+- Nueva sección Calificaciones.
+- Proyecto y examen se capturan por alumno.
+- Calificación provisional mientras falten componentes.
+- Calificación final cuando ya existen actividades, proyecto y examen.
+- Configuración de porcentajes por periodo (deben sumar 100).
+- Cerrar/Reabrir periodo para proteger calificaciones.
+- Bitácora y seguimiento individual quedan asociados al periodo seleccionado.
+
+IMPORTANTE
+Esta versión todavía usa almacenamiento local. Es la versión que se conectará posteriormente a Firebase/Firestore para uso desde cualquier computadora.

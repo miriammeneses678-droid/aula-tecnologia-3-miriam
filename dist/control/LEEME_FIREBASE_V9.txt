@@ -1,0 +1,18 @@
+SISTEMA DE CONTROL DE TECNOLOGÍA — V9 FIREBASE
+
+Proyecto Firebase: aula-tecnologia-3
+Estado: conectado a Authentication + Cloud Firestore.
+
+ANTES DE PUBLICAR EN GITHUB PAGES
+1. Firebase Console > Firestore > Reglas.
+2. Reemplazar las reglas por el contenido de firestore.rules y pulsar Publicar.
+3. Authentication > Usuarios: confirmar que existe el usuario docente.
+4. Subir TODOS los archivos de esta carpeta al repositorio/carpeta del sistema en GitHub Pages.
+5. Abrir la URL publicada. Aparecerá la pantalla Acceso docente.
+6. En el primer inicio, si Firestore está vacío, aceptar “Cargar base inicial”. Esto sube los alumnos/asistencias/actividades importados en data.js.
+
+IMPORTANTE
+- No existe registro libre de usuarios. Solo usuarios creados desde Firebase Console pueden iniciar sesión.
+- La firebaseConfig del navegador NO es una contraseña. La protección está en Authentication y las reglas de Firestore.
+- Esta etapa da acceso completo a cualquier usuario autenticado. Antes de habilitar cuentas para padres se sustituirán las reglas por permisos por rol/alumno.
+- El sistema conserva una copia local como respaldo de emergencia, pero Firestore es la fuente compartida entre equipos.

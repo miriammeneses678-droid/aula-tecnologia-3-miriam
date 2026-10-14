@@ -1,0 +1,11 @@
+SISTEMA DE CONTROL TECNOLOGÍA — PROTOTIPO 3
+
+Cambios principales:
+- Asistencia con Vista diaria y Vista mensual.
+- La Vista mensual muestra todos los días del mes; los días sin fecha registrada quedan en gris y NO cuentan como falta.
+- Cada grupo mantiene sus propias fechas de asistencia: crear una fecha en un grupo NO la replica en otros.
+- En la Vista mensual se puede hacer clic en una celda de una fecha registrada para alternar 1 → 0 → J → R → —.
+- Alta de alumno muestra claramente el turno/grupo seleccionado y pide confirmación antes de guardar.
+- Al registrar una nueva actividad, aparece automáticamente como una nueva columna en la Vista rápida de Actividades.
+
+IMPORTANTE: esta sigue siendo una versión local de prueba. Los datos se guardan en el navegador.

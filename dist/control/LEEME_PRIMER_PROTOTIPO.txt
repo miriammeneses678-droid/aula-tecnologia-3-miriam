@@ -1,0 +1,38 @@
+SISTEMA DE CONTROL — AULA DE TECNOLOGÍA 3.º
+Prototipo 1 · 09 de octubre de 2026
+
+Incluye:
+- Datos importados de los Excel de actividades y asistencia, Matutino y Vespertino.
+- Grupos 3.º A–E.
+- Tutoría 3.º C Matutino como espacio separado.
+- Lista maestra por grupo, ordenada alfabéticamente por apellidos.
+- Alta de alumno nuevo con aparición automática en asistencia y actividades.
+- Asistencia: 1, 0, J, R y — (no aplica).
+- Registro rápido de actividades: 10, 5, 0 y —.
+- Alta de nuevas actividades.
+- Bitácora con texto publicable y nota privada separada.
+- Seguimiento confidencial; las marcas ** existentes fueron importadas como bandera privada.
+- Modo proyección que oculta seguimiento y datos confidenciales.
+- Respaldo JSON desde el botón “Respaldo”.
+
+IMPORTANTE:
+Esta versión es un prototipo funcional local. Los cambios se guardan en el navegador del equipo mediante almacenamiento local. Todavía NO usa una base de datos en línea y NO debe considerarse aún la versión definitiva para datos sensibles.
+
+Prueba:
+1. Abre index.html en Chrome o Edge.
+2. Elige turno y grupo.
+3. Prueba Asistencia, Actividades, Bitácora y Modo proyección.
+4. Para Tutoría: Matutino > Grupo C > Espacio Tutoría.
+5. Usa “Respaldo” para descargar una copia de los cambios de prueba.
+
+Siguiente etapa prevista:
+- Ajustar interfaz con tus observaciones.
+- Conectar base de datos y autenticación.
+- Portal privado para familias.
+- Integración controlada con la página pública de actividades.
+
+CAMBIO PROTOTIPO 2
+- Actividades ahora se muestran en matriz completa: alumnos x todas las actividades.
+- Captura directa con 10, 5, 0 o — y navegación con Tab.
+- Al tocar el nombre del alumno se abre una revisión individual con todas sus actividades.
+- “Todos = 10” ahora pide elegir actividad y confirmar antes de aplicar.

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Control Docente | Aula de Tecnología 3.º</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo-miriam.png" alt="Logo Aula de Tecnología">
+    <div><strong>Aula de Tecnología 3.º</strong><span>Control docente · Ciclo 2026–2027</span></div>
+  </div>
+  <div class="top-actions">
+    <span id="cloudStatus" class="cloud-status">☁️ Conectando…</span>
+    <span id="userEmail" class="user-email private-only"></span>
+    <button id="logoutBtn" class="btn secondary private-only" style="display:none">Salir</button>
+    <button id="projectionBtn" class="btn projection">🖥️ Modo proyección</button>
+    <button id="exportBtn" class="btn secondary private-only">⬇ Respaldar</button>
+    <button id="importBtn" class="btn secondary private-only">⬆ Restaurar</button>
+    <input id="importFile" type="file" accept="application/json,.json" hidden>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="teacher-card private-only">
+      <img src="assets/logo-miriam.png" alt="">
+      <div><b>Mtra. Miriam Meneses Rojas</b><small>Tecnología · Mixta 41</small></div>
+    </div>
+    <div class="selectors">
+      <label>Turno<select id="shiftSelect"><option>Matutino</option><option>Vespertino</option></select></label>
+      <label>Grupo<select id="groupSelect"></select></label>
+      <label>Espacio<select id="courseSelect"></select></label>
+      <label>Periodo<select id="periodSelect"><option value="P1">Primer periodo</option><option value="P2">Segundo periodo</option><option value="P3">Tercer periodo</option></select></label>
+    </div>
+    <nav id="nav">
+      <button data-view="dashboard" class="active">⌂ Inicio</button>
+      <button data-view="attendance">✓ Asistencia</button>
+      <button data-view="activities">▦ Actividades</button>
+      <button data-view="grades">★ Calificaciones</button>
+      <button data-view="journal">✎ Bitácora</button>
+      <button data-view="students" class="private-only">♟ Alumnos</button>
+      <button data-view="followup" class="private-only">⚑ Seguimiento individual</button>
+    </nav>
+    <div class="sidebar-note private-only">Versión en línea conectada a Firebase. Los datos se guardan en Firestore y pueden consultarse desde tus equipos autorizados. Cada periodo conserva su propio encuadre, actividades, proyecto, examen y cierre.</div>
+  </aside>
+  <main id="app" class="main"></main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="cloud.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

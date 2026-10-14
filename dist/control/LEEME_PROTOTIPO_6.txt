@@ -1,0 +1,13 @@
+PROTOTIPO 6 — SEGUIMIENTO INDIVIDUAL
+
+Novedades:
+- Seguimiento individual por alumno.
+- Registro separado para comunicación a familia y nota privada docente.
+- Botón “Mejorar redacción” local como demostración de la futura IA.
+- Opción para marcar un aviso como visible para la familia.
+- Indicadores de “requiere seguimiento” y “dirección/prefectura informada”.
+- Historial individual por alumno.
+- Las notas privadas nunca se muestran en modo proyección.
+
+IMPORTANTE:
+Esta versión sigue siendo un prototipo local. Los datos se guardan en el navegador mediante localStorage. La publicación a familias todavía no envía nada fuera del equipo; únicamente marca qué mensajes deberán mostrarse en el futuro portal familiar.

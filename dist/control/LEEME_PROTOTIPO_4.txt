@@ -1,0 +1,10 @@
+SISTEMA DE CONTROL TECNOLOGÍA — PROTOTIPO 4
+
+Cambios principales:
+- Asistencia mensual ahora muestra por defecto SOLO los días en que diste clase a ese grupo.
+- Botón opcional “Todos los días” para ver el calendario mensual completo.
+- Cada grupo conserva sus propias fechas de asistencia.
+- Las fechas sin registro nunca cuentan como falta.
+- Las nuevas actividades siguen apareciendo automáticamente en la vista rápida de actividades.
+
+Abre index.html directamente en tu navegador.

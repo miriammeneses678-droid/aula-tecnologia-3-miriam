@@ -1,0 +1,13 @@
+SISTEMA DE CONTROL TECNOLOGÍA · PROTOTIPO 5 · 10 OCT 2026
+
+Cambios principales:
+- Asistencia > Vista mensual > Solo clases: ahora muestra ÚNICAMENTE fechas donde existe al menos un registro real 1/0/J/R para ese grupo. Las fechas creadas pero sin capturas ya no generan columnas vacías.
+- Cada grupo mantiene sus propias fechas de clase.
+- Vista 'Todos los días' queda disponible como opcional.
+- Actividades conserva la matriz general por alumno y todas las actividades nuevas se agregan como columnas automáticamente.
+- Alta de alumno: se asocia al Turno + Grupo seleccionados.
+- Bitácora: se agregó campo de notas rápidas, borrador para familias y botón 'Mejorar redacción'. En este prototipo funciona localmente como demostración; la conexión real a IA se hará al pasar el sistema a backend seguro.
+- Modo proyección sigue ocultando información confidencial.
+
+IMPORTANTE
+Esta versión sigue guardando los cambios en el navegador (localStorage). No es aún la versión final multiusuario/en línea. No usar todavía como repositorio único de información confidencial.

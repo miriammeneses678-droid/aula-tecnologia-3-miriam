@@ -1,0 +1,14 @@
+SISTEMA DE CONTROL DE TECNOLOGÍA — VERSIÓN OPERATIVA PARA CLASE
+
+Uso recomendado desde el martes:
+1. Abrir index.html siempre en el mismo navegador/equipo durante esta etapa local.
+2. Seleccionar Turno, Grupo y Espacio antes de capturar.
+3. En Asistencia, crear la fecha únicamente en el grupo que tuvo clase.
+4. En Actividades, capturar 10, 5, 0 o — directamente en la matriz.
+5. Al terminar la jornada, usar RESPALDAR y conservar el archivo JSON.
+6. Si cambia de computadora/navegador, usar RESTAURAR con el último respaldo.
+
+IMPORTANTE:
+- Los datos se guardan localmente en el navegador; todavía no están en una base de datos en línea.
+- No borrar datos del navegador ni usar modo incógnito para capturar.
+- Esta versión está pensada para comenzar con Asistencia y Actividades mientras se prepara la versión en línea para familias.
