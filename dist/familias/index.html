@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seguimiento familiar | Aula de Tecnología 3.º</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="family-top"><div class="family-brand"><img src="assets/logo-miriam.png" alt="Logo"><div><strong>Aula de Tecnología 3.º</strong><span>Seguimiento para familias · Ciclo 2026–2027</span></div></div></header>
+<main class="family-shell">
+<section id="loginCard" class="login-card">
+<div class="eyebrow">Acceso privado para familias</div><h1>Consulta el avance de tu hijo(a)</h1><p>Escribe la clave y el PIN proporcionados por la docente.</p>
+<label>Clave familiar<input id="code" autocomplete="off" placeholder="M41-C-ABC123"></label>
+<label>PIN<input id="pin" inputmode="numeric" maxlength="4" placeholder="0000"></label>
+<button id="enter" class="primary">Consultar avance</button><div id="error" class="error"></div>
+<p class="privacy">Este portal muestra únicamente información académica y comunicaciones destinadas a la familia. No muestra notas privadas de la docente.</p>
+</section>
+<section id="portal" hidden></section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body></html>
