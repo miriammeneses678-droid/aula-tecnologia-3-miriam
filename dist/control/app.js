@@ -29,7 +29,17 @@ function ensurePeriodData(){
     (g.activities||[]).forEach(a=>{if(!a.period){a.period='P1';changed=true}});
     (g.students||[]).forEach(st=>{if(!st.projectScores){st.projectScores={};changed=true}if(!st.examScores){st.examScores={};changed=true}});
   });
-  (state.journal||[]).forEach(x=>{if(!x.period){x.period='P1';changed=true}});
+  (state.journal||[]).forEach(x=>{
+    if(!x.period){x.period='P1';changed=true}
+    // Migración v13: conserva intacta cada bitácora existente y solo añade
+    // metadatos opcionales para publicación, alcance, edición y documentos.
+    if(!x.scope){x.scope='single';changed=true}
+    if(!Array.isArray(x.targets)){x.targets=[];changed=true}
+    if(typeof x.familyVisible!=='boolean'){x.familyVisible=!!x.publish;changed=true}
+    if(typeof x.classPage!=='boolean'){x.classPage=false;changed=true}
+    if(!Array.isArray(x.attachments)){x.attachments=[];changed=true}
+    if(typeof x.archived!=='boolean'){x.archived=false;changed=true}
+  });
   (state.studentFollowups||[]).forEach(x=>{if(!x.period){x.period='P1';changed=true}});
   return changed;
 }
@@ -164,9 +174,41 @@ function setScore(id,aid,v){if(!editableGuard())return;const s=grp().students.fi
 function markActivityAll(v){if(!editableGuard())return;const aid=window._activityId;if(!aid)return;grp().students.filter(s=>s.active).forEach(s=>{s.activityScores=s.activityScores||{};s.activityScores[aid]=v});save();renderActivities();toast('Actividad actualizada para el grupo')}
 function newActivity(){if(!editableGuard())return;modal(`<h2>Nueva actividad</h2><div class="field"><label>Nombre</label><input id="actName" placeholder="Ej. Práctica 5 — Función SI"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="actDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Valor máximo</label><input id="actMax" type="number" value="10" min="1"></div></div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="actDetail" placeholder="Descripción breve para usar después en el portal familiar y la página de clase."></textarea></div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createActivity()">Guardar actividad</button>`)}
 function createActivity(){const n=$('#actName').value.trim();if(!n)return toast('Escribe el nombre');const g=grp(),id='act-'+Date.now();g.activities.push({id,name:n,date:$('#actDate').value,maxScore:Number($('#actMax').value||10),detail:$('#actDetail').value.trim(),category:'Actividad',period:ui.period,active:true});g.students.forEach(s=>{s.activityScores=s.activityScores||{};s.activityScores[id]='NA'});window._activityId=id;save();closeModal();renderActivities();toast('Actividad creada')}
-function renderJournal(){const entries=state.journal.filter(j=>j.shift===ui.shift&&j.group===ui.group&&j.course===ui.course&&(j.period||'P1')===ui.period).sort((a,b)=>b.date.localeCompare(a.date));
- app.innerHTML=head('Bitácora de clase','Registra lo que realmente ocurrió; separa lo publicable de tus notas internas.',`<button class="btn primary private-only" onclick="openJournal()">+ Registrar clase</button>`)+`${entries.length?entries.map(j=>`<article class="card" style="margin-bottom:.8rem"><div class="eyebrow">${fmtDate(j.date)}</div><h2>${esc(j.title||'Clase')}</h2><div class="public-box"><b>Para publicar:</b><p>${esc(j.publicText||'Sin texto público')}</p>${j.pending?`<p><b>Pendiente:</b> ${esc(j.pending)}</p>`:''}</div><div class="private-box private-only" style="margin-top:.7rem"><b>Nota docente privada:</b><p>${esc(j.privateText||'Sin observaciones')}</p></div></article>`).join(''):'<div class="empty card">Aún no has registrado bitácoras para este grupo.</div>'}`;
+function journalTargetKey(shift,group,course){return `${shift}|3${group}|${course}`}
+function journalScopeLabel(j){
+  if(j.scope==='allTechnology')return 'Todos los grupos de Tecnología';
+  if(j.scope==='all')return 'Todos los grupos';
+  if(j.scope==='tutoring')return 'Tutoría';
+  if(j.scope==='selected')return 'Grupos seleccionados';
+  return `${j.shift||ui.shift} · 3°${j.group||ui.group} · ${j.course||ui.course}`;
 }
+function journalApplies(j){
+  if(j.archived)return false;
+  if((j.period||'P1')!==ui.period)return false;
+  const key=journalTargetKey(ui.shift,ui.group,ui.course);
+  if(j.scope==='all')return true;
+  if(j.scope==='allTechnology')return ui.course==='Tecnología';
+  if(j.scope==='tutoring')return ui.course==='Tutoría';
+  if(j.scope==='selected')return (j.targets||[]).includes(key);
+  return j.shift===ui.shift&&j.group===ui.group&&j.course===ui.course;
+}
+function journalAttachmentHtml(j){
+  const at=(j.attachments||[]).filter(a=>a?.url);
+  if(!at.length)return '';
+  return `<div class="journal-files"><b>Material adjunto</b>${at.map(a=>`<a class="journal-file" href="${esc(a.url)}" target="_blank" rel="noopener">📄 ${esc(a.title||'Abrir documento')}</a>`).join('')}</div>`;
+}
+function renderJournal(){
+ const entries=(state.journal||[]).filter(journalApplies).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.updatedAt||b.createdAt||'').localeCompare(String(a.updatedAt||a.createdAt||'')));
+ app.innerHTML=head('Bitácora de clase','Registra una vez, edita cuando lo necesites y decide si aplica a un grupo, varios grupos o a todos.',`<button class="btn primary private-only" onclick="openJournal()">+ Nueva publicación</button>`)+
+ `${entries.length?entries.map(j=>`<article class="card journal-card" style="margin-bottom:1rem">
+   <div class="journal-card-head"><div><div class="eyebrow">${fmtDate(j.date)} · ${esc(journalScopeLabel(j))}</div><h2>${esc(j.title||'Clase')}</h2></div><div class="toolbar private-only"><button class="btn secondary small" onclick="editJournal('${j.id}')">✏️ Editar</button><button class="btn ghost small" onclick="archiveJournal('${j.id}')">Archivar</button></div></div>
+   <div class="journal-grid">
+    <div class="public-box"><b>Información para alumnos y familias</b><p class="journal-text">${nl2br(j.publicText||'Sin texto público')}</p>${j.pending?`<div class="journal-pending"><b>Pendiente / tarea</b><p>${nl2br(j.pending)}</p></div>`:''}${journalAttachmentHtml(j)}<div class="journal-flags"><span class="badge ${j.familyVisible?'good':'neutral'}">${j.familyVisible?'Visible para familias':'No publicado a familias'}</span>${j.classPage?'<span class="badge good">Aula pública</span>':''}</div></div>
+    <div class="private-box private-only"><b>Nota docente privada</b><p class="journal-text">${nl2br(j.privateText||'Sin observaciones')}</p>${j.rawText?`<details><summary>Notas rápidas originales</summary><p class="journal-text">${nl2br(j.rawText)}</p></details>`:''}</div>
+   </div>
+ </article>`).join(''):'<div class="empty card">Aún no hay bitácoras aplicables a este grupo y periodo.</div>'}`;
+}
+function nl2br(s=''){return esc(s).replace(/\n/g,'<br>')}
 function improveFamilyDraft(){
  const raw=$('#jRaw')?.value.trim()||$('#jPublic')?.value.trim()||'';
  const pending=$('#jPending')?.value.trim()||'';
@@ -176,12 +218,54 @@ function improveFamilyDraft(){
  if(!/[.!?]$/.test(text))text+='.';
  let out=`Durante la clase de hoy, ${text.charAt(0).toLowerCase()+text.slice(1)}`;
  if(pending)out+=` Como seguimiento, queda pendiente: ${pending.charAt(0).toLowerCase()+pending.slice(1).replace(/[.!?]+$/,'')}.`;
- out+=' Se recomienda revisar el avance del trabajo para dar continuidad al aprendizaje en la siguiente sesión.';
+ out+=' Se agradece el acompañamiento de las familias para dar continuidad al trabajo y favorecer el avance del grupo.';
  $('#jPublic').value=out;
- toast('Borrador preparado. Revísalo antes de guardar.');
+ previewJournal();toast('Borrador preparado. Revísalo antes de publicar.');
 }
-function openJournal(){modal(`<h2>Bitácora de clase</h2><div class="form-grid"><div class="field"><label>Fecha</label><input id="jDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Título / tema</label><input id="jTitle" placeholder="Ej. Excel — Tabla de precios"></div></div><div class="field"><label>Notas rápidas de lo ocurrido</label><textarea id="jRaw" placeholder="Escribe como te salga: Hoy retomamos tabla de precios, varios no terminaron, expliqué multiplicación y autorrelleno..."></textarea></div><div class="field"><label>Pendiente / tarea</label><input id="jPending" placeholder="Ej. Terminar tabla de precios"></div><div class="public-box"><div class="toolbar" style="margin-bottom:.45rem"><b>Texto para alumnos/padres</b><button type="button" class="btn gold small" onclick="improveFamilyDraft()">✨ Mejorar redacción</button></div><textarea id="jPublic" style="width:100%;min-height:120px" placeholder="Aquí aparecerá el texto formal. Siempre puedes editarlo antes de guardar."></textarea><div class="small-note">En este prototipo el botón prepara un borrador local. En la versión en línea se conectará a IA con aprobación antes de publicar.</div></div><div class="field private-box" style="margin-top:.8rem"><label>Nota interna docente · NO se publica</label><textarea id="jPrivate" placeholder="Desvíos de planeación, observaciones generales del grupo, acuerdos internos..."></textarea></div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveJournal()">Guardar bitácora</button>`)}
-function saveJournal(){state.journal.push({id:'j-'+Date.now(),shift:ui.shift,group:ui.group,course:ui.course,period:ui.period,date:$('#jDate').value,title:$('#jTitle').value.trim(),rawText:$('#jRaw')?.value.trim()||'',publicText:$('#jPublic').value.trim(),pending:$('#jPending').value.trim(),privateText:$('#jPrivate').value.trim(),publish:false});save();closeModal();renderJournal();toast('Bitácora guardada')}
+function journalTargetOptions(existing){
+ const keys=Object.entries(state.groups||{}).map(([key,g])=>({key,g})).sort((a,b)=>`${a.g.shift}${a.g.group}${a.g.course}`.localeCompare(`${b.g.shift}${b.g.group}${b.g.course}`,'es'));
+ const selected=new Set(existing?.targets||[]);
+ return keys.map(({key,g})=>`<label class="target-check"><input type="checkbox" class="jTarget" value="${esc(key)}" ${selected.has(key)?'checked':''}> <span>${esc(g.shift)} · 3°${esc(g.group)} · ${esc(g.course)}</span></label>`).join('');
+}
+function attachmentRows(existing=[]){
+ const arr=[...(existing||[])]; while(arr.length<2)arr.push({title:'',url:''});
+ return arr.slice(0,4).map((a,i)=>`<div class="attachment-row"><input class="jAttTitle" placeholder="Nombre visible, ej. Actividades por incapacidad" value="${esc(a?.title||'')}"><input class="jAttUrl" type="url" placeholder="Pega aquí el enlace de Google Drive" value="${esc(a?.url||'')}"></div>`).join('');
+}
+function scopeOptions(j={}){const v=j.scope||'single';return `<option value="single" ${v==='single'?'selected':''}>Solo este grupo</option><option value="selected" ${v==='selected'?'selected':''}>Varios grupos seleccionados</option><option value="allTechnology" ${v==='allTechnology'?'selected':''}>Todos los grupos de Tecnología</option><option value="all" ${v==='all'?'selected':''}>Todos los grupos</option><option value="tutoring" ${v==='tutoring'?'selected':''}>Solo Tutoría</option>`}
+function openJournal(id=''){
+ const j=id?(state.journal||[]).find(x=>x.id===id):null;window._journalEditId=id||'';
+ const date=j?.date||new Date().toISOString().slice(0,10),title=j?.title||'',raw=j?.rawText||'',pending=j?.pending||'',pub=j?.publicText||'',priv=j?.privateText||'';
+ modal(`<h2>${j?'Editar publicación':'Nueva bitácora / publicación'}</h2>
+ <div class="form-grid"><div class="field"><label>Fecha</label><input id="jDate" type="date" value="${esc(date)}"></div><div class="field"><label>Título / tema</label><input id="jTitle" value="${esc(title)}" placeholder="Ej. Actividades por incapacidad"></div></div>
+ <div class="field"><label>¿Dónde debe aparecer?</label><select id="jScope" onchange="toggleJournalTargets()">${scopeOptions(j||{})}</select><div id="jTargetsWrap" class="target-box" style="display:none"><b>Selecciona los grupos</b><div class="target-grid">${journalTargetOptions(j)}</div></div></div>
+ <div class="field"><label>Notas rápidas de lo ocurrido</label><textarea id="jRaw" placeholder="Escribe como te salga; después puedes mejorar la redacción.">${esc(raw)}</textarea></div>
+ <div class="field"><label>Pendiente / tarea</label><textarea id="jPending" placeholder="Ej. Realizar las actividades del PDF durante esta semana.">${esc(pending)}</textarea></div>
+ <div class="public-box"><div class="toolbar" style="margin-bottom:.55rem"><b>Texto para alumnos/padres</b><button type="button" class="btn gold small" onclick="improveFamilyDraft()">✨ Mejorar redacción</button><button type="button" class="btn secondary small" onclick="previewJournal()">👁 Vista previa</button></div><textarea id="jPublic" style="width:100%;min-height:145px" placeholder="Texto formal que podrán leer las familias.">${esc(pub)}</textarea>
+ <div class="publish-options"><label><input id="jFamilyVisible" type="checkbox" ${j?.familyVisible?'checked':''}> Visible en el seguimiento de familias</label><label><input id="jClassPage" type="checkbox" ${j?.classPage?'checked':''}> Publicar también en mi Aula de Tecnología</label></div></div>
+ <div class="field"><label>📎 Documentos de Google Drive</label><div id="jAttachments">${attachmentRows(j?.attachments||[])}</div><div class="small-note">En Drive usa “Compartir → Cualquier persona con el enlace → Lector”. El sistema solo guarda el enlace; no modifica tu archivo.</div></div>
+ <div class="field private-box"><label>Nota interna docente · NO se publica</label><textarea id="jPrivate" placeholder="Observaciones internas, desvíos de planeación, acuerdos, etc.">${esc(priv)}</textarea></div>
+ <div id="jPreview" class="journal-preview" style="display:none"></div>`,
+ `<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveJournal()">${j?'Guardar cambios':'Guardar publicación'}</button>`);
+ toggleJournalTargets();
+}
+function editJournal(id){openJournal(id)}
+function toggleJournalTargets(){const w=$('#jTargetsWrap'),s=$('#jScope');if(w&&s)w.style.display=s.value==='selected'?'block':'none'}
+function readAttachments(){return [...document.querySelectorAll('.attachment-row')].map(r=>({title:r.querySelector('.jAttTitle')?.value.trim()||'',url:r.querySelector('.jAttUrl')?.value.trim()||''})).filter(a=>a.url)}
+function previewJournal(){const box=$('#jPreview');if(!box)return;const title=$('#jTitle')?.value.trim()||'Clase',pub=$('#jPublic')?.value.trim()||'Sin texto público',pending=$('#jPending')?.value.trim(),atts=readAttachments();box.style.display='block';box.innerHTML=`<div class="eyebrow">Vista previa para familias</div><h3>${esc(title)}</h3><p>${nl2br(pub)}</p>${pending?`<div class="journal-pending"><b>Pendiente / tarea</b><p>${nl2br(pending)}</p></div>`:''}${atts.length?`<div class="journal-files">${atts.map(a=>`<span class="journal-file">📄 ${esc(a.title||'Documento adjunto')}</span>`).join('')}</div>`:''}`}
+function saveJournal(){
+ const editId=window._journalEditId||'',existing=editId?(state.journal||[]).find(x=>x.id===editId):null;
+ const scope=$('#jScope').value,targets=scope==='selected'?[...document.querySelectorAll('.jTarget:checked')].map(x=>x.value):[];
+ if(scope==='selected'&&!targets.length)return toast('Selecciona al menos un grupo');
+ const classPage=$('#jClassPage').checked,familyVisible=$('#jFamilyVisible').checked||classPage;
+ const obj={
+   id:existing?.id||'j-'+Date.now(),shift:existing?.shift||ui.shift,group:existing?.group||ui.group,course:existing?.course||ui.course,period:existing?.period||ui.period,
+   date:$('#jDate').value,title:$('#jTitle').value.trim(),rawText:$('#jRaw').value.trim(),publicText:$('#jPublic').value.trim(),pending:$('#jPending').value.trim(),privateText:$('#jPrivate').value.trim(),
+   scope,targets,familyVisible,classPage,attachments:readAttachments(),publish:familyVisible,archived:false,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()
+ };
+ if(existing)Object.assign(existing,obj);else state.journal.push(obj);
+ save();window.CLOUD?.syncPublicJournal?.(state.journal).catch(()=>{});closeModal();renderJournal();toast(existing?'Publicación actualizada':'Bitácora guardada');
+}
+function archiveJournal(id){const j=(state.journal||[]).find(x=>x.id===id);if(!j)return;if(!confirm('¿Archivar esta publicación? No se borrará y podrás recuperarla desde un respaldo.'))return;j.archived=true;j.updatedAt=new Date().toISOString();save();window.CLOUD?.syncPublicJournal?.(state.journal).catch(()=>{});renderJournal();toast('Publicación archivada')}
 function normalizeGrade(v){v=String(v??'').trim().replace(',','.');if(v===''||v==='—'||v==='-'||v.toUpperCase()==='NA')return 'NA';const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=10?Math.round(n*10)/10:null}
 function gradeInput(st,type){const map=type==='project'?st.projectScores:st.examScores,raw=map?.[ui.period],v=(raw===undefined||raw==='NA')?'—':raw;return `<input class="grade-input" inputmode="decimal" value="${v}" data-student="${st.id}" data-type="${type}" ${isPeriodClosed()?'disabled':''}>`}
 function renderGrades(){
@@ -250,7 +334,7 @@ $('#projectionBtn').addEventListener('click',()=>{ui.projection=!ui.projection;d
 $('#exportBtn').addEventListener('click',exportBackup);
 $('#importBtn').addEventListener('click',()=>$('#importFile').click());
 $('#importFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importBackup(f);e.target.value='';});
-window.go=go;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
+window.go=go;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
 async function bootOnline(){
   const cloudStatus=$('#cloudStatus'),userEmail=$('#userEmail'),logoutBtn=$('#logoutBtn');
   function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
@@ -275,7 +359,7 @@ async function bootOnline(){
     }
   }catch(e){console.error(e);state=loadState();setCloud('error','Usando copia local');}
   const migrated=ensurePeriodData();
-  if(migrated&&window.CLOUD?.currentUser()){save();toast('Encuadres por espacio actualizados sin modificar actividades');}
+  if(migrated&&window.CLOUD?.currentUser()){save();toast('Actualización aplicada sin modificar tus registros existentes');}
   refreshSelectors();render();
 }
 bootOnline();

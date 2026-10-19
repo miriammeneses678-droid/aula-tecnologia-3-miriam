@@ -112,6 +112,25 @@
     emitStatus('online','Base en línea lista');
     return true;
   }
+
+  function publicJournalDoc(x){
+    return {
+      id:String(x.id),date:x.date||'',title:x.title||'',publicText:x.publicText||'',pending:x.pending||'',
+      scope:x.scope||'single',targets:Array.isArray(x.targets)?x.targets:[],shift:x.shift||'',group:x.group||'',course:x.course||'',period:x.period||'P1',
+      attachments:Array.isArray(x.attachments)?x.attachments.filter(a=>a&&a.url).map(a=>({title:a.title||'Documento adjunto',url:a.url})):[],
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+  }
+  async function syncPublicJournal(journal){
+    if(!enabled||!auth.currentUser)return;
+    const desired=(journal||[]).filter(x=>x&&x.id&&x.classPage&&!x.archived);
+    const existing=await db.collection('public_journal').get();
+    const desiredIds=new Set(desired.map(x=>String(x.id)));
+    const batch=db.batch();
+    existing.forEach(d=>{if(!desiredIds.has(d.id))batch.delete(d.ref)});
+    desired.forEach(x=>batch.set(db.collection('public_journal').doc(String(x.id)),publicJournalDoc(x),{merge:true}));
+    await batch.commit();
+  }
   function onStatus(fn){statusListeners.push(fn)}
-  window.CLOUD={enabled,waitForAuthState,login,logout,currentUser,loadState,queueSave,saveStateNow,seedState,onStatus};
+  window.CLOUD={enabled,waitForAuthState,login,logout,currentUser,loadState,queueSave,saveStateNow,seedState,syncPublicJournal,onStatus};
 })();
