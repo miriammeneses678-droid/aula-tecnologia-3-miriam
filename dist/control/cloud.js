@@ -131,6 +131,22 @@
     desired.forEach(x=>batch.set(db.collection('public_journal').doc(String(x.id)),publicJournalDoc(x),{merge:true}));
     await batch.commit();
   }
+  async function syncFamilyPortal(views){
+    if(!enabled||!auth.currentUser) throw new Error('No hay sesión autenticada');
+    const list=Array.isArray(views)?views.filter(v=>v&&v.docId&&v.data):[];
+    for(let i=0;i<list.length;i+=350){
+      const batch=db.batch();
+      list.slice(i,i+350).forEach(v=>{
+        batch.set(db.collection('family_portal').doc(String(v.docId)),{...v.data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+      });
+      await batch.commit();
+    }
+    return list.length;
+  }
+  async function deleteFamilyPortal(docId){
+    if(!enabled||!auth.currentUser||!docId)return;
+    await db.collection('family_portal').doc(String(docId)).delete();
+  }
   function onStatus(fn){statusListeners.push(fn)}
-  window.CLOUD={enabled,waitForAuthState,login,logout,currentUser,loadState,queueSave,saveStateNow,seedState,syncPublicJournal,onStatus};
+  window.CLOUD={enabled,waitForAuthState,login,logout,currentUser,loadState,queueSave,saveStateNow,seedState,syncPublicJournal,syncFamilyPortal,deleteFamilyPortal,onStatus};
 })();

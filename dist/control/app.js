@@ -27,7 +27,7 @@ function ensurePeriodData(){
   });
   Object.values(state.groups||{}).forEach(g=>{
     (g.activities||[]).forEach(a=>{if(!a.period){a.period='P1';changed=true}});
-    (g.students||[]).forEach(st=>{if(!st.projectScores){st.projectScores={};changed=true}if(!st.examScores){st.examScores={};changed=true}});
+    (g.students||[]).forEach(st=>{if(!st.projectScores){st.projectScores={};changed=true}if(!st.examScores){st.examScores={};changed=true}if(st.familyAccess===undefined){st.familyAccess=null;changed=true}});
   });
   // Migración v14: Proyecto y examen pasan de escala 0-10 a puntos reales del encuadre.
   // Se ejecuta una sola vez y no toca actividades, asistencia, bitácora ni seguimientos.
@@ -339,7 +339,7 @@ function togglePeriodClosed(){const c=periodCfg(),name=`${periodName()} de ${ui.
 function renderStudents(){const g=grp();app.innerHTML=head('Alumnos','Base maestra única del grupo. Alta, baja y seguimiento confidencial.',`<button class="btn primary" onclick="newStudent()">+ Nuevo alumno</button>`)+`<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Estado</th><th>Ingreso</th><th>Privado</th><th></th></tr></thead><tbody>${g.students.map(s=>`<tr><td>${s.listNo}</td><td class="student-name">${esc(s.name)}</td><td><span class="badge ${s.active?'good':'neutral'}">${s.active?'Activo':'Baja'}</span></td><td>${fmtDate(s.entryDate)}</td><td>${s.privateFlag?`<span class="badge warn">⚑ ${esc(s.privateCode||'Seguimiento')}</span>`:'—'}</td><td><button class="btn small secondary" onclick="editStudent('${s.id}')">Abrir</button></td></tr>`).join('')}</tbody></table></div>`}
 function newStudent(){modal(`<h2>Alta de alumno en 3°${esc(ui.group)} ${esc(ui.shift)}</h2><div class="field"><label>Apellidos y nombre(s)</label><input id="sName" placeholder="APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)"></div><div class="field"><label>Fecha de ingreso</label><input id="sDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="notice"><b>Destino:</b> 3°${esc(ui.group)} · ${esc(ui.shift)} · ${esc(ui.course)}<br>Se ordenará automáticamente por apellidos y aparecerá en asistencia y actividades. Lo anterior a su ingreso quedará como “—”.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createStudent()">Dar de alta</button>`)}
 function reNumber(g){g.students.sort((a,b)=>a.name.localeCompare(b.name,'es',{sensitivity:'base'}));g.students.forEach((s,i)=>s.listNo=i+1)}
-function createStudent(){const name=$('#sName').value.trim().replace(/\s+/g,' ').toUpperCase();if(!name)return toast('Escribe el nombre');if(!confirm(`¿Agregar a ${name} a 3°${ui.group} ${ui.shift}?`))return;const g=grp(),id='s-'+Date.now();const s={id,name,active:true,entryDate:$('#sDate').value,privateFlag:false,privateCode:'',privateNotes:'',activityScores:{},attendance:{},projectScores:{},examScores:{}};g.activities.forEach(a=>s.activityScores[a.id]='NA');g.attendanceDates.forEach(d=>s.attendance[d.id]='NA');g.students.push(s);reNumber(g);save();closeModal();renderStudents();toast(`Alumno agregado a 3°${ui.group} ${ui.shift}`)}
+function createStudent(){const name=$('#sName').value.trim().replace(/\s+/g,' ').toUpperCase();if(!name)return toast('Escribe el nombre');if(!confirm(`¿Agregar a ${name} a 3°${ui.group} ${ui.shift}?`))return;const g=grp(),id='s-'+Date.now();const s={id,name,active:true,entryDate:$('#sDate').value,privateFlag:false,privateCode:'',privateNotes:'',activityScores:{},attendance:{},projectScores:{},examScores:{},familyAccess:null};g.activities.forEach(a=>s.activityScores[a.id]='NA');g.attendanceDates.forEach(d=>s.attendance[d.id]='NA');g.students.push(s);reNumber(g);save();closeModal();renderStudents();toast(`Alumno agregado a 3°${ui.group} ${ui.shift}`)}
 function editStudent(id){const s=grp().students.find(x=>x.id===id);modal(`<h2>${esc(s.name)}</h2><div class="form-grid"><div class="field"><label>Estado</label><select id="eActive"><option value="1" ${s.active?'selected':''}>Activo</option><option value="0" ${!s.active?'selected':''}>Baja</option></select></div><div class="field"><label>Fecha de ingreso</label><input id="eDate" type="date" value="${s.entryDate||''}"></div></div><div class="private-box"><div class="field"><label>Código confidencial</label><input id="eCode" value="${esc(s.privateCode||'')}" placeholder="Ej. ** / SE / código interno"></div><div class="field"><label>Nota confidencial</label><textarea id="eNotes" placeholder="Solo hechos necesarios y orientaciones docentes. No visible en proyección ni portal familiar.">${esc(s.privateNotes||'')}</textarea></div></div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveStudent('${id}')">Guardar</button>`)}
 function saveStudent(id){const s=grp().students.find(x=>x.id===id);s.active=$('#eActive').value==='1';s.entryDate=$('#eDate').value;s.privateCode=$('#eCode').value.trim();s.privateNotes=$('#eNotes').value.trim();s.privateFlag=!!(s.privateCode||s.privateNotes);save();closeModal();renderStudents();toast('Ficha actualizada')}
 function followupsForStudent(studentId){return (state.studentFollowups||[]).filter(x=>x.studentId===studentId&&x.shift===ui.shift&&x.group===ui.group&&x.course===ui.course&&(x.period||'P1')===ui.period).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||''))}
@@ -376,8 +376,85 @@ function saveStudentFollowup(){
  state.studentFollowups.push({id:'sf-'+Date.now(),studentId:sid,shift:ui.shift,group:ui.group,course:ui.course,period:ui.period,date:$('#fDate').value,category:$('#fCategory').value,title:$('#fTitle').value.trim(),rawText:raw,familyText:family,privateText:priv,familyPublished:$('#fPublish').checked,requiresFollowup:$('#fFollow').checked,notifiedSchool:$('#fSchool').checked,createdAt:new Date().toISOString()});
  window._followStudent=sid;save();closeModal();renderFollowup();toast($('#fPublish').checked?'Registro guardado y marcado para familia':'Registro guardado');
 }
+function normalizeFamilySecret(v=''){return String(v).toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function randomChars(n){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',a=new Uint32Array(n);crypto.getRandomValues(a);return Array.from(a,x=>chars[x%chars.length]).join('')}
+function randomPin(){const a=new Uint32Array(1);crypto.getRandomValues(a);return String(1000+(a[0]%9000))}
+async function familyDocId(code,pin){const raw=`${normalizeFamilySecret(code)}|${String(pin).trim()}`;const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+function familyMasterGroup(){return state.groups[`${ui.shift}|3${ui.group}|Tecnología`]||grp()}
+function sameStudentByName(g,name){const n=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase();return (g?.students||[]).find(s=>String(s.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase()===n)}
+function periodGradeFor(st,g,pid,course){
+  const cfg=state.periods?.[pid]?.spaces?.[course]||state.periods?.[pid]?.spaces?.['Tecnología']||{weights:{activities:60,project:30,exam:10}};
+  const w=cfg.weights||{activities:60,project:30,exam:10};
+  const acts=(g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid);
+  const vals=acts.map(a=>st?.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');
+  const avg=vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null;
+  const ap=avg===null?null:Math.round((avg/10*Number(w.activities||0))*10)/10;
+  const rawP=st?.projectScores?.[pid],rawE=st?.examScores?.[pid];
+  const pp=(rawP===undefined||rawP===null||rawP===''||rawP==='NA')?null:Number(rawP);
+  const ep=(rawE===undefined||rawE===null||rawE===''||rawE==='NA')?null:Number(rawE);
+  const parts=[[ap,Number(w.activities||0)],[pp,Number(w.project||0)],[ep,Number(w.exam||0)]].filter(x=>x[1]>0);
+  const evaluated=parts.filter(x=>x[0]!==undefined&&x[0]!==null&&x[0]!==''&&x[0]!=='NA');
+  const earned=evaluated.reduce((t,x)=>t+Number(x[0]),0),used=evaluated.reduce((t,x)=>t+x[1],0);
+  const complete=parts.length>0&&parts.every(x=>x[0]!==undefined&&x[0]!==null&&x[0]!==''&&x[0]!=='NA');
+  return {weights:w,activityPoints:ap,activityAverage:avg,project:pp,exam:ep,earned,used,complete,grade:complete?earned/10:(used?earned/used*10:null)};
+}
+function journalAppliesTo(j,shift,group,course,pid){
+  if(j.archived||!j.familyVisible||(j.period||'P1')!==pid)return false;
+  const key=journalTargetKey(shift,group,course);
+  if(j.scope==='all')return true;
+  if(j.scope==='allTechnology')return course==='Tecnología';
+  if(j.scope==='tutoring')return course==='Tutoría';
+  if(j.scope==='selected')return (j.targets||[]).includes(key);
+  return j.shift===shift&&j.group===group&&j.course===course;
+}
+function familyCoursePayload(course,masterSt,pid){
+  const g=state.groups[`${ui.shift}|3${ui.group}|${course}`];if(!g)return null;
+  const st=course==='Tecnología'?masterSt:sameStudentByName(g,masterSt.name);if(!st)return null;
+  const acts=(g.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid).map(a=>{const raw=st.activityScores?.[a.id];return {name:a.name,date:a.date||'',score:raw===undefined||raw==='NA'?null:Number(raw),max:Number(a.maxScore||10),detail:a.detail||''}});
+  const grade=periodGradeFor(st,g,pid,course);
+  const followups=(state.studentFollowups||[]).filter(x=>x.familyPublished&&(x.period||'P1')===pid&&x.shift===ui.shift&&x.group===ui.group&&x.course===course&&(x.studentId===st.id||String(x.studentName||'')===String(st.name||''))).map(x=>({date:x.date||'',category:x.category||'Seguimiento',title:x.title||'Aviso',text:x.familyText||''})).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const journal=(state.journal||[]).filter(j=>journalAppliesTo(j,ui.shift,ui.group,course,pid)).map(j=>({date:j.date||'',title:j.title||'Aviso',text:j.publicText||'',pending:j.pending||'',attachments:(j.attachments||[]).filter(a=>a?.url).map(a=>({title:a.title||'Documento',url:a.url}))})).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  return {course,activities:acts,grade,followups,journal};
+}
+function buildFamilyView(masterSt){
+  const ag=familyMasterGroup();let present=0,absent=0,justified=0,late=0;
+  (ag.attendanceDates||[]).forEach(d=>{const v=masterSt.attendance?.[d.id];if(v==='1')present++;else if(v==='0')absent++;else if(v==='J')justified++;else if(v==='R')late++;});
+  const attendanceTotal=present+absent+justified+late;
+  const periods={};['P1','P2','P3'].forEach(pid=>{const courses={};['Tecnología','Tutoría'].forEach(c=>{const x=familyCoursePayload(c,masterSt,pid);if(x)courses[c]=x});periods[pid]={name:state.periods?.[pid]?.name||pid,courses}});
+  return {student:{name:masterSt.name,group:`3°${ui.group}`,shift:ui.shift},attendance:{present,absent,justified,late,total:attendanceTotal,percentage:attendanceTotal?Math.round((present+justified)/attendanceTotal*100):null},periods,cycle:'2026–2027',updatedLabel:new Date().toLocaleString('es-MX')};
+}
+async function generateFamilyAccess(studentId,regenerate=false){
+  const g=familyMasterGroup(),st=g.students.find(s=>s.id===studentId);if(!st)return;
+  const old=st.familyAccess?.docId||'';
+  if(old&&!regenerate){toast('Este alumno ya tiene clave familiar');return}
+  if(old&&regenerate&&!confirm(`¿Regenerar la clave de ${st.name}? La clave anterior dejará de funcionar.`))return;
+  const code=`M41-${ui.group}-${randomChars(6)}`,pin=randomPin(),docId=await familyDocId(code,pin);
+  st.familyAccess={code,pin,docId,createdAt:new Date().toISOString()};save();
+  if(old&&window.CLOUD?.deleteFamilyPortal)await window.CLOUD.deleteFamilyPortal(old).catch(()=>{});
+  await syncOneFamily(studentId,false);renderFamilies();toast('Clave familiar generada');
+}
+async function generateMissingFamilyAccess(){
+  const g=familyMasterGroup();for(const st of g.students.filter(s=>s.active&&!s.familyAccess)){const code=`M41-${ui.group}-${randomChars(6)}`,pin=randomPin(),docId=await familyDocId(code,pin);st.familyAccess={code,pin,docId,createdAt:new Date().toISOString()}}save();await syncFamilyGroup(false);renderFamilies();toast('Claves generadas y portal actualizado');
+}
+async function syncOneFamily(studentId,show=true){
+  const g=familyMasterGroup(),st=g.students.find(s=>s.id===studentId);if(!st?.familyAccess?.docId)return;
+  const data=buildFamilyView(st);await window.CLOUD.syncFamilyPortal([{docId:st.familyAccess.docId,data}]);st.familyAccess.lastSync=new Date().toISOString();save();if(show)toast('Ficha familiar actualizada');
+}
+async function syncFamilyGroup(show=true){
+  const g=familyMasterGroup(),active=g.students.filter(s=>s.active&&s.familyAccess?.docId),views=active.map(st=>({docId:st.familyAccess.docId,data:buildFamilyView(st)}));
+  if(!views.length){if(show)toast('Primero genera las claves familiares');return}
+  await window.CLOUD.syncFamilyPortal(views);const now=new Date().toISOString();active.forEach(st=>st.familyAccess.lastSync=now);save();if(show)toast(`${views.length} fichas familiares actualizadas`);
+}
+function familyPortalUrl(){return location.href.replace(/\/control\/?(?:#.*)?$/,'/familias/').replace(/\/control\/.*$/,'/familias/')}
+async function copyFamilyCredentials(id){const st=familyMasterGroup().students.find(s=>s.id===id);if(!st?.familyAccess)return;const text=`Aula de Tecnología 3.º\nAlumno(a): ${st.name}\nPortal: ${familyPortalUrl()}\nClave: ${st.familyAccess.code}\nPIN: ${st.familyAccess.pin}`;try{await navigator.clipboard.writeText(text);toast('Datos de acceso copiados')}catch(e){prompt('Copia estos datos:',text)}}
+function renderFamilies(){
+  const g=familyMasterGroup(),students=g.students.filter(s=>s.active);
+  const rows=students.map(st=>{const a=st.familyAccess;return `<tr><td class="num">${st.listNo}</td><td class="student-name">${esc(st.name)}</td><td>${a?`<code>${esc(a.code)}</code>`:'—'}</td><td>${a?`<b>${esc(a.pin)}</b>`:'—'}</td><td>${a?.lastSync?`<span class="badge good">Actualizado</span><small class="grade-state">${new Date(a.lastSync).toLocaleString('es-MX')}</small>`:'<span class="badge neutral">Sin sincronizar</span>'}</td><td><div class="toolbar family-actions">${!a?`<button class="btn primary small" onclick="generateFamilyAccess('${st.id}')">Generar</button>`:`<button class="btn secondary small" onclick="copyFamilyCredentials('${st.id}')">Copiar acceso</button><button class="btn secondary small" onclick="syncOneFamily('${st.id}')">Actualizar</button><button class="btn ghost small" onclick="generateFamilyAccess('${st.id}',true)">Regenerar</button>`}</div></td></tr>`}).join('');
+  app.innerHTML=head('Portal de familias','Cada familia recibe una clave y PIN únicos. La ficha pública nunca incluye notas privadas ni códigos confidenciales.',`<a class="btn secondary private-only" href="${esc(familyPortalUrl())}" target="_blank" rel="noopener">Abrir portal familiar</a>`)+`<div class="notice private-only"><b>Seguridad:</b> las familias solo pueden consultar una ficha si conocen la combinación exacta de clave + PIN. Firestore no permite listar estas fichas públicamente.</div><div class="toolbar private-only" style="margin-top:1rem"><button class="btn primary" onclick="generateMissingFamilyAccess()">Generar claves faltantes</button><button class="btn gold" onclick="syncFamilyGroup()">Actualizar portal del grupo</button></div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Clave</th><th>PIN</th><th>Portal</th><th>Acciones</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
 function go(v){ui.view=v;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));render()}
-function render(){refreshSelectors();if(ui.view==='dashboard')renderDashboard();if(ui.view==='attendance')renderAttendance();if(ui.view==='activities')renderActivities();if(ui.view==='grades')renderGrades();if(ui.view==='journal')renderJournal();if(ui.view==='students')renderStudents();if(ui.view==='followup')renderFollowup();}
+function render(){refreshSelectors();if(ui.view==='dashboard')renderDashboard();if(ui.view==='attendance')renderAttendance();if(ui.view==='activities')renderActivities();if(ui.view==='grades')renderGrades();if(ui.view==='journal')renderJournal();if(ui.view==='students')renderStudents();if(ui.view==='followup')renderFollowup();if(ui.view==='families')renderFamilies();}
 function modal(body,actions=''){const b=document.createElement('div');b.className='modal-backdrop';b.id='modal';b.innerHTML=`<div class="modal">${body}<div class="modal-actions">${actions}</div></div>`;document.body.appendChild(b)}function closeModal(){$('#modal')?.remove()}
 function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`respaldo-tecnologia-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);toast('Respaldo descargado. Guárdalo en una carpeta segura.')}
 function importBackup(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const incoming=JSON.parse(r.result);if(!incoming||typeof incoming!=='object'||!incoming.groups)throw new Error('Formato inválido');if(!confirm('¿Restaurar este respaldo? Los datos actuales de este navegador serán reemplazados.'))return;state=incoming;ensurePeriodData();save();window._attDate='';window._activityId='';window._followStudent='';render();toast('Respaldo restaurado correctamente');}catch(e){alert('No se pudo restaurar el archivo. Verifica que sea un respaldo generado por este sistema.');}};r.readAsText(file);}
@@ -386,11 +463,11 @@ $('#groupSelect').addEventListener('change',e=>{ui.group=e.target.value;ui.cours
 $('#courseSelect').addEventListener('change',e=>{ui.course=e.target.value;window._attDate='';window._activityId='';render()});
 $('#periodSelect').addEventListener('change',e=>{ui.period=e.target.value;window._activityId='';window._followStudent='';render()});
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('button[data-view]');if(b)go(b.dataset.view)});
-$('#projectionBtn').addEventListener('click',()=>{ui.projection=!ui.projection;document.body.classList.toggle('projection-mode',ui.projection);$('#projectionBtn').textContent=ui.projection?'🔒 Salir de proyección':'🖥️ Modo proyección';if(ui.projection&&(ui.view==='students'||ui.view==='followup'))go('dashboard');else render()});
+$('#projectionBtn').addEventListener('click',()=>{ui.projection=!ui.projection;document.body.classList.toggle('projection-mode',ui.projection);$('#projectionBtn').textContent=ui.projection?'🔒 Salir de proyección':'🖥️ Modo proyección';if(ui.projection&&(ui.view==='students'||ui.view==='followup'||ui.view==='families'))go('dashboard');else render()});
 $('#exportBtn').addEventListener('click',exportBackup);
 $('#importBtn').addEventListener('click',()=>$('#importFile').click());
 $('#importFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importBackup(f);e.target.value='';});
-window.go=go;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
+window.go=go;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
 async function bootOnline(){
   const cloudStatus=$('#cloudStatus'),userEmail=$('#userEmail'),logoutBtn=$('#logoutBtn');
   function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
