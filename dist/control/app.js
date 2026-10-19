@@ -29,6 +29,29 @@ function ensurePeriodData(){
     (g.activities||[]).forEach(a=>{if(!a.period){a.period='P1';changed=true}});
     (g.students||[]).forEach(st=>{if(!st.projectScores){st.projectScores={};changed=true}if(!st.examScores){st.examScores={};changed=true}});
   });
+  // Migración v14: Proyecto y examen pasan de escala 0-10 a puntos reales del encuadre.
+  // Se ejecuta una sola vez y no toca actividades, asistencia, bitácora ni seguimientos.
+  state.meta=state.meta||{};
+  if(!state.meta.gradePointsV14){
+    Object.values(state.groups||{}).forEach(g=>{
+      const course=g.course||'Tecnología';
+      (g.students||[]).forEach(st=>{
+        ['P1','P2','P3'].forEach(pid=>{
+          const pcfg=state.periods?.[pid]?.spaces?.[course]||state.periods?.[pid]?.spaces?.['Tecnología'];
+          const w=pcfg?.weights||{activities:60,project:30,exam:10};
+          const pv=st.projectScores?.[pid];
+          const ev=st.examScores?.[pid];
+          if(pv!==undefined&&pv!==null&&pv!==''&&pv!=='NA'&&Number(w.project||0)>0){
+            st.projectScores[pid]=Math.round((Number(pv)/10*Number(w.project))*10)/10;
+          }
+          if(ev!==undefined&&ev!==null&&ev!==''&&ev!=='NA'&&Number(w.exam||0)>0){
+            st.examScores[pid]=Math.round((Number(ev)/10*Number(w.exam))*10)/10;
+          }
+        });
+      });
+    });
+    state.meta.gradePointsV14=true;changed=true;
+  }
   (state.journal||[]).forEach(x=>{
     if(!x.period){x.period='P1';changed=true}
     // Migración v13: conserva intacta cada bitácora existente y solo añade
@@ -65,7 +88,21 @@ function periodActivities(g=grp()){return (g?.activities||[]).filter(a=>a.active
 function isPeriodClosed(){return !!periodCfg().closed}
 function editableGuard(){if(isPeriodClosed()){toast(`Este periodo de ${ui.course} está cerrado. Reábrelo para modificar datos.`);return false}return true}
 function avgActivities(st,g=grp()){const acts=periodActivities(g);const vals=acts.map(a=>st.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');return vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null}
-function gradeCalc(st){const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};const a=avgActivities(st),p=st.projectScores?.[ui.period],e=st.examScores?.[ui.period];const all=[['activities',a,Number(w.activities||0)],['project',p,Number(w.project||0)],['exam',e,Number(w.exam||0)]];const required=all.filter(x=>x[2]>0);const evaluated=required.filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');const used=evaluated.reduce((t,x)=>t+x[2],0);const weighted=evaluated.reduce((t,x)=>t+Number(x[1])*x[2]/100,0);const provisional=used?weighted/(used/100):null;const complete=required.length>0&&required.every(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');const final=complete?required.reduce((t,x)=>t+Number(x[1])*x[2]/100,0):null;return{a,p,e,provisional,final,complete,used}}
+function gradeCalc(st){
+  const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};
+  const a=avgActivities(st),p=st.projectScores?.[ui.period],e=st.examScores?.[ui.period];
+  const activityPoints=a===null?null:Math.round((Number(a)/10*Number(w.activities||0))*10)/10;
+  const all=[['activities',activityPoints,Number(w.activities||0)],['project',p,Number(w.project||0)],['exam',e,Number(w.exam||0)]];
+  const required=all.filter(x=>x[2]>0);
+  const evaluated=required.filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');
+  const used=evaluated.reduce((t,x)=>t+x[2],0);
+  const earned=evaluated.reduce((t,x)=>t+Number(x[1]),0);
+  const provisional=used?earned/used*10:null;
+  const complete=required.length>0&&required.every(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');
+  const totalPoints=complete?required.reduce((t,x)=>t+Number(x[1]),0):null;
+  const final=complete?totalPoints/10:null;
+  return{a,activityPoints,p,e,provisional,final,totalPoints,complete,used,earned};
+}
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function fmtDate(s){if(!s)return 'Sin fecha';const d=new Date(s+'T12:00:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}
 function refreshSelectors(){
@@ -266,17 +303,36 @@ function saveJournal(){
  save();window.CLOUD?.syncPublicJournal?.(state.journal).catch(()=>{});closeModal();renderJournal();toast(existing?'Publicación actualizada':'Bitácora guardada');
 }
 function archiveJournal(id){const j=(state.journal||[]).find(x=>x.id===id);if(!j)return;if(!confirm('¿Archivar esta publicación? No se borrará y podrás recuperarla desde un respaldo.'))return;j.archived=true;j.updatedAt=new Date().toISOString();save();window.CLOUD?.syncPublicJournal?.(state.journal).catch(()=>{});renderJournal();toast('Publicación archivada')}
-function normalizeGrade(v){v=String(v??'').trim().replace(',','.');if(v===''||v==='—'||v==='-'||v.toUpperCase()==='NA')return 'NA';const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=10?Math.round(n*10)/10:null}
-function gradeInput(st,type){const map=type==='project'?st.projectScores:st.examScores,raw=map?.[ui.period],v=(raw===undefined||raw==='NA')?'—':raw;return `<input class="grade-input" inputmode="decimal" value="${v}" data-student="${st.id}" data-type="${type}" ${isPeriodClosed()?'disabled':''}>`}
+function normalizePoints(v,max){
+  v=String(v??'').trim().replace(',','.');
+  if(v===''||v==='—'||v==='-'||v.toUpperCase()==='NA')return 'NA';
+  const n=Number(v),m=Number(max||0);
+  return Number.isFinite(n)&&n>=0&&n<=m?Math.round(n*10)/10:null;
+}
+function gradeInput(st,type){
+  const map=type==='project'?st.projectScores:st.examScores,raw=map?.[ui.period],v=(raw===undefined||raw==='NA')?'—':raw;
+  const w=periodCfg().weights||{},max=type==='project'?Number(w.project||0):Number(w.exam||0);
+  return `<input class="grade-input" inputmode="decimal" value="${v}" data-student="${st.id}" data-type="${type}" data-max="${max}" min="0" max="${max}" title="Captura de 0 a ${max} puntos" ${isPeriodClosed()?'disabled':''}>`;
+}
 function renderGrades(){
  const g=grp();if(!g)return;const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};
  const showProject=Number(w.project||0)>0,showExam=Number(w.exam||0)>0;
- const rows=g.students.filter(s=>s.active).map(s=>{const c=gradeCalc(s),a=c.a===null?'—':c.a.toFixed(1),p=(c.p===undefined||c.p==='NA')?'—':c.p,e=(c.e===undefined||c.e==='NA')?'—':c.e,shown=c.complete?c.final.toFixed(1):(c.provisional===null?'—':c.provisional.toFixed(1));return `<tr><td class="num">${s.listNo}</td><td class="student-name">${esc(s.name)}${s.privateFlag?'<span class="private-flag private-only">⚑</span>':''}</td><td>${a}</td>${showProject?`<td>${gradeInput(s,'project')}</td>`:''}${showExam?`<td>${gradeInput(s,'exam')}</td>`:''}<td><b>${shown}</b><small class="grade-state">${c.complete?'Final':'Provisional'}</small></td></tr>`}).join('');
- const formula=[`${w.activities}% actividades/tareas/prácticas`,showProject?`${w.project}% proyecto`:'',showExam?`${w.exam}% examen`:''].filter(Boolean).join(' · ');
- app.innerHTML=head('Calificaciones',`${periodName()} · ${ui.course} · ${formula}`,`<button class="btn secondary private-only" onclick="configurePeriod()">⚙ Encuadre</button><button class="btn ${isPeriodClosed()?'gold':'danger'} private-only" onclick="togglePeriodClosed()">${isPeriodClosed()?'Reabrir periodo':'Cerrar periodo'}</button>`)+`<div class="period-strip ${isPeriodClosed()?'period-closed':''}"><div><b>${esc(periodName())} · ${esc(ui.course)}</b><span>${isPeriodClosed()?'Las calificaciones de este espacio están protegidas contra cambios.':'Puedes capturar los componentes de evaluación directamente. Las actividades se calculan desde la matriz.'}</span></div><span class="badge ${isPeriodClosed()?'bad':'good'}">${isPeriodClosed()?'Cerrado':'Abierto'}</span></div><div class="notice">La calificación <b>provisional</b> usa únicamente componentes ya evaluados y repondera temporalmente sus porcentajes. La <b>final</b> aparece cuando todos los componentes con porcentaje mayor a 0 tienen calificación.</div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Prom. actividades<br><small>${w.activities}%</small></th>${showProject?`<th>Proyecto<br><small>${w.project}%</small></th>`:''}${showExam?`<th>Examen<br><small>${w.exam}%</small></th>`:''}<th>Calificación</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+ const rows=g.students.filter(s=>s.active).map(s=>{
+   const c=gradeCalc(s),a=c.a===null?'—':`${c.activityPoints.toFixed(1)} / ${w.activities}<small class="grade-state">Promedio ${c.a.toFixed(1)}/10</small>`,p=(c.p===undefined||c.p==='NA')?'—':c.p,e=(c.e===undefined||c.e==='NA')?'—':c.e,shown=c.complete?c.final.toFixed(1):(c.provisional===null?'—':c.provisional.toFixed(1));
+   const total=c.complete?`${c.totalPoints.toFixed(1)} / 100`:`${c.earned.toFixed(1)} / ${c.used}`;
+   return `<tr><td class="num">${s.listNo}</td><td class="student-name">${esc(s.name)}${s.privateFlag?'<span class="private-flag private-only">⚑</span>':''}</td><td><b>${a}</b></td>${showProject?`<td>${gradeInput(s,'project')}<small class="grade-state">de ${w.project} puntos</small></td>`:''}${showExam?`<td>${gradeInput(s,'exam')}<small class="grade-state">de ${w.exam} puntos</small></td>`:''}<td><b>${total}</b><small class="grade-state">Puntos</small></td><td><b>${shown}</b><small class="grade-state">${c.complete?'Final':'Provisional'}</small></td></tr>`
+ }).join('');
+ const formula=[`${w.activities} puntos actividades/tareas/prácticas`,showProject?`${w.project} puntos proyecto`:'',showExam?`${w.exam} puntos examen`:''].filter(Boolean).join(' · ');
+ app.innerHTML=head('Calificaciones',`${periodName()} · ${ui.course} · ${formula}`,`<button class="btn secondary private-only" onclick="configurePeriod()">⚙ Encuadre</button><button class="btn ${isPeriodClosed()?'gold':'danger'} private-only" onclick="togglePeriodClosed()">${isPeriodClosed()?'Reabrir periodo':'Cerrar periodo'}</button>`)+`<div class="period-strip ${isPeriodClosed()?'period-closed':''}"><div><b>${esc(periodName())} · ${esc(ui.course)}</b><span>${isPeriodClosed()?'Las calificaciones de este espacio están protegidas contra cambios.':'Las actividades se calculan automáticamente. Proyecto y examen se capturan directamente en puntos del encuadre.'}</span></div><span class="badge ${isPeriodClosed()?'bad':'good'}">${isPeriodClosed()?'Cerrado':'Abierto'}</span></div><div class="notice"><b>Captura por puntos:</b> actividades hasta ${w.activities}, ${showProject?`proyecto hasta ${w.project}`:''}${showProject&&showExam?' y ':''}${showExam?`examen hasta ${w.exam}`:''}. <b>Vacío (—)</b> significa aún no evaluado; <b>0</b> significa evaluado sin puntos. La calificación final es puntos totales ÷ 10.</div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Actividades<br><small>máx. ${w.activities}</small></th>${showProject?`<th>Proyecto<br><small>0–${w.project}</small></th>`:''}${showExam?`<th>Examen<br><small>0–${w.exam}</small></th>`:''}<th>Total</th><th>Calificación</th></tr></thead><tbody>${rows}</tbody></table></div>`;
  document.querySelectorAll('.grade-input').forEach(i=>{i.addEventListener('change',()=>commitGrade(i));i.addEventListener('keydown',e=>{if(e.key==='Enter'){i.blur()}})});
 }
-function commitGrade(inp){if(!editableGuard())return;const v=normalizeGrade(inp.value);if(v===null){toast('Usa una calificación de 0 a 10 o —');renderGrades();return}const st=grp().students.find(s=>s.id===inp.dataset.student);if(!st)return;const map=inp.dataset.type==='project'?st.projectScores:st.examScores;map[ui.period]=v;save();renderGrades();}
+function commitGrade(inp){
+  if(!editableGuard())return;
+  const max=Number(inp.dataset.max||0),v=normalizePoints(inp.value,max);
+  if(v===null){toast(`Usa un valor de 0 a ${max} o —`);renderGrades();return}
+  const st=grp().students.find(s=>s.id===inp.dataset.student);if(!st)return;
+  const map=inp.dataset.type==='project'?st.projectScores:st.examScores;map[ui.period]=v;save();renderGrades();
+}
 function configurePeriod(){const c=periodCfg(),w=c.weights;modal(`<h2>Encuadre · ${esc(periodName())} · ${esc(ui.course)}</h2><div class="form-grid"><div class="field"><label>Actividades, tareas y prácticas (%)</label><input id="wActivities" type="number" min="0" max="100" value="${w.activities}"></div><div class="field"><label>Proyecto (%)</label><input id="wProject" type="number" min="0" max="100" value="${w.project}"></div><div class="field"><label>Examen (%)</label><input id="wExam" type="number" min="0" max="100" value="${w.exam}"></div></div><div class="notice">Los tres porcentajes deben sumar 100. Cada <b>periodo y espacio</b> conserva su propio encuadre. Cambiar estos porcentajes no modifica las actividades que ya capturaste.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="savePeriodConfig()">Guardar encuadre</button>`)}
 function savePeriodConfig(){const a=Number($('#wActivities').value),p=Number($('#wProject').value),e=Number($('#wExam').value);if(a+p+e!==100)return toast('Los porcentajes deben sumar 100');periodCfg().weights={activities:a,project:p,exam:e};save();closeModal();renderGrades();toast(`Encuadre de ${ui.course} actualizado`)}
 function togglePeriodClosed(){const c=periodCfg(),name=`${periodName()} de ${ui.course}`;if(c.closed){if(!confirm(`¿Reabrir ${name}? Volverás a poder modificar sus calificaciones.`))return;c.closed=false}else{if(!confirm(`¿Cerrar ${name}? Se bloqueará la edición de actividades, proyecto y examen de este espacio hasta que lo reabras.`))return;c.closed=true}save();renderGrades();toast(c.closed?'Periodo cerrado':'Periodo reabierto')}
