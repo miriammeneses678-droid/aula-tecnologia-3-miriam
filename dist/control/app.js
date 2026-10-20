@@ -250,9 +250,9 @@ function manageActivities(){
   const rows=items.length?items.map(a=>{
     const copies=activityCopies(a.id).length;
     const archived=a.active===false;
-    return `<div class="review-item"><div><b>${esc(a.name)}</b><small>${a.date?fmtDate(a.date):'Sin fecha'} · ${copies===1?'1 grupo':copies+' grupos'} · ${archived?'Archivada':'Activa'}</small></div><div class="status-pills"><button class="btn secondary small" onclick="editActivity('${a.id}')">Editar actividad</button><button class="btn secondary small" onclick="toggleArchiveActivity('${a.id}')">${archived?'Reactivar actividad':'Archivar actividad'}</button><button class="btn danger small" onclick="deleteActivity('${a.id}')">Eliminar actividad</button></div></div>`;
+    return `<div class="activity-admin-item"><div class="activity-admin-info"><b>${esc(a.name)}</b><small>${a.date?fmtDate(a.date):'Sin fecha'} · ${copies===1?'1 grupo':copies+' grupos'} · ${archived?'Archivada':'Activa'}</small></div><div class="activity-admin-actions"><button class="btn secondary small" onclick="editActivity('${a.id}')">Editar actividad</button><button class="btn secondary small" onclick="toggleArchiveActivity('${a.id}')">${archived?'Reactivar actividad':'Archivar actividad'}</button><button class="btn danger small" onclick="deleteActivity('${a.id}')">Eliminar actividad</button></div></div>`;
   }).join(''):'<div class="empty">No hay actividades en este periodo.</div>';
-  modal(`<h2>Administrar actividades</h2><p class="small-note">Editar, archivar o eliminar una actividad. Si fue creada para varios grupos, la acción se aplica a todas sus copias.</p><div class="review-grid">${rows}</div>`,`<button class="btn primary" onclick="closeModal();renderActivities()">Cerrar</button>`)
+  modal(`<h2>Administrar actividades</h2><p class="small-note">Editar, archivar o eliminar una actividad. Si fue creada para varios grupos, la acción se aplica a todas sus copias.</p><div class="activity-admin-grid">${rows}</div>`,`<button class="btn primary" onclick="closeModal();renderActivities()">Cerrar</button>`)
 }
 function editActivity(id){
   const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
