@@ -209,8 +209,33 @@ function openBulkActivity(){const acts=periodActivities(grp());modal(`<h2>Marcar
 function confirmBulkActivity(){if(!editableGuard())return;const aid=$('#bulkActivity').value,a=grp().activities.find(x=>x.id===aid);if(!a)return;if(!confirm(`¿Poner 10 a TODOS los alumnos en "${a.name}"?`))return;grp().students.filter(s=>s.active).forEach(s=>{s.activityScores=s.activityScores||{};s.activityScores[aid]=10});save();closeModal();renderActivities();toast('Actividad marcada en 10 para el grupo')}
 function setScore(id,aid,v){if(!editableGuard())return;const s=grp().students.find(x=>x.id===id);s.activityScores=s.activityScores||{};s.activityScores[aid]=v==='NA'?'NA':Number(v);save();renderActivities()}
 function markActivityAll(v){if(!editableGuard())return;const aid=window._activityId;if(!aid)return;grp().students.filter(s=>s.active).forEach(s=>{s.activityScores=s.activityScores||{};s.activityScores[aid]=v});save();renderActivities();toast('Actividad actualizada para el grupo')}
-function newActivity(){if(!editableGuard())return;modal(`<h2>Nueva actividad</h2><div class="field"><label>Nombre</label><input id="actName" placeholder="Ej. Práctica 5 — Función SI"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="actDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Valor máximo</label><input id="actMax" type="number" value="10" min="1"></div></div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="actDetail" placeholder="Descripción breve para usar después en el portal familiar y la página de clase."></textarea></div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createActivity()">Guardar actividad</button>`)}
-function createActivity(){const n=$('#actName').value.trim();if(!n)return toast('Escribe el nombre');const g=grp(),id='act-'+Date.now();g.activities.push({id,name:n,date:$('#actDate').value,maxScore:Number($('#actMax').value||10),detail:$('#actDetail').value.trim(),category:'Actividad',period:ui.period,active:true});g.students.forEach(s=>{s.activityScores=s.activityScores||{};s.activityScores[id]='NA'});window._activityId=id;save();closeModal();renderActivities();toast('Actividad creada')}
+function activityTargetOptions(){
+  const entries=Object.entries(state.groups||{}).filter(([,g])=>g.course===ui.course).sort((a,b)=>`${a[1].shift}${a[1].group}`.localeCompare(`${b[1].shift}${b[1].group}`,'es'));
+  return entries.map(([key,g])=>`<label class="check-row"><input type="checkbox" class="act-target" value="${esc(key)}" ${key===groupKey()?'checked':''}> <span>${esc(g.shift)} · 3°${esc(g.group)} · ${esc(g.course)}</span></label>`).join('');
+}
+function toggleActivityTargets(){const box=$('#actTargets');if(box)box.style.display=$('#actScope')?.value==='selected'?'grid':'none'}
+function newActivity(){if(!editableGuard())return;modal(`<h2>Nueva actividad</h2><div class="field"><label>Nombre</label><input id="actName" placeholder="Ej. Práctica 5 — Función SI"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="actDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Valor máximo</label><input id="actMax" type="number" value="10" min="1"></div></div><div class="field"><label>Crear actividad para</label><select id="actScope" onchange="toggleActivityTargets()"><option value="single">Solo este grupo</option><option value="shiftCourse">Todos los grupos de ${esc(ui.course)} del turno ${esc(ui.shift)}</option><option value="allCourse">Todos los grupos de ${esc(ui.course)}</option><option value="selected">Varios grupos de ${esc(ui.course)}</option></select></div><div id="actTargets" class="target-grid" style="display:none">${activityTargetOptions()}</div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="actDetail" placeholder="Descripción breve para usar después en el portal familiar y la página de clase."></textarea></div><div class="notice"><b>Importante:</b> se crea la misma actividad en los grupos seleccionados, pero las calificaciones de cada alumno siguen siendo independientes.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createActivity()">Guardar actividad</button>`)}
+function createActivity(){
+  const n=$('#actName').value.trim();if(!n)return toast('Escribe el nombre');
+  const scope=$('#actScope')?.value||'single';
+  let targets=[];
+  if(scope==='single')targets=[groupKey()];
+  if(scope==='shiftCourse')targets=Object.entries(state.groups||{}).filter(([,g])=>g.course===ui.course&&g.shift===ui.shift).map(([k])=>k);
+  if(scope==='allCourse')targets=Object.entries(state.groups||{}).filter(([,g])=>g.course===ui.course).map(([k])=>k);
+  if(scope==='selected')targets=[...document.querySelectorAll('.act-target:checked')].map(x=>x.value);
+  targets=[...new Set(targets)].filter(k=>state.groups[k]);
+  if(!targets.length)return toast('Selecciona al menos un grupo');
+  const id='act-'+Date.now(),date=$('#actDate').value,maxScore=Number($('#actMax').value||10),detail=$('#actDetail').value.trim();
+  targets.forEach(k=>{
+    const g=state.groups[k];
+    g.activities=g.activities||[];
+    if(!g.activities.some(a=>a.id===id))g.activities.push({id,name:n,date,maxScore,detail,category:'Actividad',period:ui.period,active:true,sharedActivity:true});
+    (g.students||[]).forEach(s=>{s.activityScores=s.activityScores||{};if(s.activityScores[id]===undefined)s.activityScores[id]='NA'});
+  });
+  window._activityId=id;save();closeModal();renderActivities();
+  const label=targets.length===1?'1 grupo':`${targets.length} grupos`;
+  toast(`Actividad creada en ${label}`);
+}
 function journalTargetKey(shift,group,course){return `${shift}|3${group}|${course}`}
 function journalScopeLabel(j){
   if(j.scope==='allTechnology')return 'Todos los grupos de Tecnología';
