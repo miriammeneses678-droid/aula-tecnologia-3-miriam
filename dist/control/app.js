@@ -186,7 +186,7 @@ function renderActivities(){
  const g=grp();if(!g)return;const acts=periodActivities(g),students=g.students.filter(s=>s.active);
  app.innerHTML=head('Actividades','Vista completa para revisar varios sellos del mismo alumno sin cambiar de actividad.',`${isPeriodClosed()?'':`<button class="btn primary private-only" onclick="newActivity()">+ Nueva actividad</button>`}`)+
  `<div class="activity-help private-only"><b>Captura rápida:</b> escribe <b>10</b>, <b>5</b>, <b>0</b> o <b>—</b>. Presiona <b>Tab</b> para brincar a la siguiente actividad del alumno. También puedes tocar su nombre para abrir la revisión individual.</div>
- <div class="toolbar activity-toolbar private-only"><span class="badge good">10 = entregada</span><span class="badge warn">5 = parcial</span><span class="badge bad">0 = pendiente</span><span class="badge neutral">— = no aplica / sin registrar</span><span class="spacer"></span><button class="btn secondary" onclick="openBulkActivity()">✓ Todos = 10 por actividad</button></div>
+ <div class="toolbar activity-toolbar private-only"><span class="badge good">10 = entregada</span><span class="badge warn">5 = parcial</span><span class="badge bad">0 = pendiente</span><span class="badge neutral">— = no aplica / sin registrar</span><span class="spacer"></span><button class="btn secondary" onclick="manageActivities()">⚙ Administrar actividades</button><button class="btn secondary" onclick="openBulkActivity()">✓ Todos = 10 por actividad</button></div>
  ${acts.length?`<div class="table-wrap activity-matrix-wrap"><table class="activity-matrix"><thead><tr><th class="num sticky-col sticky-num">N.º</th><th class="sticky-col sticky-name">Alumno</th>${acts.map(a=>`<th class="activity-head" title="${esc(a.name)}"><span>${esc(a.name)}</span></th>`).join('')}<th class="sticky-right">Avance</th></tr></thead><tbody>${students.map(s=>rowActivityMatrix(s,acts)).join('')}</tbody></table></div>`:'<div class="empty card">Aún no hay actividades.</div>'}`;
  document.querySelectorAll('.score-input').forEach(inp=>{
    inp.addEventListener('focus',e=>e.target.select());
@@ -235,6 +235,56 @@ function createActivity(){
   window._activityId=id;save();closeModal();renderActivities();
   const label=targets.length===1?'1 grupo':`${targets.length} grupos`;
   toast(`Actividad creada en ${label}`);
+}
+
+function activityCopies(id){
+  const out=[];
+  Object.entries(state.groups||{}).forEach(([key,g])=>{
+    (g.activities||[]).forEach(a=>{if(a.id===id)out.push({key,g,a})});
+  });
+  return out;
+}
+function manageActivities(){
+  const g=grp();if(!g)return;
+  const items=(g.activities||[]).filter(a=>(a.period||'P1')===ui.period);
+  const rows=items.length?items.map(a=>{
+    const copies=activityCopies(a.id).length;
+    const archived=a.active===false;
+    return `<div class="review-item"><div><b>${esc(a.name)}</b><small>${a.date?fmtDate(a.date):'Sin fecha'} · ${copies===1?'1 grupo':copies+' grupos'} · ${archived?'Archivada':'Activa'}</small></div><div class="status-pills"><button class="btn secondary small" onclick="editActivity('${a.id}')">Editar actividad</button><button class="btn secondary small" onclick="toggleArchiveActivity('${a.id}')">${archived?'Reactivar actividad':'Archivar actividad'}</button><button class="btn danger small" onclick="deleteActivity('${a.id}')">Eliminar actividad</button></div></div>`;
+  }).join(''):'<div class="empty">No hay actividades en este periodo.</div>';
+  modal(`<h2>Administrar actividades</h2><p class="small-note">Editar, archivar o eliminar una actividad. Si fue creada para varios grupos, la acción se aplica a todas sus copias.</p><div class="review-grid">${rows}</div>`,`<button class="btn primary" onclick="closeModal();renderActivities()">Cerrar</button>`)
+}
+function editActivity(id){
+  const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
+  const a=copies[0].a;
+  modal(`<h2>Editar actividad</h2><div class="field"><label>Nombre</label><input id="editActName" value="${esc(a.name||'')}"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="editActDate" type="date" value="${esc(a.date||'')}"></div><div class="field"><label>Valor máximo</label><input id="editActMax" type="number" min="1" value="${Number(a.maxScore||10)}"></div></div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="editActDetail">${esc(a.detail||'')}</textarea></div><div class="notice">Los cambios se aplicarán a ${copies.length===1?'este grupo':copies.length+' grupos'} porque comparten la misma actividad.</div>`,`<button class="btn secondary" onclick="manageActivities()">Cancelar</button><button class="btn primary" onclick="saveActivityEdit('${id}')">Guardar cambios</button>`)
+}
+function saveActivityEdit(id){
+  if(!editableGuard())return;
+  const name=$('#editActName')?.value.trim();if(!name)return toast('Escribe el nombre');
+  const date=$('#editActDate')?.value||'';
+  const maxScore=Math.max(1,Number($('#editActMax')?.value||10));
+  const detail=$('#editActDetail')?.value.trim()||'';
+  const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
+  copies.forEach(({a})=>{a.name=name;a.date=date;a.maxScore=maxScore;a.detail=detail});
+  save();manageActivities();toast('Actividad actualizada en todos sus grupos')
+}
+function toggleArchiveActivity(id){
+  if(!editableGuard())return;
+  const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
+  const next=!(copies[0].a.active!==false);
+  copies.forEach(({a})=>a.active=next);
+  save();manageActivities();toast(next?'Actividad reactivada':'Actividad archivada')
+}
+function deleteActivity(id){
+  if(!editableGuard())return;
+  const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
+  if(!confirm('¿Seguro que deseas eliminar esta actividad de todos los grupos donde fue creada? Esta acción no se puede deshacer.'))return;
+  copies.forEach(({g})=>{
+    g.activities=(g.activities||[]).filter(a=>a.id!==id);
+    (g.students||[]).forEach(st=>{if(st.activityScores&&Object.prototype.hasOwnProperty.call(st.activityScores,id))delete st.activityScores[id]});
+  });
+  save();closeModal();renderActivities();toast('Actividad eliminada de todos los grupos donde fue creada')
 }
 function journalTargetKey(shift,group,course){return `${shift}|3${group}|${course}`}
 function journalScopeLabel(j){
@@ -515,7 +565,7 @@ $('#projectionBtn').addEventListener('click',()=>{ui.projection=!ui.projection;d
 $('#exportBtn').addEventListener('click',exportBackup);
 $('#importBtn').addEventListener('click',()=>$('#importFile').click());
 $('#importFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importBackup(f);e.target.value='';});
-window.go=go;window.openFamilyAccessExport=openFamilyAccessExport;window.printFamilyAccessCards=printFamilyAccessCards;window.downloadFamilyAccessCSV=downloadFamilyAccessCSV;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
+window.go=go;window.manageActivities=manageActivities;window.editActivity=editActivity;window.saveActivityEdit=saveActivityEdit;window.toggleArchiveActivity=toggleArchiveActivity;window.deleteActivity=deleteActivity;window.openFamilyAccessExport=openFamilyAccessExport;window.printFamilyAccessCards=printFamilyAccessCards;window.downloadFamilyAccessCSV=downloadFamilyAccessCSV;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
 async function bootOnline(){
   const cloudStatus=$('#cloudStatus'),userEmail=$('#userEmail'),logoutBtn=$('#logoutBtn');
   function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
