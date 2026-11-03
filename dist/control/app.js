@@ -85,12 +85,35 @@ function periodBase(){return state.periods[ui.period]||state.periods.P1}
 function periodCfg(){const p=periodBase();return p.spaces?.[ui.course]||p.spaces?.['Tecnología']||{weights:{activities:60,project:30,exam:10},closed:false}}
 function periodName(){return periodBase().name||ui.period}
 function periodActivities(g=grp()){return (g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===ui.period)}
+function isFinalProjectActivity(a){return !!(a?.finalProject||a?.category==='Proyecto final')}
+function ordinaryPeriodActivities(g=grp()){return periodActivities(g).filter(a=>!isFinalProjectActivity(a))}
+function finalProjectPeriodActivities(g=grp()){return periodActivities(g).filter(isFinalProjectActivity)}
 function isPeriodClosed(){return !!periodCfg().closed}
 function editableGuard(){if(isPeriodClosed()){toast(`Este periodo de ${ui.course} está cerrado. Reábrelo para modificar datos.`);return false}return true}
-function avgActivities(st,g=grp()){const acts=periodActivities(g);const vals=acts.map(a=>st.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');return vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null}
+function avgActivities(st,g=grp()){const acts=ordinaryPeriodActivities(g);const vals=acts.map(a=>st.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');return vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null}
+function finalProjectProgress(st,g=grp(),pid=ui.period,course=ui.course){
+  const acts=(g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid&&isFinalProjectActivity(a));
+  if(!acts.length)return null;
+  const cfg=state.periods?.[pid]?.spaces?.[course]||state.periods?.[pid]?.spaces?.['Tecnología']||{weights:{activities:60,project:30,exam:10}};
+  const w=cfg.weights||{activities:60,project:30,exam:10};
+  let earnedRaw=0,totalRaw=0,evaluated=0,completed=0;
+  acts.forEach(a=>{
+    const max=Math.max(1,Number(a.maxScore||10));totalRaw+=max;
+    const raw=st?.activityScores?.[a.id];
+    if(raw!==undefined&&raw!==null&&raw!==''&&raw!=='NA'){
+      evaluated++;const n=Math.max(0,Math.min(max,Number(raw)||0));earnedRaw+=n;if(n>=max)completed++;
+    }
+  });
+  const ratio=totalRaw?earnedRaw/totalRaw:0;
+  const projectPoints=evaluated?Math.round(ratio*Number(w.project||0)*10)/10:null;
+  const examPoints=evaluated?Math.round(ratio*Number(w.exam||0)*10)/10:null;
+  return{acts,total:acts.length,evaluated,completed,earnedRaw,totalRaw,ratio,projectPoints,examPoints,complete:evaluated===acts.length};
+}
 function gradeCalc(st){
   const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};
-  const a=avgActivities(st),p=st.projectScores?.[ui.period],e=st.examScores?.[ui.period];
+  const a=avgActivities(st),projectAuto=finalProjectProgress(st);
+  const manualP=st.projectScores?.[ui.period],manualE=st.examScores?.[ui.period];
+  const p=projectAuto?projectAuto.projectPoints:manualP,e=projectAuto?projectAuto.examPoints:manualE;
   const activityPoints=a===null?null:Math.round((Number(a)/10*Number(w.activities||0))*10)/10;
   const all=[['activities',activityPoints,Number(w.activities||0)],['project',p,Number(w.project||0)],['exam',e,Number(w.exam||0)]];
   const required=all.filter(x=>x[2]>0);
@@ -98,10 +121,11 @@ function gradeCalc(st){
   const used=evaluated.reduce((t,x)=>t+x[2],0);
   const earned=evaluated.reduce((t,x)=>t+Number(x[1]),0);
   const provisional=used?earned/used*10:null;
-  const complete=required.length>0&&required.every(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');
+  const componentsPresent=required.length>0&&required.every(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');
+  const complete=componentsPresent&&(!projectAuto||projectAuto.complete);
   const totalPoints=complete?required.reduce((t,x)=>t+Number(x[1]),0):null;
   const final=complete?totalPoints/10:null;
-  return{a,activityPoints,p,e,provisional,final,totalPoints,complete,used,earned};
+  return{a,activityPoints,p,e,projectAuto,provisional,final,totalPoints,complete,used,earned};
 }
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function fmtDate(s){if(!s)return 'Sin fecha';const d=new Date(s+'T12:00:00');return d.toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}
@@ -184,10 +208,10 @@ function newAttendanceDate(){const today=new Date().toISOString().slice(0,10);mo
 function createAttendanceDate(){const d=$('#newAttDate').value;if(!d)return;const g=attendanceGroup();let id=d,n=2;while(g.attendanceDates.some(x=>x.id===id)){id=`${d}#${n++}`};g.attendanceDates.push({id,date:d});g.students.filter(s=>s.active).forEach(s=>{s.attendance=s.attendance||{};s.attendance[id]='1'});window._attDate=id;save();closeModal();renderAttendance();toast('Nueva sesión creada')}
 function renderActivities(){
  const g=grp();if(!g)return;const acts=periodActivities(g),students=g.students.filter(s=>s.active);
- app.innerHTML=head('Actividades','Vista completa para revisar varios sellos del mismo alumno sin cambiar de actividad.',`${isPeriodClosed()?'':`<button class="btn primary private-only" onclick="newActivity()">+ Nueva actividad</button>`}`)+
- `<div class="activity-help private-only"><b>Captura rápida:</b> escribe <b>10</b>, <b>5</b>, <b>0</b> o <b>—</b>. Presiona <b>Tab</b> para brincar a la siguiente actividad del alumno. También puedes tocar su nombre para abrir la revisión individual.</div>
+ app.innerHTML=head('Actividades','Vista completa para revisar varios sellos del mismo alumno sin cambiar de actividad.',`${isPeriodClosed()?'':`${ui.course==='Tecnología'&&ui.period==='P1'?`<button class="btn gold private-only" onclick="loadFinalProjectActivities()">📦 Cargar Proyecto Final</button>`:''}<button class="btn primary private-only" onclick="newActivity()">+ Nueva actividad</button>`}`)+
+ `<div class="activity-help private-only"><b>Captura rápida:</b> escribe <b>10</b>, <b>5</b>, <b>0</b> o <b>—</b>. Presiona <b>Tab</b> para brincar a la siguiente actividad del alumno. También puedes tocar su nombre para abrir la revisión individual.${finalProjectPeriodActivities(g).length?`<br><b>Proyecto final:</b> las actividades marcadas con <span class="badge warn">PF</span> se contabilizan en el <b>30% de Proyecto</b> y generan proporcionalmente el <b>10% de Examen</b>; no forman parte del 60% de actividades ordinarias.`:''}</div>
  <div class="toolbar activity-toolbar private-only"><span class="badge good">10 = entregada</span><span class="badge warn">5 = parcial</span><span class="badge bad">0 = pendiente</span><span class="badge neutral">— = no aplica / sin registrar</span><span class="spacer"></span><button class="btn secondary" onclick="manageActivities()">⚙ Administrar actividades</button><button class="btn secondary" onclick="openBulkActivity()">✓ Todos = 10 por actividad</button></div>
- ${acts.length?`<div class="table-wrap activity-matrix-wrap"><table class="activity-matrix"><thead><tr><th class="num sticky-col sticky-num">N.º</th><th class="sticky-col sticky-name">Alumno</th>${acts.map(a=>`<th class="activity-head" title="${esc(a.name)}"><span>${esc(a.name)}</span></th>`).join('')}<th class="sticky-right">Avance</th></tr></thead><tbody>${students.map(s=>rowActivityMatrix(s,acts)).join('')}</tbody></table></div>`:'<div class="empty card">Aún no hay actividades.</div>'}`;
+ ${acts.length?`<div class="table-wrap activity-matrix-wrap"><table class="activity-matrix"><thead><tr><th class="num sticky-col sticky-num">N.º</th><th class="sticky-col sticky-name">Alumno</th>${acts.map(a=>`<th class="activity-head" title="${esc(a.name)}"><span>${isFinalProjectActivity(a)?'<span class="badge warn" style="margin-bottom:.25rem">PF</span> ':''}${esc(a.name)}</span></th>`).join('')}<th class="sticky-right">Avance</th></tr></thead><tbody>${students.map(s=>rowActivityMatrix(s,acts)).join('')}</tbody></table></div>`:'<div class="empty card">Aún no hay actividades.</div>'}`;
  document.querySelectorAll('.score-input').forEach(inp=>{
    inp.addEventListener('focus',e=>e.target.select());
    inp.addEventListener('keydown',e=>{
@@ -214,7 +238,7 @@ function activityTargetOptions(){
   return entries.map(([key,g])=>`<label class="check-row"><input type="checkbox" class="act-target" value="${esc(key)}" ${key===groupKey()?'checked':''}> <span>${esc(g.shift)} · 3°${esc(g.group)} · ${esc(g.course)}</span></label>`).join('');
 }
 function toggleActivityTargets(){const box=$('#actTargets');if(box)box.style.display=$('#actScope')?.value==='selected'?'grid':'none'}
-function newActivity(){if(!editableGuard())return;modal(`<h2>Nueva actividad</h2><div class="field"><label>Nombre</label><input id="actName" placeholder="Ej. Práctica 5 — Función SI"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="actDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Valor máximo</label><input id="actMax" type="number" value="10" min="1"></div></div><div class="field"><label>Crear actividad para</label><select id="actScope" onchange="toggleActivityTargets()"><option value="single">Solo este grupo</option><option value="shiftCourse">Todos los grupos de ${esc(ui.course)} del turno ${esc(ui.shift)}</option><option value="allCourse">Todos los grupos de ${esc(ui.course)}</option><option value="selected">Varios grupos de ${esc(ui.course)}</option></select></div><div id="actTargets" class="target-grid" style="display:none">${activityTargetOptions()}</div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="actDetail" placeholder="Descripción breve para usar después en el portal familiar y la página de clase."></textarea></div><div class="notice"><b>Importante:</b> se crea la misma actividad en los grupos seleccionados, pero las calificaciones de cada alumno siguen siendo independientes.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createActivity()">Guardar actividad</button>`)}
+function newActivity(){if(!editableGuard())return;modal(`<h2>Nueva actividad</h2><div class="field"><label>Nombre</label><input id="actName" placeholder="Ej. Práctica 5 — Función SI"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="actDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Valor máximo</label><input id="actMax" type="number" value="10" min="1"></div></div><div class="field"><label>Crear actividad para</label><select id="actScope" onchange="toggleActivityTargets()"><option value="single">Solo este grupo</option><option value="shiftCourse">Todos los grupos de ${esc(ui.course)} del turno ${esc(ui.shift)}</option><option value="allCourse">Todos los grupos de ${esc(ui.course)}</option><option value="selected">Varios grupos de ${esc(ui.course)}</option></select></div><div id="actTargets" class="target-grid" style="display:none">${activityTargetOptions()}</div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="actDetail" placeholder="Descripción breve para usar después en el portal familiar y la página de clase."></textarea></div>${ui.course==='Tecnología'&&ui.period==='P1'?`<label class="check-row"><input id="actFinalProject" type="checkbox"> <span><b>Cuenta para Proyecto Final por incapacidad</b> (se suma al 30% de proyecto y al 10% proporcional de examen; no al 60% ordinario)</span></label>`:''}<div class="notice"><b>Importante:</b> se crea la misma actividad en los grupos seleccionados, pero las calificaciones de cada alumno siguen siendo independientes.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createActivity()">Guardar actividad</button>`)}
 function createActivity(){
   const n=$('#actName').value.trim();if(!n)return toast('Escribe el nombre');
   const scope=$('#actScope')?.value||'single';
@@ -225,16 +249,54 @@ function createActivity(){
   if(scope==='selected')targets=[...document.querySelectorAll('.act-target:checked')].map(x=>x.value);
   targets=[...new Set(targets)].filter(k=>state.groups[k]);
   if(!targets.length)return toast('Selecciona al menos un grupo');
-  const id='act-'+Date.now(),date=$('#actDate').value,maxScore=Number($('#actMax').value||10),detail=$('#actDetail').value.trim();
+  const id='act-'+Date.now(),date=$('#actDate').value,maxScore=Number($('#actMax').value||10),detail=$('#actDetail').value.trim(),finalProject=!!$('#actFinalProject')?.checked;
   targets.forEach(k=>{
     const g=state.groups[k];
     g.activities=g.activities||[];
-    if(!g.activities.some(a=>a.id===id))g.activities.push({id,name:n,date,maxScore,detail,category:'Actividad',period:ui.period,active:true,sharedActivity:true});
+    if(!g.activities.some(a=>a.id===id))g.activities.push({id,name:n,date,maxScore,detail,category:finalProject?'Proyecto final':'Actividad',finalProject,period:ui.period,active:true,sharedActivity:true});
     (g.students||[]).forEach(s=>{s.activityScores=s.activityScores||{};if(s.activityScores[id]===undefined)s.activityScores[id]='NA'});
   });
   window._activityId=id;save();closeModal();renderActivities();
   const label=targets.length===1?'1 grupo':`${targets.length} grupos`;
   toast(`Actividad creada en ${label}`);
+}
+
+const FINAL_PROJECT_INCAPACITY_2026=[
+  {id:'pf-incap-01',name:'01 LECTURA: HERRAMIENTAS Y TECNOLOGÍA',detail:'Lee en tu libro Tecnología 3 las páginas 22 a 24. Elabora un cuadro de 4 columnas: herramienta, necesidad que resuelve, movimiento o fuerza que requiere y precaución. Completa 6 ejemplos relacionados con la lectura.'},
+  {id:'pf-incap-02',name:'02 HERRAMIENTAS DE MI FUTURA PROFESIÓN',detail:'Elige la profesión u oficio que deseas ejercer de adulto. Escribe su nombre y traza una tabla de 7 columnas y 11 filas: número, herramienta o máquina, descripción, clasificación, accionamiento, material de fabricación y medida de seguridad. Completa 10 herramientas propias de esa profesión.'},
+  {id:'pf-incap-03',name:'03 LECTURA Y CLASIFICACIÓN',detail:'Lee las páginas 25 y 26 del libro Tecnología 3. Selecciona 8 herramientas o instrumentos del tema; dibuja 4 y elabora una tabla con nombre, utilidad, tipo y riesgo de uso. No copies párrafos completos.'},
+  {id:'pf-incap-04',name:'04 ACTIVIDADES DEL LIBRO',detail:'Revisa las páginas 27 y 28 de Tecnología 3. Resuelve en tu cuaderno las consignas o preguntas de identificación y clasificación que aparezcan allí; escribe número de página y número de ejercicio.'},
+  {id:'pf-incap-05',name:'05 TUERCA Y TORNILLO',detail:'Lee las páginas 28 a 30 de Tecnología 3, «La tecnología detrás de la tuerca y el tornillo». Dibuja ambas piezas, señala sus partes visibles y construye una tabla con 6 objetos cotidianos donde se utilizan.'},
+  {id:'pf-incap-06',name:'06 COMPARACIÓN DE UNIONES',detail:'Con base en la lectura de las páginas 28 a 30, traza una tabla de 5 columnas y 7 filas: objeto, tipo de unión, herramienta necesaria, ventaja y precaución. Completa 6 ejemplos.'},
+  {id:'pf-incap-07',name:'07 INVENTARIO DEL TALLER',detail:'Traza una tabla de 5 columnas: material, cantidad inicial, cantidad utilizada, cantidad restante y fórmula. Registra 10 materiales con cantidades iniciales de 35 a 120 y salidas menores. Resuelve cada resta y escribe la fórmula tipo =B2-C2.'},
+  {id:'pf-incap-08',name:'08 RESTA CON REFERENCIAS',detail:'Dibuja una hoja de Excel de A1:E11. Coloca 10 artículos en A2:A11, existencias en B, salidas en C y restantes en D. Inventa datos y escribe en D2:D11 las fórmulas correspondientes de resta.'},
+  {id:'pf-incap-09',name:'09 COMPRA DE MATERIALES',detail:'Traza una tabla de 5 columnas y 11 filas: producto, piezas, precio por pieza, fórmula e importe. Registra 10 productos de papelería; inventa precios y cantidades realistas. Multiplica y escribe fórmulas como =B2*C2.'},
+  {id:'pf-incap-10',name:'10 TALLER DE REPARACIÓN',detail:'Una persona repara 8 equipos. Los costos de piezas son 35, 60, 45, 80, 25, 95, 50 y 70 pesos y utiliza respectivamente 2, 3, 4, 2, 6, 2, 5 y 3 piezas. Traza tabla de 4 columnas y calcula cada importe mediante multiplicación.'},
+  {id:'pf-incap-11',name:'11 TABLA COMBINADA',detail:'Traza 7 columnas: artículo, cantidad inicial, cantidad usada, restante, precio unitario, fórmula de resta y fórmula de multiplicación. Completa 10 registros. Calcula la cantidad restante y el costo de las piezas restantes.'},
+  {id:'pf-incap-12',name:'12 CORRECCIÓN DE FÓRMULAS',detail:'Copia y corrige estas expresiones de Excel: B2-C2, =B3xC3, =B4*C4, B5*C5, =B6/C6, =B7-C7, =B8*C8 y =B9-C9. Señala cuáles representan restas o multiplicaciones; reemplaza las que no correspondan a esas operaciones.'},
+  {id:'pf-incap-13',name:'13 PLANO PIXELADO DE HERRAMIENTA',detail:'Dibuja en tu cuaderno una cuadrícula de 15 columnas (A a O) y 15 filas (1 a 15). Colorea de gris el rango C3:K4 y de café el rango G5:H13 para formar un martillo. Escribe cuántas celdas tiene cada rango, clasifica la herramienta, explica su uso y anota tres medidas de seguridad.'},
+  {id:'pf-incap-14',name:'14 HERRAMIENTA DE MI PROFESIÓN EN PÍXELES',detail:'Dibuja una cuadrícula de 16 columnas (A a P) y 16 filas (1 a 16). Representa una herramienta de la profesión elegida en la actividad 2 coloreando celdas con tres colores. Anota cinco rangos coloreados y describe su utilidad.'},
+  {id:'pf-incap-15',name:'15 DIAGRAMA DE PROCESO TÉCNICO',detail:'Elige un producto sencillo que se elabore con herramientas (por ejemplo, una repisa). Dibuja un diagrama de flujo con 10 pasos ordenados desde la selección de materiales hasta la revisión final; incluye dos decisiones con Sí/No.'},
+  {id:'pf-incap-16',name:'16 PROYECTO DE PRESUPUESTO',detail:'Imagina que equiparás un pequeño taller de tu futura profesión. Traza una tabla de 6 columnas y 11 filas: número, herramienta, cantidad, precio unitario, fórmula e importe. Elige 10 herramientas, calcula 10 multiplicaciones y dibuja las tres más importantes.'}
+];
+function loadFinalProjectActivities(){
+  if(!editableGuard())return;
+  if(ui.course!=='Tecnología'||ui.period!=='P1')return toast('Este paquete corresponde a Tecnología · Primer periodo');
+  const techGroups=Object.entries(state.groups||{}).filter(([,g])=>g.course==='Tecnología');
+  const already=techGroups.some(([,g])=>(g.activities||[]).some(a=>a.id==='pf-incap-01'));
+  const msg=already?'Las actividades del Proyecto Final ya existen en al menos un grupo. Se completarán únicamente las que falten, sin duplicar ni borrar calificaciones.':'Se crearán las 16 actividades del Proyecto Final por incapacidad en TODOS los grupos de Tecnología. No se modificarán tus actividades ordinarias ni sus calificaciones.';
+  if(!confirm(msg+'\n\n¿Continuar?'))return;
+  let created=0;
+  techGroups.forEach(([,g])=>{
+    g.activities=g.activities||[];
+    FINAL_PROJECT_INCAPACITY_2026.forEach(src=>{
+      let a=g.activities.find(x=>x.id===src.id);
+      if(!a){a={...src,date:'',maxScore:10,category:'Proyecto final',finalProject:true,projectReason:'Incapacidad docente',period:'P1',active:true,sharedActivity:true};g.activities.push(a);created++}
+      else {a.finalProject=true;a.category='Proyecto final';a.projectReason='Incapacidad docente';a.period='P1';if(a.active===undefined)a.active=true;if(!a.maxScore)a.maxScore=10;if(!a.detail)a.detail=src.detail}
+      (g.students||[]).forEach(st=>{st.activityScores=st.activityScores||{};if(st.activityScores[src.id]===undefined)st.activityScores[src.id]='NA'});
+    });
+  });
+  save();renderActivities();toast(created?`Proyecto Final cargado: ${created} registros de grupo creados`:'Proyecto Final verificado sin duplicados');
 }
 
 function activityCopies(id){
@@ -250,23 +312,23 @@ function manageActivities(){
   const rows=items.length?items.map(a=>{
     const copies=activityCopies(a.id).length;
     const archived=a.active===false;
-    return `<div class="activity-admin-item"><div class="activity-admin-info"><b>${esc(a.name)}</b><small>${a.date?fmtDate(a.date):'Sin fecha'} · ${copies===1?'1 grupo':copies+' grupos'} · ${archived?'Archivada':'Activa'}</small></div><div class="activity-admin-actions"><button class="btn secondary small" onclick="editActivity('${a.id}')">Editar actividad</button><button class="btn secondary small" onclick="toggleArchiveActivity('${a.id}')">${archived?'Reactivar actividad':'Archivar actividad'}</button><button class="btn danger small" onclick="deleteActivity('${a.id}')">Eliminar actividad</button></div></div>`;
+    return `<div class="activity-admin-item"><div class="activity-admin-info"><b>${esc(a.name)}</b><small>${a.date?fmtDate(a.date):'Sin fecha'} · ${copies===1?'1 grupo':copies+' grupos'} · ${isFinalProjectActivity(a)?'Proyecto final · ':''}${archived?'Archivada':'Activa'}</small></div><div class="activity-admin-actions"><button class="btn secondary small" onclick="editActivity('${a.id}')">Editar actividad</button><button class="btn secondary small" onclick="toggleArchiveActivity('${a.id}')">${archived?'Reactivar actividad':'Archivar actividad'}</button><button class="btn danger small" onclick="deleteActivity('${a.id}')">Eliminar actividad</button></div></div>`;
   }).join(''):'<div class="empty">No hay actividades en este periodo.</div>';
   modal(`<h2>Administrar actividades</h2><p class="small-note">Editar, archivar o eliminar una actividad. Si fue creada para varios grupos, la acción se aplica a todas sus copias.</p><div class="activity-admin-grid">${rows}</div>`,`<button class="btn primary" onclick="closeModal();renderActivities()">Cerrar</button>`)
 }
 function editActivity(id){
   const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
   const a=copies[0].a;
-  modal(`<h2>Editar actividad</h2><div class="field"><label>Nombre</label><input id="editActName" value="${esc(a.name||'')}"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="editActDate" type="date" value="${esc(a.date||'')}"></div><div class="field"><label>Valor máximo</label><input id="editActMax" type="number" min="1" value="${Number(a.maxScore||10)}"></div></div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="editActDetail">${esc(a.detail||'')}</textarea></div><div class="notice">Los cambios se aplicarán a ${copies.length===1?'este grupo':copies.length+' grupos'} porque comparten la misma actividad.</div>`,`<button class="btn secondary" onclick="manageActivities()">Cancelar</button><button class="btn primary" onclick="saveActivityEdit('${id}')">Guardar cambios</button>`)
+  modal(`<h2>Editar actividad</h2><div class="field"><label>Nombre</label><input id="editActName" value="${esc(a.name||'')}"></div><div class="form-grid"><div class="field"><label>Fecha</label><input id="editActDate" type="date" value="${esc(a.date||'')}"></div><div class="field"><label>Valor máximo</label><input id="editActMax" type="number" min="1" value="${Number(a.maxScore||10)}"></div></div><div class="field"><label>¿Qué debe realizar el alumno?</label><textarea id="editActDetail">${esc(a.detail||'')}</textarea></div>${ui.course==='Tecnología'&&ui.period==='P1'?`<label class="check-row"><input id="editActFinalProject" type="checkbox" ${isFinalProjectActivity(a)?'checked':''}> <span><b>Cuenta para Proyecto Final por incapacidad</b></span></label>`:''}<div class="notice">Los cambios se aplicarán a ${copies.length===1?'este grupo':copies.length+' grupos'} porque comparten la misma actividad.</div>`,`<button class="btn secondary" onclick="manageActivities()">Cancelar</button><button class="btn primary" onclick="saveActivityEdit('${id}')">Guardar cambios</button>`)
 }
 function saveActivityEdit(id){
   if(!editableGuard())return;
   const name=$('#editActName')?.value.trim();if(!name)return toast('Escribe el nombre');
   const date=$('#editActDate')?.value||'';
   const maxScore=Math.max(1,Number($('#editActMax')?.value||10));
-  const detail=$('#editActDetail')?.value.trim()||'';
+  const detail=$('#editActDetail')?.value.trim()||'',finalProject=!!$('#editActFinalProject')?.checked;
   const copies=activityCopies(id);if(!copies.length)return toast('Actividad no encontrada');
-  copies.forEach(({a})=>{a.name=name;a.date=date;a.maxScore=maxScore;a.detail=detail});
+  copies.forEach(({a})=>{a.name=name;a.date=date;a.maxScore=maxScore;a.detail=detail;a.finalProject=finalProject;a.category=finalProject?'Proyecto final':'Actividad'});
   save();manageActivities();toast('Actividad actualizada en todos sus grupos')
 }
 function toggleArchiveActivity(id){
@@ -391,14 +453,17 @@ function gradeInput(st,type){
 }
 function renderGrades(){
  const g=grp();if(!g)return;const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};
- const showProject=Number(w.project||0)>0,showExam=Number(w.exam||0)>0;
+ const showProject=Number(w.project||0)>0,showExam=Number(w.exam||0)>0,autoProject=finalProjectPeriodActivities(g).length>0;
  const rows=g.students.filter(s=>s.active).map(s=>{
-   const c=gradeCalc(s),a=c.a===null?'—':`${c.activityPoints.toFixed(1)} / ${w.activities}<small class="grade-state">Promedio ${c.a.toFixed(1)}/10</small>`,p=(c.p===undefined||c.p==='NA')?'—':c.p,e=(c.e===undefined||c.e==='NA')?'—':c.e,shown=c.complete?c.final.toFixed(1):(c.provisional===null?'—':c.provisional.toFixed(1));
+   const c=gradeCalc(s),a=c.a===null?'—':`${c.activityPoints.toFixed(1)} / ${w.activities}<small class="grade-state">Promedio ${c.a.toFixed(1)}/10 · solo actividades ordinarias</small>`,shown=c.complete?c.final.toFixed(1):(c.provisional===null?'—':c.provisional.toFixed(1));
    const total=c.complete?`${c.totalPoints.toFixed(1)} / 100`:`${c.earned.toFixed(1)} / ${c.used}`;
-   return `<tr><td class="num">${s.listNo}</td><td class="student-name">${esc(s.name)}${s.privateFlag?'<span class="private-flag private-only">⚑</span>':''}</td><td><b>${a}</b></td>${showProject?`<td>${gradeInput(s,'project')}<small class="grade-state">de ${w.project} puntos</small></td>`:''}${showExam?`<td>${gradeInput(s,'exam')}<small class="grade-state">de ${w.exam} puntos</small></td>`:''}<td><b>${total}</b><small class="grade-state">Puntos</small></td><td><b>${shown}</b><small class="grade-state">${c.complete?'Final':'Provisional'}</small></td></tr>`
+   const projectCell=autoProject?(c.projectAuto?.evaluated?`<b>${Number(c.p).toFixed(1)} / ${w.project}</b><small class="grade-state">${c.projectAuto.evaluated} de ${c.projectAuto.total} revisadas · ${c.projectAuto.complete?'Proyecto cerrado':'avance provisional'}</small>`:`<b>— / ${w.project}</b><small class="grade-state">Sin actividades del proyecto revisadas</small>`):`${gradeInput(s,'project')}<small class="grade-state">de ${w.project} puntos</small>`;
+   const examCell=autoProject?(c.projectAuto?.evaluated?`<b>${Number(c.e).toFixed(1)} / ${w.exam}</b><small class="grade-state">Automático y proporcional al Proyecto Final</small>`:`<b>— / ${w.exam}</b><small class="grade-state">Se genera al revisar el proyecto</small>`):`${gradeInput(s,'exam')}<small class="grade-state">de ${w.exam} puntos</small>`;
+   return `<tr><td class="num">${s.listNo}</td><td class="student-name">${esc(s.name)}${s.privateFlag?'<span class="private-flag private-only">⚑</span>':''}</td><td><b>${a}</b></td>${showProject?`<td>${projectCell}</td>`:''}${showExam?`<td>${examCell}</td>`:''}<td><b>${total}</b><small class="grade-state">Puntos</small></td><td><b>${shown}</b><small class="grade-state">${c.complete?'Final':'Provisional'}</small></td></tr>`
  }).join('');
  const formula=[`${w.activities} puntos actividades/tareas/prácticas`,showProject?`${w.project} puntos proyecto`:'',showExam?`${w.exam} puntos examen`:''].filter(Boolean).join(' · ');
- app.innerHTML=head('Calificaciones',`${periodName()} · ${ui.course} · ${formula}`,`<button class="btn secondary private-only" onclick="configurePeriod()">⚙ Encuadre</button><button class="btn ${isPeriodClosed()?'gold':'danger'} private-only" onclick="togglePeriodClosed()">${isPeriodClosed()?'Reabrir periodo':'Cerrar periodo'}</button>`)+`<div class="period-strip ${isPeriodClosed()?'period-closed':''}"><div><b>${esc(periodName())} · ${esc(ui.course)}</b><span>${isPeriodClosed()?'Las calificaciones de este espacio están protegidas contra cambios.':'Las actividades se calculan automáticamente. Proyecto y examen se capturan directamente en puntos del encuadre.'}</span></div><span class="badge ${isPeriodClosed()?'bad':'good'}">${isPeriodClosed()?'Cerrado':'Abierto'}</span></div><div class="notice"><b>Captura por puntos:</b> actividades hasta ${w.activities}, ${showProject?`proyecto hasta ${w.project}`:''}${showProject&&showExam?' y ':''}${showExam?`examen hasta ${w.exam}`:''}. <b>Vacío (—)</b> significa aún no evaluado; <b>0</b> significa evaluado sin puntos. La calificación final es puntos totales ÷ 10.</div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Actividades<br><small>máx. ${w.activities}</small></th>${showProject?`<th>Proyecto<br><small>0–${w.project}</small></th>`:''}${showExam?`<th>Examen<br><small>0–${w.exam}</small></th>`:''}<th>Total</th><th>Calificación</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+ const autoNotice=autoProject?`<div class="notice"><b>Proyecto Final por incapacidad:</b> las ${finalProjectPeriodActivities(g).length} actividades marcadas PF se califican individualmente con 10, 5, 0 o —. Su suma se convierte automáticamente a <b>${w.project} puntos de Proyecto</b> y, en la misma proporción, a <b>${w.exam} puntos de Examen</b>. Estas actividades <b>no forman parte de los ${w.activities} puntos de actividades ordinarias</b>.</div>`:'';
+ app.innerHTML=head('Calificaciones',`${periodName()} · ${ui.course} · ${formula}`,`<button class="btn secondary private-only" onclick="configurePeriod()">⚙ Encuadre</button><button class="btn ${isPeriodClosed()?'gold':'danger'} private-only" onclick="togglePeriodClosed()">${isPeriodClosed()?'Reabrir periodo':'Cerrar periodo'}</button>`)+`<div class="period-strip ${isPeriodClosed()?'period-closed':''}"><div><b>${esc(periodName())} · ${esc(ui.course)}</b><span>${isPeriodClosed()?'Las calificaciones de este espacio están protegidas contra cambios.':autoProject?'Proyecto y examen se calculan automáticamente desde las actividades PF.':'Las actividades se calculan automáticamente. Proyecto y examen se capturan directamente en puntos del encuadre.'}</span></div><span class="badge ${isPeriodClosed()?'bad':'good'}">${isPeriodClosed()?'Cerrado':'Abierto'}</span></div>${autoNotice}<div class="notice"><b>Vacío (—)</b> significa aún no evaluado; <b>0</b> significa revisado sin puntos. La calificación final se cierra cuando todos los componentes requeridos están evaluados.</div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Actividades<br><small>máx. ${w.activities}</small></th>${showProject?`<th>Proyecto<br><small>máx. ${w.project}</small></th>`:''}${showExam?`<th>Examen<br><small>máx. ${w.exam}</small></th>`:''}<th>Total</th><th>Calificación</th></tr></thead><tbody>${rows}</tbody></table></div>`;
  document.querySelectorAll('.grade-input').forEach(i=>{i.addEventListener('change',()=>commitGrade(i));i.addEventListener('keydown',e=>{if(e.key==='Enter'){i.blur()}})});
 }
 function commitGrade(inp){
@@ -460,18 +525,19 @@ function sameStudentByName(g,name){const n=String(name||'').normalize('NFD').rep
 function periodGradeFor(st,g,pid,course){
   const cfg=state.periods?.[pid]?.spaces?.[course]||state.periods?.[pid]?.spaces?.['Tecnología']||{weights:{activities:60,project:30,exam:10}};
   const w=cfg.weights||{activities:60,project:30,exam:10};
-  const acts=(g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid);
-  const vals=acts.map(a=>st?.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');
+  const ordinary=(g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid&&!isFinalProjectActivity(a));
+  const vals=ordinary.map(a=>st?.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');
   const avg=vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null;
   const ap=avg===null?null:Math.round((avg/10*Number(w.activities||0))*10)/10;
+  const auto=finalProjectProgress(st,g,pid,course);
   const rawP=st?.projectScores?.[pid],rawE=st?.examScores?.[pid];
-  const pp=(rawP===undefined||rawP===null||rawP===''||rawP==='NA')?null:Number(rawP);
-  const ep=(rawE===undefined||rawE===null||rawE===''||rawE==='NA')?null:Number(rawE);
+  const pp=auto?auto.projectPoints:((rawP===undefined||rawP===null||rawP===''||rawP==='NA')?null:Number(rawP));
+  const ep=auto?auto.examPoints:((rawE===undefined||rawE===null||rawE===''||rawE==='NA')?null:Number(rawE));
   const parts=[[ap,Number(w.activities||0)],[pp,Number(w.project||0)],[ep,Number(w.exam||0)]].filter(x=>x[1]>0);
   const evaluated=parts.filter(x=>x[0]!==undefined&&x[0]!==null&&x[0]!==''&&x[0]!=='NA');
   const earned=evaluated.reduce((t,x)=>t+Number(x[0]),0),used=evaluated.reduce((t,x)=>t+x[1],0);
-  const complete=parts.length>0&&parts.every(x=>x[0]!==undefined&&x[0]!==null&&x[0]!==''&&x[0]!=='NA');
-  return {weights:w,activityPoints:ap,activityAverage:avg,project:pp,exam:ep,earned,used,complete,grade:complete?earned/10:(used?earned/used*10:null)};
+  const complete=parts.length>0&&parts.every(x=>x[0]!==undefined&&x[0]!==null&&x[0]!==''&&x[0]!=='NA')&&(!auto||auto.complete);
+  return {weights:w,activityPoints:ap,activityAverage:avg,project:pp,exam:ep,projectProgress:auto?{evaluated:auto.evaluated,total:auto.total,completed:auto.completed,complete:auto.complete}:null,earned,used,complete,grade:complete?earned/10:(used?earned/used*10:null)};
 }
 function journalAppliesTo(j,shift,group,course,pid){
   if(j.archived||!j.familyVisible||(j.period||'P1')!==pid)return false;
@@ -485,7 +551,7 @@ function journalAppliesTo(j,shift,group,course,pid){
 function familyCoursePayload(course,masterSt,pid){
   const g=state.groups[`${ui.shift}|3${ui.group}|${course}`];if(!g)return null;
   const st=course==='Tecnología'?masterSt:sameStudentByName(g,masterSt.name);if(!st)return null;
-  const acts=(g.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid).map(a=>{const raw=st.activityScores?.[a.id];return {name:a.name,date:a.date||'',score:raw===undefined||raw==='NA'?null:Number(raw),max:Number(a.maxScore||10),detail:a.detail||''}});
+  const acts=(g.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid).map(a=>{const raw=st.activityScores?.[a.id];return {name:a.name,date:a.date||'',score:raw===undefined||raw==='NA'?null:Number(raw),max:Number(a.maxScore||10),detail:a.detail||'',finalProject:isFinalProjectActivity(a),category:a.category||'Actividad'}});
   const grade=periodGradeFor(st,g,pid,course);
   const followups=(state.studentFollowups||[]).filter(x=>x.familyPublished&&(x.period||'P1')===pid&&x.shift===ui.shift&&x.group===ui.group&&x.course===course&&(x.studentId===st.id||String(x.studentName||'')===String(st.name||''))).map(x=>({date:x.date||'',category:x.category||'Seguimiento',title:x.title||'Aviso',text:x.familyText||''})).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const journal=(state.journal||[]).filter(j=>journalAppliesTo(j,ui.shift,ui.group,course,pid)).map(j=>({date:j.date||'',title:j.title||'Aviso',text:j.publicText||'',pending:j.pending||'',attachments:(j.attachments||[]).filter(a=>a?.url).map(a=>({title:a.title||'Documento',url:a.url}))})).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
@@ -565,7 +631,7 @@ $('#projectionBtn').addEventListener('click',()=>{ui.projection=!ui.projection;d
 $('#exportBtn').addEventListener('click',exportBackup);
 $('#importBtn').addEventListener('click',()=>$('#importFile').click());
 $('#importFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)importBackup(f);e.target.value='';});
-window.go=go;window.manageActivities=manageActivities;window.editActivity=editActivity;window.saveActivityEdit=saveActivityEdit;window.toggleArchiveActivity=toggleArchiveActivity;window.deleteActivity=deleteActivity;window.openFamilyAccessExport=openFamilyAccessExport;window.printFamilyAccessCards=printFamilyAccessCards;window.downloadFamilyAccessCSV=downloadFamilyAccessCSV;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
+window.go=go;window.loadFinalProjectActivities=loadFinalProjectActivities;window.manageActivities=manageActivities;window.editActivity=editActivity;window.saveActivityEdit=saveActivityEdit;window.toggleArchiveActivity=toggleArchiveActivity;window.deleteActivity=deleteActivity;window.openFamilyAccessExport=openFamilyAccessExport;window.printFamilyAccessCards=printFamilyAccessCards;window.downloadFamilyAccessCSV=downloadFamilyAccessCSV;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
 async function bootOnline(){
   const cloudStatus=$('#cloudStatus'),userEmail=$('#userEmail'),logoutBtn=$('#logoutBtn');
   function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
