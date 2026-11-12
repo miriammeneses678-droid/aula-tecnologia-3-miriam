@@ -88,6 +88,17 @@ function periodActivities(g=grp()){return (g?.activities||[]).filter(a=>a.active
 function isFinalProjectActivity(a){return !!(a?.finalProject||a?.category==='Proyecto final')}
 function ordinaryPeriodActivities(g=grp()){return periodActivities(g).filter(a=>!isFinalProjectActivity(a))}
 function finalProjectPeriodActivities(g=grp()){return periodActivities(g).filter(isFinalProjectActivity)}
+// v20 · Apoyo extraordinario P1 Tecnología: el encuadre oficial NO cambia (60/30/10).
+// Solo se amplían las oportunidades internas: 70 para continua y 60 para proyecto,
+// con topes oficiales de 60 y 30 respectivamente. El examen sigue proporcional hasta 10.
+function supportMode(pid=ui.period,course=ui.course){return pid==='P1'&&course==='Tecnología'}
+function calcActivityPoints(avg,w,pid=ui.period,course=ui.course){
+  if(avg===null||avg===undefined)return null;
+  const official=Number(w.activities||0);
+  if(!supportMode(pid,course))return Math.round((Number(avg)/10*official)*10)/10;
+  const opportunity=Math.round((Number(avg)/10*70)*10)/10;
+  return Math.round(Math.min(official,opportunity)*10)/10;
+}
 function isPeriodClosed(){return !!periodCfg().closed}
 function editableGuard(){if(isPeriodClosed()){toast(`Este periodo de ${ui.course} está cerrado. Reábrelo para modificar datos.`);return false}return true}
 function avgActivities(st,g=grp()){const acts=ordinaryPeriodActivities(g);const vals=acts.map(a=>st.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');return vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null}
@@ -105,16 +116,18 @@ function finalProjectProgress(st,g=grp(),pid=ui.period,course=ui.course){
     }
   });
   const ratio=totalRaw?earnedRaw/totalRaw:0;
-  const projectPoints=evaluated?Math.round(ratio*Number(w.project||0)*10)/10:null;
+  const support=supportMode(pid,course);
+  const projectOpportunity=evaluated?Math.round(ratio*(support?60:Number(w.project||0))*10)/10:null;
+  const projectPoints=evaluated?Math.round(Math.min(Number(w.project||0),projectOpportunity)*10)/10:null;
   const examPoints=evaluated?Math.round(ratio*Number(w.exam||0)*10)/10:null;
-  return{acts,total:acts.length,evaluated,completed,earnedRaw,totalRaw,ratio,projectPoints,examPoints,complete:evaluated===acts.length};
+  return{acts,total:acts.length,evaluated,completed,earnedRaw,totalRaw,ratio,projectOpportunity,projectPoints,examPoints,complete:evaluated===acts.length,support};
 }
 function gradeCalc(st){
   const cfg=periodCfg(),w=cfg.weights||{activities:60,project:30,exam:10};
   const a=avgActivities(st),projectAuto=finalProjectProgress(st);
   const manualP=st.projectScores?.[ui.period],manualE=st.examScores?.[ui.period];
   const p=projectAuto?projectAuto.projectPoints:manualP,e=projectAuto?projectAuto.examPoints:manualE;
-  const activityPoints=a===null?null:Math.round((Number(a)/10*Number(w.activities||0))*10)/10;
+  const activityPoints=calcActivityPoints(a,w,ui.period,ui.course);
   const all=[['activities',activityPoints,Number(w.activities||0)],['project',p,Number(w.project||0)],['exam',e,Number(w.exam||0)]];
   const required=all.filter(x=>x[2]>0);
   const evaluated=required.filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!==''&&x[1]!=='NA');
@@ -209,7 +222,7 @@ function createAttendanceDate(){const d=$('#newAttDate').value;if(!d)return;cons
 function renderActivities(){
  const g=grp();if(!g)return;const acts=periodActivities(g),students=g.students.filter(s=>s.active);
  app.innerHTML=head('Actividades','Vista completa para revisar varios sellos del mismo alumno sin cambiar de actividad.',`${isPeriodClosed()?'':`${ui.course==='Tecnología'&&ui.period==='P1'?`<button class="btn gold private-only" onclick="loadFinalProjectActivities()">📦 Cargar Proyecto Final</button>`:''}<button class="btn primary private-only" onclick="newActivity()">+ Nueva actividad</button>`}`)+
- `<div class="activity-help private-only"><b>Captura rápida:</b> escribe <b>10</b>, <b>5</b>, <b>0</b> o <b>—</b>. Presiona <b>Tab</b> para brincar a la siguiente actividad del alumno. También puedes tocar su nombre para abrir la revisión individual.${finalProjectPeriodActivities(g).length?`<br><b>Proyecto final:</b> las actividades marcadas con <span class="badge warn">PF</span> se contabilizan en el <b>30% de Proyecto</b> y generan proporcionalmente el <b>10% de Examen</b>; no forman parte del 60% de actividades ordinarias.`:''}</div>
+ `<div class="activity-help private-only"><b>Captura rápida:</b> escribe <b>10</b>, <b>5</b>, <b>0</b> o <b>—</b>. Presiona <b>Tab</b> para brincar a la siguiente actividad del alumno. También puedes tocar su nombre para abrir la revisión individual.${finalProjectPeriodActivities(g).length?`<br><b>Proyecto final:</b> las actividades marcadas con <span class="badge warn">PF</span> alimentan el <b>30% oficial de Proyecto</b> y generan proporcionalmente el <b>10% de Examen</b>; no forman parte del 60% de actividades ordinarias. En P1 se aplica el margen extraordinario de apoyo sin cambiar el encuadre oficial.`:''}</div>
  <div class="toolbar activity-toolbar private-only"><span class="badge good">10 = entregada</span><span class="badge warn">5 = parcial</span><span class="badge bad">0 = pendiente</span><span class="badge neutral">— = no aplica / sin registrar</span><span class="spacer"></span><button class="btn secondary" onclick="manageActivities()">⚙ Administrar actividades</button><button class="btn secondary" onclick="openBulkActivity()">✓ Todos = 10 por actividad</button></div>
  ${acts.length?`<div class="table-wrap activity-matrix-wrap"><table class="activity-matrix"><thead><tr><th class="num sticky-col sticky-num">N.º</th><th class="sticky-col sticky-name">Alumno</th>${acts.map(a=>`<th class="activity-head" title="${esc(a.name)}"><span>${isFinalProjectActivity(a)?'<span class="badge warn" style="margin-bottom:.25rem">PF</span> ':''}${esc(a.name)}</span></th>`).join('')}<th class="sticky-right">Avance</th></tr></thead><tbody>${students.map(s=>rowActivityMatrix(s,acts)).join('')}</tbody></table></div>`:'<div class="empty card">Aún no hay actividades.</div>'}`;
  document.querySelectorAll('.score-input').forEach(inp=>{
@@ -462,7 +475,7 @@ function renderGrades(){
    return `<tr><td class="num">${s.listNo}</td><td class="student-name">${esc(s.name)}${s.privateFlag?'<span class="private-flag private-only">⚑</span>':''}</td><td><b>${a}</b></td>${showProject?`<td>${projectCell}</td>`:''}${showExam?`<td>${examCell}</td>`:''}<td><b>${total}</b><small class="grade-state">Puntos</small></td><td><b>${shown}</b><small class="grade-state">${c.complete?'Final':'Provisional'}</small></td></tr>`
  }).join('');
  const formula=[`${w.activities} puntos actividades/tareas/prácticas`,showProject?`${w.project} puntos proyecto`:'',showExam?`${w.exam} puntos examen`:''].filter(Boolean).join(' · ');
- const autoNotice=autoProject?`<div class="notice"><b>Proyecto Final por incapacidad:</b> las ${finalProjectPeriodActivities(g).length} actividades marcadas PF se califican individualmente con 10, 5, 0 o —. Su suma se convierte automáticamente a <b>${w.project} puntos de Proyecto</b> y, en la misma proporción, a <b>${w.exam} puntos de Examen</b>. Estas actividades <b>no forman parte de los ${w.activities} puntos de actividades ordinarias</b>.</div>`:'';
+ const autoNotice=autoProject?`<div class="notice"><b>Proyecto Final por incapacidad:</b> las ${finalProjectPeriodActivities(g).length} actividades marcadas PF se califican individualmente con 10, 5, 0 o —. ${supportMode()?`<b>Apoyo extraordinario P1:</b> internamente el proyecto ofrece hasta <b>60 puntos de oportunidad</b>, con tope oficial de <b>${w.project}</b>; el examen aporta hasta <b>${w.exam}</b> proporcionalmente. La evaluación continua ofrece hasta <b>70 puntos de oportunidad</b>, con tope oficial de <b>${w.activities}</b>. El encuadre oficial sigue siendo <b>${w.activities}/${w.project}/${w.exam}</b>.`:`Su suma se convierte automáticamente a <b>${w.project} puntos de Proyecto</b> y, en la misma proporción, a <b>${w.exam} puntos de Examen</b>.`} Estas actividades <b>no forman parte de los ${w.activities} puntos de actividades ordinarias</b>.</div>`:'';
  app.innerHTML=head('Calificaciones',`${periodName()} · ${ui.course} · ${formula}`,`<button class="btn secondary private-only" onclick="configurePeriod()">⚙ Encuadre</button><button class="btn ${isPeriodClosed()?'gold':'danger'} private-only" onclick="togglePeriodClosed()">${isPeriodClosed()?'Reabrir periodo':'Cerrar periodo'}</button>`)+`<div class="period-strip ${isPeriodClosed()?'period-closed':''}"><div><b>${esc(periodName())} · ${esc(ui.course)}</b><span>${isPeriodClosed()?'Las calificaciones de este espacio están protegidas contra cambios.':autoProject?'Proyecto y examen se calculan automáticamente desde las actividades PF.':'Las actividades se calculan automáticamente. Proyecto y examen se capturan directamente en puntos del encuadre.'}</span></div><span class="badge ${isPeriodClosed()?'bad':'good'}">${isPeriodClosed()?'Cerrado':'Abierto'}</span></div>${autoNotice}<div class="notice"><b>Vacío (—)</b> significa aún no evaluado; <b>0</b> significa revisado sin puntos. La calificación final se cierra cuando todos los componentes requeridos están evaluados.</div><div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Actividades<br><small>máx. ${w.activities}</small></th>${showProject?`<th>Proyecto<br><small>máx. ${w.project}</small></th>`:''}${showExam?`<th>Examen<br><small>máx. ${w.exam}</small></th>`:''}<th>Total</th><th>Calificación</th></tr></thead><tbody>${rows}</tbody></table></div>`;
  document.querySelectorAll('.grade-input').forEach(i=>{i.addEventListener('change',()=>commitGrade(i));i.addEventListener('keydown',e=>{if(e.key==='Enter'){i.blur()}})});
 }
@@ -528,7 +541,7 @@ function periodGradeFor(st,g,pid,course){
   const ordinary=(g?.activities||[]).filter(a=>a.active&&(a.period||'P1')===pid&&!isFinalProjectActivity(a));
   const vals=ordinary.map(a=>st?.activityScores?.[a.id]).filter(v=>v!==undefined&&v!=='NA'&&v!==null&&v!=='');
   const avg=vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null;
-  const ap=avg===null?null:Math.round((avg/10*Number(w.activities||0))*10)/10;
+  const ap=calcActivityPoints(avg,w,pid,course);
   const auto=finalProjectProgress(st,g,pid,course);
   const rawP=st?.projectScores?.[pid],rawE=st?.examScores?.[pid];
   const pp=auto?auto.projectPoints:((rawP===undefined||rawP===null||rawP===''||rawP==='NA')?null:Number(rawP));
@@ -634,7 +647,7 @@ $('#importFile').addEventListener('change',e=>{const f=e.target.files?.[0];if(f)
 window.go=go;window.loadFinalProjectActivities=loadFinalProjectActivities;window.manageActivities=manageActivities;window.editActivity=editActivity;window.saveActivityEdit=saveActivityEdit;window.toggleArchiveActivity=toggleArchiveActivity;window.deleteActivity=deleteActivity;window.openFamilyAccessExport=openFamilyAccessExport;window.printFamilyAccessCards=printFamilyAccessCards;window.downloadFamilyAccessCSV=downloadFamilyAccessCSV;window.generateFamilyAccess=generateFamilyAccess;window.generateMissingFamilyAccess=generateMissingFamilyAccess;window.syncOneFamily=syncOneFamily;window.syncFamilyGroup=syncFamilyGroup;window.copyFamilyCredentials=copyFamilyCredentials;window.configurePeriod=configurePeriod;window.savePeriodConfig=savePeriodConfig;window.togglePeriodClosed=togglePeriodClosed;window.setAttendance=setAttendance;window.setAttendanceMode=setAttendanceMode;window.setAttendanceMonthView=setAttendanceMonthView;window.cycleMonthlyAttendance=cycleMonthlyAttendance;window.markAllPresent=markAllPresent;window.newAttendanceDate=newAttendanceDate;window.createAttendanceDate=createAttendanceDate;window.setScore=setScore;window.markActivityAll=markActivityAll;window.reviewStudentActivities=reviewStudentActivities;window.setScoreQuick=setScoreQuick;window.openBulkActivity=openBulkActivity;window.confirmBulkActivity=confirmBulkActivity;window.newActivity=newActivity;window.createActivity=createActivity;window.openJournal=openJournal;window.improveFamilyDraft=improveFamilyDraft;window.previewJournal=previewJournal;window.toggleJournalTargets=toggleJournalTargets;window.editJournal=editJournal;window.archiveJournal=archiveJournal;window.saveJournal=saveJournal;window.newStudent=newStudent;window.createStudent=createStudent;window.editStudent=editStudent;window.saveStudent=saveStudent;window.newStudentFollowup=newStudentFollowup;window.improveStudentFamilyDraft=improveStudentFamilyDraft;window.saveStudentFollowup=saveStudentFollowup;window.closeModal=closeModal;
 async function bootOnline(){
   const cloudStatus=$('#cloudStatus'),userEmail=$('#userEmail'),logoutBtn=$('#logoutBtn');
-  function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
+  function setCloud(kind,text){if(!cloudStatus)return;cloudStatus.textContent=(kind==='online'?'☁️ ':kind==='error'?'⚠️ ':kind==='warning'?'🚨 ':kind==='sync'?'↻ ':'☁️ ')+text;cloudStatus.dataset.kind=kind;}
   window.CLOUD?.onStatus?.(({kind,text})=>setCloud(kind,text));
   if(!window.CLOUD?.enabled){state=loadState();ensurePeriodData();refreshSelectors();render();setCloud('error','Sin conexión Firebase');return;}
   let user=await window.CLOUD.waitForAuthState();
@@ -649,7 +662,14 @@ async function bootOnline(){
   logoutBtn.onclick=async()=>{if(confirm('¿Cerrar sesión en este equipo?')){await window.CLOUD.logout();location.reload();}};
   try{
     const cloudState=await window.CLOUD.loadState();
-    if(cloudState){state=cloudState;localStorage.setItem(STORAGE,JSON.stringify(state));}
+    const pendingRecovery=window.CLOUD?.getPendingSnapshot?.();
+    if(pendingRecovery?.state){
+      state=pendingRecovery.state;
+      localStorage.setItem(STORAGE,JSON.stringify(state));
+      setCloud('warning','Recuperando cambios que quedaron pendientes de sincronizar');
+      window.CLOUD.queueSave(state);
+      toast('Se recuperaron cambios locales pendientes; no se descartaron.');
+    }else if(cloudState){state=cloudState;localStorage.setItem(STORAGE,JSON.stringify(state));}
     else{
       state=loadState();ensurePeriodData();
       if(confirm('La base en línea está vacía. ¿Cargar ahora los alumnos, asistencias y actividades que trae esta versión como base inicial?')){await window.CLOUD.seedState(state);toast('Base inicial cargada en Firebase');}
