@@ -28,6 +28,9 @@ function ensurePeriodData(){
   Object.values(state.groups||{}).forEach(g=>{
     (g.activities||[]).forEach(a=>{if(!a.period){a.period='P1';changed=true}});
     (g.students||[]).forEach(st=>{if(!st.projectScores){st.projectScores={};changed=true}if(!st.examScores){st.examScores={};changed=true}if(st.familyAccess===undefined){st.familyAccess=null;changed=true}});
+    // v25: el padrón siempre queda en orden alfabético y con numeración consecutiva.
+    // sourceListNo se conserva como referencia histórica; solo listNo se recalcula.
+    if(normalizeStudentRoster(g))changed=true;
   });
   // Migración v14: Proyecto y examen pasan de escala 0-10 a puntos reales del encuadre.
   // Se ejecuta una sola vez y no toca actividades, asistencia, bitácora ni seguimientos.
@@ -523,7 +526,15 @@ function savePeriodConfig(){const a=Number($('#wActivities').value),p=Number($('
 function togglePeriodClosed(){const c=periodCfg(),name=`${periodName()} de ${ui.course}`;if(c.closed){if(!confirm(`¿Reabrir ${name}? Volverás a poder modificar sus calificaciones.`))return;c.closed=false}else{if(!confirm(`¿Cerrar ${name}? Se bloqueará la edición de actividades, proyecto y examen de este espacio hasta que lo reabras.`))return;c.closed=true}save();renderGrades();toast(c.closed?'Periodo cerrado':'Periodo reabierto')}
 function renderStudents(){const g=grp();app.innerHTML=head('Alumnos','Base maestra única del grupo. Alta, baja y seguimiento confidencial.',`<button class="btn primary" onclick="newStudent()">+ Nuevo alumno</button>`)+`<div class="table-wrap"><table><thead><tr><th>N.º</th><th>Alumno</th><th>Estado</th><th>Ingreso</th><th>Privado</th><th></th></tr></thead><tbody>${g.students.map(s=>`<tr><td>${s.listNo}</td><td class="student-name">${esc(s.name)}</td><td><span class="badge ${s.active?'good':'neutral'}">${s.active?'Activo':'Baja'}</span></td><td>${fmtDate(s.entryDate)}</td><td>${s.privateFlag?`<button class="btn small gold" onclick="showPrivateNotes('${s.id}')">⚑ ${esc(s.privateCode||'Seguimiento')}</button>`:'—'}</td><td><button class="btn small secondary" onclick="editStudent('${s.id}')">Abrir</button></td></tr>`).join('')}</tbody></table></div>`}
 function newStudent(){modal(`<h2>Alta de alumno en 3°${esc(ui.group)} ${esc(ui.shift)}</h2><div class="field"><label>Apellidos y nombre(s)</label><input id="sName" placeholder="APELLIDO PATERNO APELLIDO MATERNO NOMBRE(S)"></div><div class="field"><label>Fecha de ingreso</label><input id="sDate" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="notice"><b>Destino:</b> 3°${esc(ui.group)} · ${esc(ui.shift)} · ${esc(ui.course)}<br>Se ordenará automáticamente por apellidos y aparecerá en asistencia y actividades. Lo anterior a su ingreso quedará como “—”.</div>`,`<button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createStudent()">Dar de alta</button>`)}
-function reNumber(g){g.students.sort((a,b)=>a.name.localeCompare(b.name,'es',{sensitivity:'base'}));g.students.forEach((s,i)=>s.listNo=i+1)}
+function normalizeStudentRoster(g){
+ if(!g||!Array.isArray(g.students))return false;
+ const before=g.students.map(s=>`${s.id||''}|${s.name||''}|${s.listNo??''}`).join('||');
+ g.students.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
+ g.students.forEach((s,i)=>s.listNo=i+1);
+ const after=g.students.map(s=>`${s.id||''}|${s.name||''}|${s.listNo??''}`).join('||');
+ return before!==after;
+}
+function reNumber(g){normalizeStudentRoster(g)}
 function createStudent(){const name=$('#sName').value.trim().replace(/\s+/g,' ').toUpperCase();if(!name)return toast('Escribe el nombre');if(!confirm(`¿Agregar a ${name} a 3°${ui.group} ${ui.shift}?`))return;const g=grp(),id='s-'+Date.now();const s={id,name,active:true,entryDate:$('#sDate').value,privateFlag:false,privateCode:'',privateNotes:'',activityScores:{},attendance:{},projectScores:{},examScores:{},familyAccess:null};g.activities.forEach(a=>s.activityScores[a.id]='NA');g.attendanceDates.forEach(d=>s.attendance[d.id]='NA');g.students.push(s);reNumber(g);save();closeModal();renderStudents();toast(`Alumno agregado a 3°${ui.group} ${ui.shift}`)}
 function editStudent(id){
  const st=grp().students.find(x=>x.id===id);if(!st)return;const rg=reportedGrade(st,'P1');
@@ -546,7 +557,7 @@ function moveStudentBetweenGroups(id,oldName,newShift,newGroup){
 }
 function saveStudent(id){
  const current=grp().students.find(x=>x.id===id);if(!current)return;const oldName=current.name,newName=$('#eName').value.trim().replace(/\s+/g,' ').toUpperCase();if(!newName)return toast('Escribe el nombre del alumno');const newShift=$('#eShift').value,newGroup=$('#eGroup').value;if((newShift!==ui.shift||newGroup!==ui.group)&&!confirm(`¿Mover a ${newName} de 3°${ui.group} ${ui.shift} a 3°${newGroup} ${newShift}? Se migrarán sus calificaciones, asistencia, clave familiar y seguimiento.`))return;
- let updated=0;Object.values(state.groups||{}).forEach(g=>{if(String(g.shift)===String(ui.shift)&&String(g.group)===String(ui.group)){const x=(g.students||[]).find(z=>z.id===id)||sameStudentByName(g,oldName);if(x){x.name=newName;x.active=$('#eActive').value==='1';x.entryDate=$('#eDate').value;x.privateCode=$('#eCode').value.trim();x.privateNotes=$('#eNotes').value.trim();x.privateFlag=!!(x.privateCode||x.privateNotes);x.reportedFinalGrades=x.reportedFinalGrades||{};const rg=$('#eReportedP1').value.trim();if(rg==='')delete x.reportedFinalGrades.P1;else x.reportedFinalGrades.P1=Math.max(0,Math.min(10,Number(rg)));updated++;}}});
+ let updated=0;Object.values(state.groups||{}).forEach(g=>{if(String(g.shift)===String(ui.shift)&&String(g.group)===String(ui.group)){const x=(g.students||[]).find(z=>z.id===id)||sameStudentByName(g,oldName);if(x){x.name=newName;x.active=$('#eActive').value==='1';x.entryDate=$('#eDate').value;x.privateCode=$('#eCode').value.trim();x.privateNotes=$('#eNotes').value.trim();x.privateFlag=!!(x.privateCode||x.privateNotes);x.reportedFinalGrades=x.reportedFinalGrades||{};const rg=$('#eReportedP1').value.trim();if(rg==='')delete x.reportedFinalGrades.P1;else x.reportedFinalGrades.P1=Math.max(0,Math.min(10,Number(rg)));normalizeStudentRoster(g);updated++;}}});
  (state.studentFollowups||[]).forEach(f=>{if(f.studentId===id&&f.studentName)f.studentName=newName});const moved=moveStudentBetweenGroups(id,newName,newShift,newGroup);save();closeModal();if(moved){ui.shift=newShift;ui.group=newGroup;refreshSelectors();}renderStudents();toast(moved?`Alumno movido a 3°${newGroup} ${newShift} con su historial`:'Datos del alumno actualizados')
 }
 function followupsForStudent(studentId){return (state.studentFollowups||[]).filter(x=>x.studentId===studentId&&x.shift===ui.shift&&x.group===ui.group&&x.course===ui.course&&(x.period||'P1')===ui.period).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||''))}
