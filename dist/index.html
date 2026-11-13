@@ -3,358 +3,101 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aula de Tecnología 3.º · Segundo periodo</title>
-<meta name="description" content="Aula Feed de Tecnología 3.º. Segundo periodo: Excel, energías renovables y HTML.">
+<title>Aula de Tecnología 3.º · Mtra. Miriam</title>
 <style>
-:root{
-  --bg:#f2f5f8;--card:#fff;--ink:#19344a;--muted:#6d8090;--line:#dbe4ea;
-  --navy:#0b3a66;--blue:#16609b;--teal:#0c8a83;--green:#2f7d4a;--greenbg:#eaf7ee;
-  --gold:#d79a26;--goldbg:#fff7e6;--red:#b7463f;--redbg:#fff0ed;--soft:#eef5fa;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
-button,summary{font:inherit}
-a{text-decoration:none;color:inherit}
-header{position:sticky;top:0;z-index:40;background:#ffffffee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.head{max-width:900px;margin:auto;padding:12px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.brand{display:flex;gap:10px;align-items:center}
-.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;display:grid;place-items:center;font-weight:900}
-.brand strong{display:block}.brand span{font-size:.82rem;color:var(--muted)}
-.pill{background:var(--greenbg);color:#25643a;border:1px solid #bfe0c8;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
-main{max-width:900px;margin:auto;padding:18px 14px 90px}
-.hero{background:linear-gradient(135deg,#e9fbf7,#edf5ff);border:1px solid #cfe3e8;border-radius:22px;padding:22px;margin-bottom:14px}
-.hero .eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);font-weight:900}
-.hero h1{margin:5px 0 8px;font-size:clamp(1.8rem,6vw,2.8rem);line-height:1.06;color:var(--navy)}
-.hero p{margin:0;color:#3f5f73}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
-.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
-.stat b{display:block;color:var(--navy);font-size:1.05rem}.stat span{font-size:.77rem;color:var(--muted)}
-.now{background:#fff;border:2px solid #82cfc2;border-radius:22px;padding:20px;margin:16px 0;box-shadow:0 8px 26px #173a5a12}
-.nowtag{display:inline-block;background:var(--greenbg);color:#24663c;border:1px solid #bee2c9;padding:6px 10px;border-radius:999px;font-weight:900;font-size:.76rem}
-.now h2{font-size:1.5rem;margin:10px 0 6px;color:var(--navy)}
-.now p{margin:0 0 14px;color:#49697d}
-.primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:white;padding:12px 16px;border-radius:12px;font-weight:900;border:0;cursor:pointer}
-.primary:hover{background:#082d4f}
-.section-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:24px 2px 10px}
-.section-title h2{margin:0;font-size:1.2rem;color:var(--navy)}.section-title span{font-size:.82rem;color:var(--muted)}
-.feed{display:grid;gap:12px}
-.post{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #173a5a0b}
-.post-head{display:flex;justify-content:space-between;gap:10px;padding:15px 16px 10px}
-.post-id{display:flex;gap:10px;align-items:center}
-.icon{width:42px;height:42px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:1.2rem}
-.post-title b{display:block;color:var(--navy)}.post-title span{font-size:.8rem;color:var(--muted)}
-.state{align-self:flex-start;padding:5px 8px;border-radius:999px;font-size:.72rem;font-weight:900;white-space:nowrap}
-.state.now{background:var(--greenbg);color:#24663c;border:1px solid #bee2c9;padding:5px 8px;margin:0;box-shadow:none}
-.state.next{background:#eef5ff;color:#245f94;border:1px solid #c8dcef}
-.state.later{background:#f6f3ff;color:#604d95;border:1px solid #dcd3f3}
-.state.closed{background:#f2f3f4;color:#69757f;border:1px solid #d9dfe3}
-.post-body{padding:0 16px 14px}
-.post-body p{margin:0 0 10px;color:#49697d}
-.meta{display:flex;gap:8px;flex-wrap:wrap}
-.chip{font-size:.76rem;background:#f6f9fb;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:#526c7d;font-weight:700}
-details{border-top:1px solid var(--line)}
-summary{list-style:none;cursor:pointer;padding:13px 16px;font-weight:900;color:var(--blue);display:flex;justify-content:space-between;align-items:center}
-summary::-webkit-details-marker{display:none}
-summary:after{content:"＋";font-size:1.15rem}
-details[open] summary:after{content:"−"}
-.steps{counter-reset:s;list-style:none;padding:0 16px 15px;margin:0}
-.steps li{counter-increment:s;position:relative;padding:8px 6px 8px 38px;border-bottom:1px dashed #e3eaee}
-.steps li:last-child{border-bottom:0}
-.steps li:before{content:counter(s);position:absolute;left:0;top:7px;width:25px;height:25px;border-radius:50%;background:#e9f2f9;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:.8rem}
-.evidence{margin:0 16px 16px;background:var(--greenbg);border:1px solid #c6e4cf;color:#2c6440;padding:10px 12px;border-radius:11px;font-weight:800}
-.tip{margin:0 16px 16px;background:#f2f7ff;border-left:4px solid var(--blue);padding:10px 12px;border-radius:10px}
-.warn{margin:0 16px 16px;background:var(--redbg);border-left:4px solid var(--red);padding:10px 12px;border-radius:10px}
-.eq{margin:10px 16px;background:#f7fbff;border:1px solid #d8e9f5;border-radius:12px;padding:12px;text-align:center;font-size:1.25rem;font-weight:900;color:var(--navy)}
-.table-wrap{overflow:auto;margin:0 16px 16px}
-table{border-collapse:collapse;width:100%;min-width:580px}
-th,td{border:1px solid #d9e5ec;padding:9px 10px;text-align:left;vertical-align:top}
-th{background:#0f4775;color:#fff}tr:nth-child(even) td{background:#f8fbfd}
-.code{margin:0 16px 16px;background:#0e2234;color:#e9f6ff;padding:14px;border-radius:12px;overflow:auto;font: .87rem Consolas,monospace;white-space:pre-wrap}
-.archive{background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:18px}
-.archive summary{border:0;color:var(--navy)}
-.archive p{padding:0 16px 16px;margin:0;color:var(--muted)}
-.bottomnav{position:fixed;bottom:0;left:0;right:0;background:#ffffffef;backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:50}
-.bottomnav .inner{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
-.bottomnav a{padding:10px 4px 8px;text-align:center;font-size:.72rem;color:#51697a}
-.bottomnav b{display:block;font-size:1.2rem;line-height:1.1}
-.bottomnav a.active{color:var(--navy);font-weight:900}
-footer{text-align:center;color:var(--muted);font-size:.8rem;padding:28px 0}
-@media(min-width:760px){
-  .feed{grid-template-columns:1fr 1fr}
-  .post.full{grid-column:1/-1}
-}
+:root{--bg:#f2f5f8;--card:#fff;--ink:#17344b;--muted:#6b7e8e;--line:#dbe4ea;--navy:#0b3a66;--blue:#17609b;--teal:#0c8a83;--green:#2f7d4a;--gb:#eaf7ee;--gold:#d79a26;--gdb:#fff7e6;--red:#b7463f;--rb:#fff0ed}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+a{text-decoration:none;color:inherit}header{position:sticky;top:0;z-index:40;background:#ffffffee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head{max-width:960px;margin:auto;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{display:flex;gap:10px;align-items:center}.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;display:grid;place-items:center;font-weight:900}.brand strong{display:block}.brand span{display:block;font-size:.82rem;color:var(--muted)}
+.pill{background:var(--gb);color:#25643a;border:1px solid #bfe0c8;padding:6px 10px;border-radius:999px;font-weight:900;font-size:.78rem}
+main{max-width:960px;margin:auto;padding:16px 14px 92px}.hero{background:linear-gradient(135deg,#e9fbf7,#edf5ff);border:1px solid #cfe3e8;border-radius:22px;padding:22px}.hero .eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);font-weight:900}.hero h1{margin:5px 0 8px;font-size:clamp(1.9rem,6vw,2.9rem);line-height:1.06;color:var(--navy)}.hero p{margin:0;color:#3f5f73}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stat{background:white;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;color:var(--navy);font-size:1.08rem}.stat span{font-size:.77rem;color:var(--muted)}
+.family{margin:14px 0;background:#fff;border:2px solid #e3c26a;border-radius:18px;padding:16px}.family h2{font-size:1.1rem;margin:0 0 7px;color:#725411}.family p{margin:5px 0}.family .btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-block;padding:10px 13px;border-radius:11px;font-weight:900;background:var(--navy);color:#fff}.btn.secondary{background:#fff;color:var(--navy);border:1px solid #cfdbe4}
+.now{background:#fff;border:2px solid #82cfc2;border-radius:22px;padding:20px;margin:16px 0;box-shadow:0 8px 26px #173a5a12}.nowtag{display:inline-block;background:var(--gb);color:#24663c;border:1px solid #bee2c9;padding:6px 10px;border-radius:999px;font-weight:900;font-size:.76rem}.now h2{font-size:1.5rem;margin:10px 0 6px;color:var(--navy)}.now p{margin:0 0 14px;color:#49697d}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:24px 2px 10px}.section-title h2{margin:0;font-size:1.2rem;color:var(--navy)}.section-title span{font-size:.82rem;color:var(--muted)}
+.feed{display:grid;gap:12px}.post{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #173a5a0b}.post-head{display:flex;justify-content:space-between;gap:10px;padding:15px 16px 10px}.post-id{display:flex;gap:10px;align-items:center}.icon{width:42px;height:42px;border-radius:13px;background:#eef5fa;display:grid;place-items:center;font-size:1.2rem}.post-title b{display:block;color:var(--navy)}.post-title span{font-size:.8rem;color:var(--muted)}
+.state{align-self:flex-start;padding:5px 8px;border-radius:999px;font-size:.72rem;font-weight:900;white-space:nowrap}.s-now{background:var(--gb);color:#24663c;border:1px solid #bee2c9}.s-next{background:#eef5ff;color:#245f94;border:1px solid #c8dcef}.s-later{background:#f6f3ff;color:#604d95;border:1px solid #dcd3f3}.s-closed{background:#f2f3f4;color:#69757f;border:1px solid #d9dfe3}
+.post-body{padding:0 16px 14px}.post-body p{margin:0 0 10px;color:#49697d}.meta{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:.76rem;background:#f6f9fb;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:#526c7d;font-weight:700}
+details{border-top:1px solid var(--line)}summary{list-style:none;cursor:pointer;padding:13px 16px;font-weight:900;color:var(--blue);display:flex;justify-content:space-between;align-items:center}summary::-webkit-details-marker{display:none}summary:after{content:"＋";font-size:1.15rem}details[open] summary:after{content:"−"}
+.steps{counter-reset:s;list-style:none;padding:0 16px 15px;margin:0}.steps li{counter-increment:s;position:relative;padding:8px 6px 8px 38px;border-bottom:1px dashed #e3eaee}.steps li:before{content:counter(s);position:absolute;left:0;top:7px;width:25px;height:25px;border-radius:50%;background:#e9f2f9;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:.8rem}
+.evidence{margin:0 16px 16px;background:var(--gb);border:1px solid #c6e4cf;color:#2c6440;padding:10px 12px;border-radius:11px;font-weight:800}.tip{margin:0 16px 16px;background:#f2f7ff;border-left:4px solid var(--blue);padding:10px 12px;border-radius:10px}.warn{margin:0 16px 16px;background:var(--rb);border-left:4px solid var(--red);padding:10px 12px;border-radius:10px}
+.model{margin:0 16px 16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.model b{display:block;padding:10px 12px;background:#f6f9fb;color:var(--navy)}.model img{display:block;width:100%;height:auto}.model small{display:block;padding:8px 12px;color:var(--muted)}
+.table-wrap{overflow:auto;margin:0 16px 16px}table{border-collapse:collapse;width:100%;min-width:620px}th,td{border:1px solid #d9e5ec;padding:9px 10px;text-align:left;vertical-align:top}th{background:#0f4775;color:#fff}tr:nth-child(even) td{background:#f8fbfd}
+.archive{background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:14px;overflow:hidden}.archive>summary{border:0;color:var(--navy);font-size:1.02rem}.archive .inside{padding:0 16px 16px}.history-grid{display:grid;gap:10px}.history-card{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfdff}.history-card h4{margin:0 0 5px;color:var(--navy)}
+.keyboard{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;margin:10px 0}.key{border:1px solid #bfcbd3;background:#fff;border-radius:6px;padding:8px 4px;text-align:center;font-weight:800;font-size:.72rem;cursor:help}.key:hover{background:#eaf3fa}.wide{grid-column:span 2}
+.rulebox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:14px 0}.rulebox h3{margin:0 0 8px;color:var(--navy)}.rulebox ul{margin:8px 0;padding-left:20px}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:#ffffffef;backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:50}.bottomnav .inner{max-width:960px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr)}.bottomnav a{padding:9px 3px 7px;text-align:center;font-size:.68rem;color:#51697a}.bottomnav b{display:block;font-size:1.15rem}.bottomnav a.active{color:var(--navy);font-weight:900}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:26px 0}
+@media(min-width:760px){.feed{grid-template-columns:1fr 1fr}.post.full{grid-column:1/-1}.history-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<header>
-  <div class="head">
-    <div class="brand">
-      <div class="avatar">MM</div>
-      <div><strong>Aula de Tecnología 3.º</strong><span>Mtra. Miriam Meneses Rojas</span></div>
-    </div>
-    <span class="pill">P2 · En curso</span>
-  </div>
-</header>
+<header><div class="head"><div class="brand"><div class="avatar">MM</div><div><strong>Aula de Tecnología 3.º</strong><span>Mtra. Miriam Meneses Rojas · Ciclo 2026–2027</span></div></div><span class="pill">P2 · En curso</span></div></header>
 
 <main id="inicio">
 <section class="hero">
-  <div class="eyebrow">Segundo periodo</div>
-  <h1>Tecnología que sirve</h1>
-  <p>Excel, energías renovables y una web para el futuro. Aquí verás qué sigue, qué tienes que hacer y qué evidencia debes entregar.</p>
-  <div class="stats">
-    <div class="stat"><b>70%</b><span>Actividades</span></div>
-    <div class="stat"><b>20%</b><span>Proyecto</span></div>
-    <div class="stat"><b>10%</b><span>Examen</span></div>
-  </div>
+<div class="eyebrow">Segundo periodo</div>
+<h1>Tecnología que sirve</h1>
+<p>Excel, energías renovables y una web para el futuro. Aquí encuentras qué sigue, cómo hacerlo, ejemplos de cómo debe quedar y qué evidencia debes entregar.</p>
+<div class="stats"><div class="stat"><b>70%</b><span>Actividades</span></div><div class="stat"><b>20%</b><span>Proyecto</span></div><div class="stat"><b>10%</b><span>Examen</span></div></div>
 </section>
 
-<section class="now" id="continuar">
-  <span class="nowtag">🟢 CONTINÚA AQUÍ</span>
-  <h2>A1–A2 · Inicio y nivelación</h2>
-  <p>Revisa tu portada del segundo periodo. Si ya está completa, continúa el dictado exactamente donde te quedaste. No repitas trabajo que ya terminaste.</p>
-  <a class="primary" href="#a1">▶ Seguir con mi actividad</a>
+<section class="family" id="familias-aviso">
+<h2>📣 Aviso para madres, padres y tutores</h2>
+<p><strong>Ya inició el segundo periodo.</strong> La evaluación será: <strong>70% actividades, prácticas y tareas · 20% proyecto integrador · 10% examen</strong>.</p>
+<p>En esta Aula se publican las instrucciones, ejemplos y evidencias esperadas. Para conocer el <strong>avance individual, pendientes y calificaciones registradas</strong> de su hija o hijo, solicite su <strong>usuario y PIN del Portal de Familias</strong>.</p>
+<p><strong>Turno matutino:</strong> puede solicitarlo directamente con la maestra, acudir a la escuela o pedir apoyo a Prefectura para que le proporcionen sus datos de acceso por los medios de comunicación que el plantel utiliza con las familias.</p>
+<p><strong>Turno vespertino:</strong> puede solicitarlo directamente con la maestra o acudir a la escuela.</p>
+<div class="btnrow"><a class="btn" href="familias/">👨‍👩‍👧 Entrar a Familias</a><a class="btn secondary" href="#equidad">Ver reglas de evaluación</a></div>
 </section>
 
-<div class="section-title" id="actividades"><h2>Feed de actividades</h2><span>Toca “Ver paso a paso”</span></div>
+<section class="now"><span class="nowtag">🟢 CONTINÚA AQUÍ</span><h2>A1–A2 · Inicio y nivelación</h2><p>Revisa tu portada. Si ya está completa, continúa el dictado exactamente donde te quedaste. No repitas trabajo ya terminado.</p><a class="btn" href="#a1">▶ Seguir con mi actividad</a></section>
 
+<div class="section-title" id="actividades"><h2>Feed de actividades P2</h2><span>Abre “Ver paso a paso”</span></div>
 <div class="feed">
 
-<article class="post" id="a1">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">🎨</div><div class="post-title"><b>A1 · Portada</b><span>17–18 nov · Energías renovables</span></div></div>
-    <span class="state now">AHORA</span>
-  </div>
-  <div class="post-body">
-    <p>Deja lista la portada del segundo periodo. Si ya la hiciste, solo revisa requisitos.</p>
-    <div class="meta"><span class="chip">3 puntos</span><span class="chip">Cuaderno</span><span class="chip">No repetir</span></div>
-  </div>
-  <details open>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Escribe <strong>Segundo periodo</strong>.</li>
-      <li>Tema obligatorio: <strong>Energías renovables</strong>.</li>
-      <li>Haz un dibujo de energía solar, eólica, hidráulica, geotérmica o biomasa.</li>
-      <li>Colorea y cuida la presentación.</li>
-      <li>Incluye nombre, grado, grupo, turno, materia y ciclo 2026–2027.</li>
-      <li>Si ya está hecha, revisa y completa. No hagas otra.</li>
-    </ol>
-  </details>
-  <div class="evidence">✅ Entrega: portada completa, coloreada y con datos.</div>
-</article>
+<article class="post" id="a1"><div class="post-head"><div class="post-id"><div class="icon">🎨</div><div class="post-title"><b>A1 · Portada</b><span>17–18 nov</span></div></div><span class="state s-now">AHORA</span></div><div class="post-body"><p>Portada del segundo periodo con tema de energías renovables.</p><div class="meta"><span class="chip">3 puntos</span><span class="chip">Cuaderno</span></div></div><details open><summary>Ver paso a paso</summary><ol class="steps"><li>Escribe “Segundo periodo”.</li><li>Tema: Energías renovables.</li><li>Dibuja energía solar, eólica, hidráulica, geotérmica o biomasa.</li><li>Colorea y cuida la presentación.</li><li>Incluye nombre, grado, grupo, turno, materia y ciclo.</li><li>Si ya la hiciste, solo revisa y completa.</li></ol></details><div class="evidence">✅ Entrega: portada completa, coloreada y con datos.</div></article>
 
-<article class="post" id="a2">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">✍️</div><div class="post-title"><b>A2 · Dictado y nivelación</b><span>18–25 nov</span></div></div>
-    <span class="state now">AHORA</span>
-  </div>
-  <div class="post-body">
-    <p>Recupera conceptos que usaremos durante todo el periodo y continúa desde tu último avance.</p>
-    <div class="meta"><span class="chip">7 puntos</span><span class="chip">Cuaderno</span><span class="chip">12 preguntas</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Título: <strong>La tecnología, las herramientas y Excel en mi vida cotidiana</strong>.</li>
-      <li>Continúa desde el apartado marcado por la maestra.</li>
-      <li>Cuida mayúsculas, signos, puntuación y ortografía.</li>
-      <li>Al terminar las cinco partes, responde las <strong>12 preguntas</strong> con oraciones completas.</li>
-      <li>No adelantes otra actividad si A2 sigue incompleta.</li>
-    </ol>
-  </details>
-  <div class="evidence">✅ Entrega: dictado completo + 12 respuestas.</div>
-</article>
+<article class="post" id="a2"><div class="post-head"><div class="post-id"><div class="icon">✍️</div><div class="post-title"><b>A2 · Dictado y nivelación</b><span>18–25 nov</span></div></div><span class="state s-now">AHORA</span></div><div class="post-body"><p>Recupera conceptos que usaremos durante todo el periodo.</p><div class="meta"><span class="chip">7 puntos</span><span class="chip">12 preguntas</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Título: “La tecnología, las herramientas y Excel en mi vida cotidiana”.</li><li>Continúa desde el apartado indicado.</li><li>Cuida mayúsculas, puntuación y ortografía.</li><li>Al terminar las cinco partes, responde 12 preguntas con oraciones completas.</li><li>No adelantes una actividad nueva si A2 sigue incompleta.</li></ol></details><div class="evidence">✅ Entrega: dictado completo + 12 respuestas.</div></article>
 
-<article class="post" id="a3">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">🧰</div><div class="post-title"><b>A3 · Tabla de herramientas</b><span>30 nov–2 dic</span></div></div>
-    <span class="state next">SIGUE</span>
-  </div>
-  <div class="post-body">
-    <p>Retomamos Excel desde cero con una tabla útil de inventario y seguridad.</p>
-    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span><span class="chip">T1 / cuaderno</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Abre Excel y nombra la hoja <strong>HERRAMIENTAS</strong>.</li>
-      <li>Crea columnas: N.º, nombre, descripción, clasificación, accionamiento, material, existencia, precio unitario y norma de seguridad.</li>
-      <li>Captura los datos indicados.</li>
-      <li>Aplica bordes, relleno en encabezados y ajuste de texto.</li>
-      <li>Guarda el archivo con el nombre indicado para tu grupo.</li>
-    </ol>
-  </details>
-  <div class="evidence">✅ Entrega: tabla estructurada, legible y guardada.</div>
-</article>
+<article class="post" id="a3"><div class="post-head"><div class="post-id"><div class="icon">🧰</div><div class="post-title"><b>A3 · Tabla de herramientas</b><span>30 nov–2 dic</span></div></div><span class="state s-next">SIGUE</span></div><div class="post-body"><p>Retomamos Excel desde cero con inventario, clasificación y seguridad.</p><div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Abre Excel y nombra la hoja HERRAMIENTAS.</li><li>Crea las columnas solicitadas.</li><li>Captura datos.</li><li>Aplica bordes, encabezados y ajuste de texto.</li><li>Guarda el archivo.</li></ol><div class="model"><b>👀 Así debe quedar</b><img src="assets/p2/ejemplo_tabla_herramientas.png" alt="Ejemplo de tabla de herramientas en Excel"><small>Úsalo como modelo visual; tus datos pueden variar.</small></div></details><div class="evidence">✅ Entrega: tabla estructurada, legible y guardada.</div></article>
 
-<article class="post" id="a4">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">🧮</div><div class="post-title"><b>A4 · Excel para la vida diaria</b><span>7–16 dic</span></div></div>
-    <span class="state next">DESPUÉS</span>
-  </div>
-  <div class="post-body">
-    <p>Inventario, compras, presupuesto, cambio, faltantes y costo por persona.</p>
-    <div class="meta"><span class="chip">15 puntos</span><span class="chip">Suma</span><span class="chip">Resta</span><span class="chip">× y ÷</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Multiplicación: <code>=C2*D2</code>.</li>
-      <li>Resta: <code>=C2-E2</code>.</li>
-      <li>Suma: <code>=C2+F2</code>.</li>
-      <li>División: <code>=G2/H2</code>.</li>
-      <li>Resuelve una compra con presupuesto y calcula cambio o faltante.</li>
-      <li>Comprueba manualmente al menos un resultado.</li>
-    </ol>
-  </details>
-  <div class="tip"><strong>Regla clave:</strong> toda fórmula en Excel inicia con <strong>=</strong>.</div>
-  <div class="evidence">✅ Entrega: tabla con operaciones y presupuesto resuelto.</div>
-</article>
+<article class="post" id="a4"><div class="post-head"><div class="post-id"><div class="icon">🧮</div><div class="post-title"><b>A4 · Excel para la vida diaria</b><span>7–16 dic</span></div></div><span class="state s-next">DESPUÉS</span></div><div class="post-body"><p>Inventario, compras, presupuesto, cambio y faltantes.</p><div class="meta"><span class="chip">15 puntos</span><span class="chip">Suma · Resta · × · ÷</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Multiplicación: <code>=B2*C2</code>.</li><li>Resta: <code>=B2-E2</code>.</li><li>Suma: <code>=B2+F2</code>.</li><li>División: <code>=G2/H2</code>.</li><li>Resuelve una compra con presupuesto.</li><li>Comprueba manualmente un cálculo.</li></ol><div class="model"><b>👀 Así debe quedar</b><img src="assets/p2/ejemplo_inventario.png" alt="Ejemplo de inventario con fórmulas en Excel"><small>Observa la barra de fórmulas y las referencias.</small></div></details><div class="tip"><strong>Regla clave:</strong> toda fórmula en Excel inicia con <strong>=</strong>.</div><div class="evidence">✅ Entrega: tabla con operaciones y presupuesto.</div></article>
 
-<article class="post full" id="a5">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">📊</div><div class="post-title"><b>A5 · Referencias, funciones y porcentajes</b><span>11–27 ene</span></div></div>
-    <span class="state later">MÁS ADELANTE</span>
-  </div>
-  <div class="post-body">
-    <p>Usarás referencias de celda, SUMA, PROMEDIO, MÁXIMO, MÍNIMO, porcentajes y un reto de ecuaciones de primer grado.</p>
-    <div class="meta"><span class="chip">15 puntos</span><span class="chip">Excel</span><span class="chip">Reto matemático</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Ubica referencias como A1, B2 y C3.</li>
-      <li>Haz una lista de compras usando referencias.</li>
-      <li>Practica <code>=SUMA()</code>, <code>=PROMEDIO()</code>, <code>=MAX()</code> y <code>=MIN()</code>.</li>
-      <li>Calcula porcentajes de ahorro, aumento o distribución.</li>
-      <li>Explica qué cambia cuando modificas cantidad o precio.</li>
-    </ol>
-    <div class="eq">Reto: 2x + 5 = 15</div>
-    <ol class="steps">
-      <li>Resta 5 al resultado: 15 − 5 = 10.</li>
-      <li>Ahora tienes 2x = 10.</li>
-      <li>Divide entre 2: x = 5.</li>
-      <li>Comprueba: 2(5) + 5 = 15.</li>
-      <li>En Excel escribe <code>=(C2-B2)/A2</code> para obtener x.</li>
-      <li>Comprueba con <code>=A2*D2+B2</code>.</li>
-    </ol>
-    <div class="eq">Si ax + b = c, entonces x = (c − b) ÷ a</div>
-  </details>
-  <div class="evidence">✅ Entrega: referencias correctas, funciones, porcentaje y conclusión.</div>
-</article>
+<article class="post full" id="a5"><div class="post-head"><div class="post-id"><div class="icon">📊</div><div class="post-title"><b>A5 · Referencias, funciones, porcentajes y ecuaciones</b><span>11–27 ene</span></div></div><span class="state s-later">MÁS ADELANTE</span></div><div class="post-body"><p>Referencias, SUMA, PROMEDIO, MÁXIMO, MÍNIMO, porcentajes y ecuaciones de primer grado.</p><div class="meta"><span class="chip">15 puntos</span><span class="chip">Excel</span><span class="chip">Reto matemático</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Ubica referencias como A1, B2 y C3.</li><li>Usa referencias en lugar de escribir resultados.</li><li>Practica <code>=SUMA()</code>, <code>=PROMEDIO()</code>, <code>=MAX()</code> y <code>=MIN()</code>.</li><li>Calcula porcentajes de ahorro, aumento o distribución.</li><li>Explica qué cambia si modificas un dato.</li></ol><div class="model"><b>👀 Así debe quedar la tabla de funciones</b><img src="assets/p2/ejemplo_funciones.png" alt="Ejemplo de tabla de funciones de Excel"></div><div class="model"><b>🧠 Así debe quedar el reto de ecuación</b><img src="assets/p2/ejemplo_ecuacion.png" alt="Ejemplo de ecuación de primer grado resuelta con Excel"></div><div class="tip"><strong>Ejemplo:</strong> 2x + 5 = 15 → x = (15 − 5) ÷ 2 = 5. En Excel: <code>=(C2-B2)/A2</code>.</div></details><div class="evidence">✅ Entrega: referencias correctas, funciones, porcentaje y conclusión.</div></article>
 
-<article class="post" id="a6">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">🌍</div><div class="post-title"><b>A6 · Energías + libro</b><span>1–3 feb</span></div></div>
-    <span class="state later">MÁS ADELANTE</span>
-  </div>
-  <div class="post-body">
-    <p>Fuentes renovables y no renovables: solar, eólica, hidráulica, geotérmica y biomasa.</p>
-    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Libro</span><span class="chip">Cuadro comparativo</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Define qué es energía.</li>
-      <li>Distingue renovable y no renovable.</li>
-      <li>Trabaja únicamente las páginas del libro indicadas en clase.</li>
-      <li>Haz un cuadro: fuente, origen, ventaja, limitación y ejemplo.</li>
-    </ol>
-  </details>
-  <div class="warn"><strong>Importante:</strong> las páginas exactas se publicarán cuando la maestra revise el ejemplar físico.</div>
-  <div class="evidence">✅ Entrega: libro + cuadro comparativo.</div>
-</article>
+<article class="post" id="a6"><div class="post-head"><div class="post-id"><div class="icon">🌍</div><div class="post-title"><b>A6 · Energías + libro</b><span>1–3 feb</span></div></div><span class="state s-later">MÁS ADELANTE</span></div><div class="post-body"><p>Renovables y no renovables: solar, eólica, hidráulica, geotérmica y biomasa.</p><div class="meta"><span class="chip">10 puntos</span><span class="chip">Libro</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Define qué es energía.</li><li>Distingue renovable y no renovable.</li><li>Trabaja solo las páginas indicadas.</li><li>Haz un cuadro con fuente, origen, ventaja, limitación y ejemplo.</li></ol></details><div class="warn"><strong>Páginas del libro:</strong> se publicarán después de revisar el ejemplar físico del taller.</div><div class="evidence">✅ Entrega: libro + cuadro comparativo.</div></article>
 
-<article class="post" id="a7">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">📈</div><div class="post-title"><b>A7 · Energía en datos</b><span>8–10 feb</span></div></div>
-    <span class="state later">MÁS ADELANTE</span>
-  </div>
-  <div class="post-body">
-    <p>Tabla, gráfica, tres conclusiones y propuesta sustentable.</p>
-    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span><span class="chip">Gráfica</span></div>
-  </div>
-  <details>
-    <summary>Ver paso a paso</summary>
-    <ol class="steps">
-      <li>Organiza datos comparables de distintas fuentes.</li>
-      <li>Crea una tabla en Excel.</li>
-      <li>Inserta una gráfica sencilla.</li>
-      <li>Escribe tres conclusiones basadas en los datos.</li>
-      <li>Propón una acción de ahorro o alternativa sustentable.</li>
-    </ol>
-  </details>
-  <div class="tip">💡 Los paneles fotovoltaicos aprovechan radiación/luz solar; no necesitan calor intenso para producir electricidad.</div>
-  <div class="evidence">✅ Entrega: tabla + gráfica + 3 conclusiones + propuesta.</div>
-</article>
-
+<article class="post" id="a7"><div class="post-head"><div class="post-id"><div class="icon">📈</div><div class="post-title"><b>A7 · Energía en datos</b><span>8–10 feb</span></div></div><span class="state s-later">MÁS ADELANTE</span></div><div class="post-body"><p>Tabla, gráfica, tres conclusiones y propuesta sustentable.</p><div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span></div></div><details><summary>Ver paso a paso</summary><ol class="steps"><li>Organiza datos comparables.</li><li>Crea una tabla.</li><li>Inserta una gráfica sencilla.</li><li>Escribe tres conclusiones.</li><li>Propón una acción sustentable.</li></ol></details><div class="tip">💡 Un panel fotovoltaico aprovecha radiación/luz solar; no necesita calor intenso para producir electricidad.</div><div class="evidence">✅ Entrega: tabla + gráfica + 3 conclusiones + propuesta.</div></article>
 </div>
 
 <div class="section-title" id="proyecto"><h2>Proyecto integrador</h2><span>20%</span></div>
-<article class="post full">
-  <div class="post-head">
-    <div class="post-id"><div class="icon">🌱</div><div class="post-title"><b>Energía renovable + Excel + HTML</b><span>15 feb–3 mar</span></div></div>
-    <span class="state later">PROYECTO</span>
-  </div>
-  <div class="post-body">
-    <p>Investiga una fuente renovable, analiza datos en Excel, crea una representación segura y comunica lo aprendido en una mini página HTML local.</p>
-    <div class="meta"><span class="chip">20 puntos</span><span class="chip">Equipo + evidencia individual</span></div>
-  </div>
-  <details>
-    <summary>Ver etapas del proyecto</summary>
-    <ol class="steps">
-      <li>Elegir energía, problema, roles y dato sorprendente.</li>
-      <li>Investigar funcionamiento, ventajas, limitaciones y uso en México.</li>
-      <li>Construir tabla y gráfica en Excel.</li>
-      <li>Crear maqueta, esquema o representación técnica segura.</li>
-      <li>Escribir una mini página HTML con título, explicación, lista y tabla.</li>
-      <li>Abrirla en Chrome o Edge y corregir con Ctrl+S + F5.</li>
-      <li>Presentar el proyecto y explicar tu aportación individual.</li>
-    </ol>
-    <div class="code">&lt;h1&gt;Energía solar&lt;/h1&gt;
-&lt;h2&gt;¿Cómo funciona?&lt;/h2&gt;
-&lt;p&gt;Escribe aquí tu explicación.&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;Ventaja 1&lt;/li&gt;
-  &lt;li&gt;Ventaja 2&lt;/li&gt;
-&lt;/ul&gt;</div>
-  </details>
-  <div class="evidence">✅ Producto final: Excel + gráfica + representación + HTML + exposición.</div>
-</article>
+<article class="post full"><div class="post-head"><div class="post-id"><div class="icon">🌱</div><div class="post-title"><b>Energía renovable + Excel + HTML</b><span>15 feb–3 mar</span></div></div><span class="state s-later">PROYECTO</span></div><div class="post-body"><p>Investiga una fuente renovable, analiza datos en Excel, crea una representación y comunica lo aprendido con una mini página HTML local.</p></div><details><summary>Ver etapas y rúbrica</summary><ol class="steps"><li>Elegir energía, problema, roles y dato sorprendente.</li><li>Investigar funcionamiento, ventajas, limitaciones y aplicación.</li><li>Construir tabla y gráfica en Excel.</li><li>Crear maqueta, esquema o representación segura.</li><li>Crear HTML local con título, explicación, lista y tabla.</li><li>Presentar y explicar la aportación individual.</li></ol><div class="table-wrap"><table><tr><th>Criterio</th><th>Puntos</th><th>Qué se espera</th></tr><tr><td>Problema e investigación</td><td>3</td><td>Explica fuente, funcionamiento, aplicación, ventajas y limitaciones.</td></tr><tr><td>Cálculos en Excel</td><td>5</td><td>Referencias, operaciones o funciones correctas.</td></tr><tr><td>Tabla, gráfica e interpretación</td><td>3</td><td>Datos coherentes y conclusiones.</td></tr><tr><td>Representación técnica</td><td>3</td><td>Modelo, esquema o prototipo comprensible y seguro.</td></tr><tr><td>Página HTML local</td><td>3</td><td>Abre y contiene título, explicación, lista y tabla.</td></tr><tr><td>Comunicación y responsabilidad</td><td>3</td><td>Bitácora, rol y explicación clara.</td></tr><tr><th>Total</th><th>20</th><th></th></tr></table></div></details><div class="evidence">✅ Producto final: Excel + gráfica + representación + HTML + exposición.</div></article>
 
-<details class="archive" id="periodo1">
-  <summary>📦 Primer periodo · cerrado</summary>
-  <p>El primer periodo queda conservado como historial. Las actividades del Proyecto Final asignadas durante la incapacidad pertenecen al P1 y no se mezclan con el segundo periodo.</p>
+<section class="rulebox" id="equidad"><h3>⚖️ Reglas de equidad del segundo periodo</h3><ul><li>El aprendizaje, criterios y puntaje máximo son iguales para todos; cambia el medio según el espacio y el acceso al equipo.</li><li>No tener computadora o internet en casa no reduce la calificación.</li><li>En equipo siempre debe existir evidencia individual: fórmula explicada, conclusión, bitácora, archivo o exposición del rol.</li><li>Las ausencias justificadas se atienden con recuperación equivalente.</li><li>Quien termina antes puede realizar extensión o apoyar como verificador, pero no sustituye el trabajo de otra persona.</li><li>Si un grupo avanza más lento por condiciones del taller, se ajusta la temporalidad, no la exigencia académica.</li></ul></section>
+
+<div class="section-title" id="historial"><h2>Historial del primer periodo</h2><span>P1 · cerrado</span></div>
+<details class="archive">
+<summary>📦 Abrir Primer periodo completo</summary>
+<div class="inside">
+<p>El primer periodo permanece disponible como historial. Aquí puedes consultar lo que ya se trabajó antes del P2.</p>
+<div class="history-grid">
+<div class="history-card"><h4>📘 Encuadre y reglamento</h4><p>Lineamientos, cuidado del equipo, acuerdos de trabajo y encuadre 60/30/10.</p></div>
+<div class="history-card"><h4>🛡️ Firewall de protección</h4><p>Algoritmo, diagrama de flujo y ruta segura ante situaciones de violencia digital.</p></div>
+<div class="history-card"><h4>⌨️ Teclado aplicado a Excel</h4><p>Enter, Tab, Shift, flechas, Retroceso, Supr, F2 y Ctrl+S.</p><div class="keyboard"><span class="key" title="Escapar o cerrar una acción">Esc</span><span class="key">F1</span><span class="key">F2</span><span class="key">F3</span><span class="key">F4</span><span class="key">F5</span><span class="key">F6</span><span class="key">F7</span><span class="key">F8</span><span class="key">F9</span><span class="key">F10</span><span class="key">F11</span><span class="key">F12</span><span class="key wide" title="Guardar">Ctrl+S</span><span class="key wide">Tab</span><span class="key wide">Shift</span><span class="key wide">Enter</span><span class="key">←</span><span class="key">↑</span><span class="key">↓</span><span class="key">→</span><span class="key wide">Supr</span></div></div>
+<div class="history-card"><h4>📊 Excel básico</h4><p>Libro, hoja, celda, fila, columna, tabla de herramientas, formato, ordenar, filtrar, CONTAR.SI y gráfica sencilla.</p></div>
+<div class="history-card"><h4>🔁 Algoritmos</h4><p>Entrada, proceso y salida. Algoritmo para crear/guardar una tabla de Excel y para guardar una página HTML.</p></div>
+<div class="history-card"><h4>🌐 HTML inicial</h4><p>Bloc de notas + navegador: h1, p, ul/li y tabla sencilla; guardar como .html, Ctrl+S y F5.</p></div>
+</div>
+<h3>Evaluación del P1</h3>
+<div class="table-wrap"><table><tr><th>Componente</th><th>Valor</th><th>Evidencias</th></tr><tr><td>Actividades/prácticas/tareas</td><td>60%</td><td>Firewall, teclado, libro, tabla/análisis en Excel, algoritmos, HTML guiado y bitácora.</td></tr><tr><td>Proyecto</td><td>30%</td><td>Portafolio con Herramientas.xlsx, index.html, tabla, síntesis y bitácora.</td></tr><tr><td>Examen</td><td>10%</td><td>Teclado, Excel básico, herramientas/máquinas, algoritmos y lectura de HTML.</td></tr></table></div>
+</div>
 </details>
 
-<details class="archive" id="calendario">
-  <summary>📅 Ver calendario general del P2</summary>
-  <div class="table-wrap">
-    <table>
-      <tr><th>Fechas</th><th>Actividad</th></tr>
-      <tr><td>17–25 nov</td><td>A1 Portada + A2 Dictado y nivelación.</td></tr>
-      <tr><td>30 nov–2 dic</td><td>A3 Tabla de herramientas.</td></tr>
-      <tr><td>7–16 dic</td><td>A4 Inventario, operaciones y presupuesto.</td></tr>
-      <tr><td>11–27 ene</td><td>A5 Referencias, funciones, porcentajes y ecuaciones.</td></tr>
-      <tr><td>1–3 feb</td><td>A6 Energías + libro.</td></tr>
-      <tr><td>8–10 feb</td><td>A7 Tabla y gráfica de energías.</td></tr>
-      <tr><td>15–24 feb</td><td>Proyecto integrador.</td></tr>
-      <tr><td>1–3 mar</td><td>Presentación y examen.</td></tr>
-      <tr><td>5 mar</td><td>Registro de calificaciones.</td></tr>
-    </table>
-  </div>
-</details>
-
-<footer>Escuela Secundaria Mixta 41 · Tecnología 3.º · Ciclo 2026–2027</footer>
+<footer>Escuela Secundaria Mixta 41 · Tecnología 3.º · Mtra. Miriam Meneses Rojas · 2026–2027</footer>
 </main>
 
-<nav class="bottomnav" aria-label="Navegación principal">
-  <div class="inner">
-    <a class="active" href="#inicio"><b>🏠</b>Inicio</a>
-    <a href="#actividades"><b>📚</b>Actividades</a>
-    <a href="#proyecto"><b>🌱</b>Proyecto</a>
-    <a href="familias/"><b>👨‍👩‍👧</b>Familias</a>
-  </div>
-</nav>
+<nav class="bottomnav"><div class="inner"><a class="active" href="#inicio"><b>🏠</b>Inicio</a><a href="#actividades"><b>📚</b>Actividades</a><a href="#proyecto"><b>🌱</b>Proyecto</a><a href="#historial"><b>🗂️</b>P1</a><a href="familias/"><b>👨‍👩‍👧</b>Familias</a></div></nav>
 </body>
 </html>
