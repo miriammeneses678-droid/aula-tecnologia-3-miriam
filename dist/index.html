@@ -1,295 +1,360 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#082f5b">
-  <meta name="description" content="Registro de actividades del primer periodo de Tecnología 3.º para estudiantes y familias.">
-  <title>Aula de Tecnología 3.º · Actividades del primer periodo</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="inicio-social.css">
-  <script src="inicio-social.js" defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula de Tecnología 3.º · Segundo periodo</title>
+<meta name="description" content="Aula Feed de Tecnología 3.º. Segundo periodo: Excel, energías renovables y HTML.">
+<style>
+:root{
+  --bg:#f2f5f8;--card:#fff;--ink:#19344a;--muted:#6d8090;--line:#dbe4ea;
+  --navy:#0b3a66;--blue:#16609b;--teal:#0c8a83;--green:#2f7d4a;--greenbg:#eaf7ee;
+  --gold:#d79a26;--goldbg:#fff7e6;--red:#b7463f;--redbg:#fff0ed;--soft:#eef5fa;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+button,summary{font:inherit}
+a{text-decoration:none;color:inherit}
+header{position:sticky;top:0;z-index:40;background:#ffffffee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head{max-width:900px;margin:auto;padding:12px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.brand{display:flex;gap:10px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));color:#fff;display:grid;place-items:center;font-weight:900}
+.brand strong{display:block}.brand span{font-size:.82rem;color:var(--muted)}
+.pill{background:var(--greenbg);color:#25643a;border:1px solid #bfe0c8;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
+main{max-width:900px;margin:auto;padding:18px 14px 90px}
+.hero{background:linear-gradient(135deg,#e9fbf7,#edf5ff);border:1px solid #cfe3e8;border-radius:22px;padding:22px;margin-bottom:14px}
+.hero .eyebrow{font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);font-weight:900}
+.hero h1{margin:5px 0 8px;font-size:clamp(1.8rem,6vw,2.8rem);line-height:1.06;color:var(--navy)}
+.hero p{margin:0;color:#3f5f73}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;color:var(--navy);font-size:1.05rem}.stat span{font-size:.77rem;color:var(--muted)}
+.now{background:#fff;border:2px solid #82cfc2;border-radius:22px;padding:20px;margin:16px 0;box-shadow:0 8px 26px #173a5a12}
+.nowtag{display:inline-block;background:var(--greenbg);color:#24663c;border:1px solid #bee2c9;padding:6px 10px;border-radius:999px;font-weight:900;font-size:.76rem}
+.now h2{font-size:1.5rem;margin:10px 0 6px;color:var(--navy)}
+.now p{margin:0 0 14px;color:#49697d}
+.primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--navy);color:white;padding:12px 16px;border-radius:12px;font-weight:900;border:0;cursor:pointer}
+.primary:hover{background:#082d4f}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:24px 2px 10px}
+.section-title h2{margin:0;font-size:1.2rem;color:var(--navy)}.section-title span{font-size:.82rem;color:var(--muted)}
+.feed{display:grid;gap:12px}
+.post{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #173a5a0b}
+.post-head{display:flex;justify-content:space-between;gap:10px;padding:15px 16px 10px}
+.post-id{display:flex;gap:10px;align-items:center}
+.icon{width:42px;height:42px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:1.2rem}
+.post-title b{display:block;color:var(--navy)}.post-title span{font-size:.8rem;color:var(--muted)}
+.state{align-self:flex-start;padding:5px 8px;border-radius:999px;font-size:.72rem;font-weight:900;white-space:nowrap}
+.state.now{background:var(--greenbg);color:#24663c;border:1px solid #bee2c9;padding:5px 8px;margin:0;box-shadow:none}
+.state.next{background:#eef5ff;color:#245f94;border:1px solid #c8dcef}
+.state.later{background:#f6f3ff;color:#604d95;border:1px solid #dcd3f3}
+.state.closed{background:#f2f3f4;color:#69757f;border:1px solid #d9dfe3}
+.post-body{padding:0 16px 14px}
+.post-body p{margin:0 0 10px;color:#49697d}
+.meta{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-size:.76rem;background:#f6f9fb;border:1px solid var(--line);padding:5px 8px;border-radius:999px;color:#526c7d;font-weight:700}
+details{border-top:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;padding:13px 16px;font-weight:900;color:var(--blue);display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"＋";font-size:1.15rem}
+details[open] summary:after{content:"−"}
+.steps{counter-reset:s;list-style:none;padding:0 16px 15px;margin:0}
+.steps li{counter-increment:s;position:relative;padding:8px 6px 8px 38px;border-bottom:1px dashed #e3eaee}
+.steps li:last-child{border-bottom:0}
+.steps li:before{content:counter(s);position:absolute;left:0;top:7px;width:25px;height:25px;border-radius:50%;background:#e9f2f9;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:.8rem}
+.evidence{margin:0 16px 16px;background:var(--greenbg);border:1px solid #c6e4cf;color:#2c6440;padding:10px 12px;border-radius:11px;font-weight:800}
+.tip{margin:0 16px 16px;background:#f2f7ff;border-left:4px solid var(--blue);padding:10px 12px;border-radius:10px}
+.warn{margin:0 16px 16px;background:var(--redbg);border-left:4px solid var(--red);padding:10px 12px;border-radius:10px}
+.eq{margin:10px 16px;background:#f7fbff;border:1px solid #d8e9f5;border-radius:12px;padding:12px;text-align:center;font-size:1.25rem;font-weight:900;color:var(--navy)}
+.table-wrap{overflow:auto;margin:0 16px 16px}
+table{border-collapse:collapse;width:100%;min-width:580px}
+th,td{border:1px solid #d9e5ec;padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#0f4775;color:#fff}tr:nth-child(even) td{background:#f8fbfd}
+.code{margin:0 16px 16px;background:#0e2234;color:#e9f6ff;padding:14px;border-radius:12px;overflow:auto;font: .87rem Consolas,monospace;white-space:pre-wrap}
+.archive{background:#fff;border:1px solid var(--line);border-radius:18px;margin-top:18px}
+.archive summary{border:0;color:var(--navy)}
+.archive p{padding:0 16px 16px;margin:0;color:var(--muted)}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:#ffffffef;backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:50}
+.bottomnav .inner{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.bottomnav a{padding:10px 4px 8px;text-align:center;font-size:.72rem;color:#51697a}
+.bottomnav b{display:block;font-size:1.2rem;line-height:1.1}
+.bottomnav a.active{color:var(--navy);font-weight:900}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:28px 0}
+@media(min-width:760px){
+  .feed{grid-template-columns:1fr 1fr}
+  .post.full{grid-column:1/-1}
+}
+</style>
 </head>
-<body class="social-body">
-  <a class="skip-link" href="#actividades-realizadas">Saltar a las actividades</a>
-
-  <header class="social-topbar">
-    <a class="social-brand" href="#inicio" aria-label="Inicio del aula">
-      <img src="assets/logo-miriam.png" alt="Logotipo de la Mtra. Miriam">
-      <div><strong>Aula de Tecnología 3.º</strong><span>Escuela Secundaria Mixta 41</span></div>
-    </a>
-    <div class="social-topbar__center"><span>▤</span><strong>Registro del primer periodo</strong></div>
-    <label class="social-shift"><span>Turno</span><select id="turno"><option value="matutino">Matutino</option><option value="vespertino">Vespertino</option></select></label>
-  </header>
-
-  <div class="social-shell" id="inicio">
-    <aside class="social-left" aria-label="Menú principal">
-      <nav class="social-menu">
-        <a class="active" href="#inicio"><span>⌂</span> Inicio</a>
-        <a href="#aviso-familias"><span>★</span> Aviso a familias</a>
-        <a href="#actividades-realizadas"><span>✓</span> Actividades realizadas</a>
-        <a href="teclado-interactivo.html"><span>⌨</span> Teclado interactivo</a>
-        <a href="practica-teclado-atajos.html"><span>↹</span> Práctica paso a paso</a>
-        <a href="excel-desde-cero.html"><span>▦</span> Excel desde cero</a>
-        <a href="#proximamente"><span>→</span> Próximas actividades</a>
-        <a href="#reglamento"><span>☰</span> Reglamento y evaluación</a>
-      </nav>
-      <section class="profile-card">
-        <img src="assets/logo-miriam.png" alt="">
-        <div><strong>Mtra. Miriam</strong><span>Educación Tecnológica</span></div>
-      </section>
-      <p class="privacy-note">No se necesita correo, cuenta ni celular. Las prácticas digitales se guardan localmente en la computadora del taller.</p>
-    </aside>
-
-    <main class="social-feed">
-      <section class="feed-welcome" id="aviso-familias">
-        <div class="feed-welcome__icon">i</div>
-        <div>
-          <p class="eyebrow">Información para estudiantes y familias</p>
-          <h1>¿Qué hemos trabajado?</h1>
-          <p>Este muro es el registro oficial del primer periodo. Cada publicación explica qué se realizó, qué evidencia debe existir y cómo ponerse al corriente.</p>
-        </div>
-      </section>
-
-      <section class="family-alert">
-        <strong>Antes de marcar una actividad como faltante</strong>
-        <p>Revise la fecha, el turno y la indicación de la maestra. Los grupos avanzan a ritmos distintos. Una actividad marcada como <b>EN PROCESO</b> o <b>PRÓXIMAMENTE</b> no debe considerarse pendiente hasta que se trabaje con el grupo.</p>
-      </section>
-
-      <article class="feed-post feed-post--current">
-        <header class="post-author">
-          <img src="assets/logo-miriam.png" alt="">
-          <div><strong>Mtra. Miriam publicó un aviso</strong><span>Cierre de actividades de septiembre</span></div>
-          <span class="post-badge">IMPORTANTE</span>
-        </header>
-        <div class="post-content">
-          <h2>Revisión de sellos, firmas y evidencias</h2>
-          <p>Al cierre de cada mes se contabilizan los sellos o firmas. El 30 de septiembre se revisa lo generado del 31 de agosto al 30 de septiembre y, después del cierre, ya no se reciben actividades ordinarias atrasadas de ese mes.</p>
-          <div class="note-box"><strong>Ausencia justificada:</strong> el alumno debe presentar el justificante expedido por Prefectura y cuenta con las dos clases hábiles siguientes para entregar lo correspondiente.</div>
-        </div>
-      </article>
-
-      <div class="section-heading" id="actividades-realizadas">
-        <p class="eyebrow">Registro cronológico</p>
-        <h2>Actividades realizadas y evidencias</h2>
-        <p>Revise cada apartado para conocer instrucciones, producto esperado y forma de comprobarlo.</p>
-      </div>
-
-      <article class="feed-post activity-card" id="actividad-1">
-        <header class="post-author"><div class="post-avatar post-avatar--done">1</div><div><strong>Preparación del cuaderno</strong><span>31 de agosto · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Cuaderno identificado y protegido</h2>
-          <p><strong>¿Qué se hizo?</strong> Se preparó el cuaderno que se usará durante el ciclo.</p>
-          <ol class="clear-steps"><li>Forrarlo con papel del color favorito del alumno.</li><li>Protegerlo con plástico.</li><li>Escribir nombre completo al frente.</li><li>Si comparte cuaderno con otra materia, identificar claramente la sección de Tecnología.</li></ol>
-          <div class="evidence-box"><strong>Evidencia que debe mostrar:</strong> cuaderno forrado, protegido, limpio y con datos legibles.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-2">
-        <header class="post-author"><div class="post-avatar post-avatar--done">2</div><div><strong>Reglamento, encuadre y requisitos</strong><span>31 de agosto y 1 de septiembre · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Normas del taller firmadas</h2>
-          <p><strong>¿Qué se hizo?</strong> Se copiaron o integraron el reglamento, el encuadre de evaluación y los requisitos de entrega. Deben estar firmados por madre, padre o tutor.</p>
-          <div class="evidence-box"><strong>Evidencia que debe mostrar:</strong> reglamento y encuadre completos, legibles y firmados.</div>
-          <div class="post-links"><a href="#reglamento">Consultar el reglamento completo</a><a href="https://alanxd.my.canva.site/encuadre-tecnolog-a-3" target="_blank" rel="noopener">Ver presentación del primer día ↗</a></div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-3">
-        <header class="post-author"><div class="post-avatar post-avatar--done">3</div><div><strong>Portada del primer periodo</strong><span>1 de septiembre · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Portada relacionada con Tecnología</h2>
-          <p>En una hoja completa del cuaderno se elaboró una portada con el título <strong>Primer periodo</strong>, un dibujo relacionado con Tecnología, coloreado y presentado con limpieza.</p>
-          <div class="evidence-box"><strong>Debe incluir:</strong> nombre completo, grado, grupo, turno, materia y título del periodo.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-4">
-        <header class="post-author"><div class="post-avatar post-avatar--done">4</div><div><strong>Firewall de protección</strong><span>7 de septiembre · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Algoritmo y diagrama de una ruta segura</h2>
-          <p>Se analizó una situación ficticia, sin nombres ni experiencias personales, para ordenar una ruta de protección: <strong>DETECTO → DETENGO → ME ALEJO O BLOQUEO → PIDO AYUDA → INSISTO</strong>.</p>
-          <h3>Formas que debe contener el diagrama</h3>
-          <div class="flow-symbols"><div><span class="symbol symbol--oval">INICIO</span><b>Óvalo</b><small>Inicio o fin</small></div><div><span class="symbol symbol--rect">ACCIÓN</span><b>Rectángulo</b><small>Una acción</small></div><div><span class="symbol symbol--diamond">¿RIESGO?</span><b>Rombo</b><small>Una decisión</small></div><div><span class="symbol symbol--arrow">→</span><b>Flecha</b><small>Dirección</small></div></div>
-          <div class="diagram-example"><b>Ejemplo:</b> INICIO → Detecto una señal → ¿Me siento en riesgo? → Sí → Me detengo → Me alejo o bloqueo → Pido ayuda a una persona de confianza → Insisto hasta recibir apoyo → FIN.</div>
-          <div class="evidence-box"><strong>Evidencia:</strong> diagrama ordenado, con figuras correctas, flechas, decisión y red de apoyo.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-5">
-        <header class="post-author"><div class="post-avatar post-avatar--done">5</div><div><strong>Cartel “No al maltrato infantil”</strong><span>7 de septiembre · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Mensaje preventivo y red de apoyo</h2>
-          <p>Se elaboró un cartel individual del tamaño de una hoja del cuaderno. Debe comunicar el rechazo al maltrato infantil y promover pedir ayuda a personas o instituciones de confianza.</p>
-          <div class="evidence-box"><strong>Debe incluir:</strong> título visible, frase breve, imagen o símbolo, color, limpieza y datos completos. No se escriben experiencias personales.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-6">
-        <header class="post-author"><div class="post-avatar post-avatar--done">6</div><div><strong>Tabla de conceptos</strong><span>8 y 9 de septiembre · Cuaderno</span></div><span class="status status--done">REALIZADO</span></header>
-        <div class="post-content">
-          <h2>Conceptos básicos de Tecnología</h2>
-          <p>Se elaboró una tabla de tres columnas: <strong>Concepto | Explicación sencilla | Ejemplo</strong>.</p>
-          <div class="concept-list"><span>Tecnología</span><span>Técnica</span><span>Herramienta</span><span>Tipos de herramientas</span><span>Máquina</span><span>Clasificación de máquinas</span><span>Material natural</span><span>Material sintético</span><span>Algoritmo</span><span>Diagrama de flujo</span><span>Programación HTML</span></div>
-          <div class="evidence-box"><strong>Evidencia:</strong> tabla completa, definiciones corregidas y un ejemplo propio por concepto.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-7">
-        <header class="post-author"><div class="post-avatar post-avatar--done">7</div><div><strong>Conocimiento del teclado</strong><span>14 de septiembre en adelante · Cuaderno y práctica</span></div><span class="status status--progress">SEGÚN AVANCE</span></header>
-        <div class="post-content">
-          <h2>Teclado coloreado y funciones registradas</h2>
-          <p>Se pegó en el cuaderno un teclado impreso en blanco. La maestra fue explicando tecla por tecla y el alumno registró su función.</p>
-          <div class="color-code"><div class="yellow"><b>Amarillo</b><span>Teclas de función F1 a F12.</span></div><div class="green"><b>Verde</b><span>Enter, Tab, Mayús/Shift, Ctrl, Alt, Alt Gr y Bloq Mayús.</span></div><div class="red"><b>Rojo o naranja</b><span>Retroceso, Supr e Insert.</span></div></div>
-          <div class="evidence-box"><strong>Evidencia:</strong> teclado pegado y coloreado, nombre de las teclas y función explicada con palabras del alumno.</div>
-          <div class="post-actions"><a class="primary-action" href="teclado-interactivo.html">Abrir teclado interactivo</a><a href="practica-teclado-atajos.html">Abrir práctica paso a paso</a></div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-8">
-        <header class="post-author"><div class="post-avatar post-avatar--done">8</div><div><strong>Expediente secreto: 1813</strong><span>15 de septiembre · Actividad especial</span></div><span class="status status--groups">SOLO GRUPOS INDICADOS</span></header>
-        <div class="post-content">
-          <h2>Ideas de Morelos que siguen vivas</h2>
-          <p id="patriotic-groups"><strong>Turno matutino:</strong> correspondió a 3.º A, 3.º B, 3.º C y 3.º E. En 3.º D no se considera faltante.</p>
-          <ol class="clear-steps"><li>Leer fragmentos de <em>Sentimientos de la Nación</em>.</li><li>Escribir con palabras propias la frase clave.</li><li>Explicar tres cambios que Morelos proponía.</li><li>Relacionar una idea de 1813 con la vida actual.</li><li>Dibujar un símbolo de libertad, igualdad o soberanía.</li><li>Crear una frase final de máximo 12 palabras.</li></ol>
-          <div class="evidence-box"><strong>Evidencia:</strong> hoja titulada “Expediente secreto: 1813”, las cuatro pistas, dibujo, frase final y ticket de salida.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-9">
-        <header class="post-author"><div class="post-avatar post-avatar--done">9</div><div><strong>Excel desde cero</strong><span>21 al 23 de septiembre · Cuaderno</span></div><span class="status status--progress">SEGÚN AVANCE</span></header>
-        <div class="post-content">
-          <h2>Partes de Excel, celda y rango</h2>
-          <p>Se pegó una impresión de Excel y se identificaron: barra de título, acceso rápido, cinta de opciones, cuadro de nombres, barra de fórmulas, columnas, filas, celda activa, hojas, barras de desplazamiento y zoom.</p>
-          <div class="formula-rule"><strong>Nota obligatoria:</strong> toda fórmula o función de Excel comienza con el signo <b>=</b>.</div>
-          <p>También se definió <strong>rango</strong> como un conjunto de celdas. Ejemplo: <code>A1:F10</code>.</p>
-          <div class="evidence-box"><strong>Evidencia:</strong> impresión rotulada, definición de celda y rango, investigación: qué es una fórmula, qué es una función y cuáles son sus diferencias.</div>
-          <div class="post-actions"><a class="primary-action" href="excel-desde-cero.html">Abrir explicación de Excel</a></div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-10">
-        <header class="post-author"><div class="post-avatar">10</div><div><strong>Portada pixelada en Excel</strong><span>28 al 30 de septiembre · Computadora</span></div><span class="status status--progress">EN PROCESO</span></header>
-        <div class="post-content">
-          <h2>Primera hoja del archivo de Excel</h2>
-          <ol class="clear-steps"><li>Cambiar el nombre de la hoja a <strong>PORTADA</strong>.</li><li>Asignar un color a la etiqueta de la hoja.</li><li>Seleccionar toda la hoja.</li><li>Dar clic derecho sobre la letra de una columna y elegir <strong>Ancho de columna</strong>.</li><li>Escribir <strong>3</strong> para formar una cuadrícula pequeña.</li><li>Crear un dibujo pixelado rellenando celdas con colores.</li><li>Si existe un error, usar <strong>Color de relleno → Sin relleno</strong>.</li></ol>
-          <div class="evidence-box"><strong>Evidencia:</strong> archivo guardado con una hoja llamada PORTADA, etiqueta de color y dibujo pixelado limpio y terminado.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-11">
-        <header class="post-author"><div class="post-avatar">11</div><div><strong>Libro: tipos de herramientas</strong><span>28 al 30 de septiembre · Libro</span></div><span class="status status--progress">EN PROCESO</span></header>
-        <div class="post-content">
-          <h2>Lectura de las páginas 20 a 25</h2>
-          <p>Se realizó lectura guiada y explicación sobre los tipos de herramientas. Después se contestaron las actividades de las páginas <strong>25 y 26</strong>.</p>
-          <div class="evidence-box"><strong>Evidencia:</strong> libro con nombre, protegido con plástico y páginas 25-26 respondidas de acuerdo con la explicación.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-12">
-        <header class="post-author"><div class="post-avatar">12</div><div><strong>Práctica 2 de Excel</strong><span>Avance diferente por grupo · Computadora</span></div><span class="status status--progress">ALGUNOS GRUPOS</span></header>
-        <div class="post-content">
-          <h2>Celda, fila, columna y rango</h2>
-          <p>Práctica con colores para comprobar que el alumno localiza elementos de la hoja.</p>
-          <ol class="clear-steps"><li>Seleccionar una celda indicada.</li><li>Identificar una fila completa y una columna completa.</li><li>Seleccionar el rango indicado por la maestra, por ejemplo <code>A1:F10</code>.</li><li>Aplicar color de relleno y después quitarlo para practicar la corrección.</li></ol>
-          <div class="evidence-box"><strong>Evidencia:</strong> el alumno identifica verbalmente celda, fila, columna y rango y realiza la selección solicitada. No se considera faltante en grupos donde todavía no se ha indicado.</div>
-        </div>
-      </article>
-
-      <article class="feed-post activity-card" id="actividad-13">
-        <header class="post-author"><div class="post-avatar">13</div><div><strong>Práctica 3 de Excel</strong><span>Avance diferente por grupo · Computadora</span></div><span class="status status--progress">ALGUNOS GRUPOS</span></header>
-        <div class="post-content">
-          <h2>Captura, formato y primeras operaciones</h2>
-          <p>Se pasó de celdas sueltas a una tabla: captura de encabezados y datos, bordes, relleno, alineación y ajuste del ancho.</p>
-          <div class="table-headings"><strong>Encabezados:</strong><span>A1 Producto</span><span>B1 Cantidad inicial</span><span>C1 Cantidad utilizada</span><span>D1 Restante</span><span>E1 Precio</span><span>F1 Importe</span></div>
-          <p>En los grupos que avanzaron se explicó cómo calcular:</p>
-          <div class="operation-grid"><div><b>Restante en D2</b><code>=B2-C2</code><span>Cantidad inicial menos cantidad utilizada.</span></div><div><b>Importe en F2</b><code>=D2*E2</code><span>Restante por precio.</span></div></div>
-          <div class="evidence-box"><strong>Evidencia:</strong> tabla ordenada y operaciones que comienzan con =. Esta práctica solo cuenta cuando la maestra ya la trabajó con el grupo.</div>
-        </div>
-      </article>
-
-      <div class="section-heading" id="proximamente">
-        <p class="eyebrow">Continuación de la planeación</p>
-        <h2>Lo que sigue en el primer periodo</h2>
-        <p>Estas publicaciones permiten conocer la ruta, pero no son faltantes mientras aparezcan como PRÓXIMAMENTE.</p>
-      </div>
-
-      <article class="feed-post future-card">
-        <header class="post-author"><div class="post-avatar">14</div><div><strong>La tecnología detrás de la tuerca y el tornillo</strong><span>5 al 7 de octubre · Libro p. 27</span></div><span class="status status--future">PRÓXIMAMENTE</span></header>
-        <div class="post-content"><h2>Mapa mental en el cuaderno</h2><p>Leer y explicar la página 27. Elaborar un mapa mental con idea central, conceptos principales, palabras clave, conexiones, ejemplos y elementos visuales.</p><div class="evidence-box"><strong>Producto esperado:</strong> mapa mental completo, jerarquizado, legible y con datos.</div></div>
-      </article>
-
-      <article class="feed-post future-card">
-        <header class="post-author"><div class="post-avatar">15</div><div><strong>Tabla de herramientas en Excel</strong><span>12 al 14 de octubre · Computadora</span></div><span class="status status--future">PRÓXIMAMENTE</span></header>
-        <div class="post-content"><h2>Hoja HERRAMIENTAS</h2><p>Crear una hoja llamada <strong>HERRAMIENTAS</strong> con las columnas: número, herramienta o máquina, descripción, clasificación, tipo de uso o accionamiento, material y norma de seguridad. Aplicar títulos, bordes, relleno, ajuste de texto y ancho adecuado.</p><div class="evidence-box"><strong>Producto esperado:</strong> archivo de Excel con hojas PORTADA y HERRAMIENTAS.</div></div>
-      </article>
-
-      <article class="feed-post future-card">
-        <header class="post-author"><div class="post-avatar">16</div><div><strong>Datos, operaciones y algoritmo</strong><span>19 al 21 de octubre · Excel y cuaderno</span></div><span class="status status--future">PRÓXIMAMENTE</span></header>
-        <div class="post-content"><h2>Corregir, ordenar y comprobar</h2><p>Completar la tabla, ordenar o filtrar datos, aplicar fórmulas y funciones y elaborar el algoritmo “Crear, guardar y corregir una tabla en Excel”. Se introducirá HTML con Bloc de notas solamente cuando la maestra lo indique.</p></div>
-      </article>
-
-      <article class="feed-post future-card">
-        <header class="post-author"><div class="post-avatar">17</div><div><strong>Cierre del portafolio tecnológico</strong><span>26 al 28 de octubre · Proyecto</span></div><span class="status status--future">PRÓXIMAMENTE</span></header>
-        <div class="post-content"><h2>Integración del proyecto final</h2><p>Organizar la carpeta, comprobar el libro de Excel con PORTADA y HERRAMIENTAS y, si el acceso al taller lo permite, crear un archivo básico <code>index.html</code> con Bloc de notas y abrirlo en el navegador.</p><div class="evidence-box"><strong>Valor del proyecto final:</strong> 30%.</div></div>
-      </article>
-
-      <article class="feed-post future-card">
-        <header class="post-author"><div class="post-avatar">18</div><div><strong>Evaluación y cierre</strong><span>3 al 11 de noviembre</span></div><span class="status status--future">PRÓXIMAMENTE</span></header>
-        <div class="post-content"><h2>Examen, recuperación y resultados</h2><ul class="clear-list"><li><strong>3 de noviembre:</strong> examen teórico-práctico.</li><li><strong>4 de noviembre:</strong> aplicación pendiente y recuperaciones autorizadas.</li><li><strong>9 al 11 de noviembre:</strong> resultados, autoevaluación y organización final.</li></ul></div>
-      </article>
-
-      <section class="feed-post rules-card" id="reglamento">
-        <header class="post-author"><div class="post-avatar">☰</div><div><strong>Reglamento del taller</strong><span>Consulta permanente</span></div></header>
-        <div class="post-content">
-          <h2>20 acuerdos para trabajar con seguridad y orden</h2>
-          <ol class="rules-list">
-            <li>Esperar a la maestra dentro del aula.</li>
-            <li>Formarse fuera del salón para trasladarse al taller; bajar por las escaleras de Dirección y subir por las de Primer Año.</li>
-            <li>No entrar con alimentos al taller.</li>
-            <li>Llevar únicamente lápiz y el material solicitado.</li>
-            <li>Permanecer en el lugar asignado; no estar de pie ni cambiarse sin autorización.</li>
-            <li>No instalar aplicaciones, programas ni juegos.</li>
-            <li>No cambiar el fondo de pantalla ni la configuración del equipo.</li>
-            <li>No tomar fotografías ni grabar con la cámara de la computadora.</li>
-            <li>No abrir aplicaciones, páginas o contenidos ajenos a la clase.</li>
-            <li>No ingresar con bebidas. Solo se permite agua natural colocada en la mesa posterior.</li>
-            <li>Entregar cada trabajo con nombre completo, grado, grupo, turno, fecha, materia, tema y margen. El margen puede ser lineal, con figuras o creativo.</li>
-            <li>Entregar toda actividad en tiempo y forma, con letra legible.</li>
-            <li>Forrar el libro de Tecnología con plástico y escribir el nombre completo dentro de la pasta.</li>
-            <li>No usar memorias USB.</li>
-            <li>Al faltar, presentar justificante de Prefectura y entregar dentro de las dos clases hábiles siguientes.</li>
-            <li>Reportar daños, cables sueltos o fallas antes de usar el equipo; no desconectar ni reparar componentes.</li>
-            <li>Usar solo la carpeta y archivos asignados; no abrir, modificar ni borrar trabajos ajenos.</li>
-            <li>Usar internet únicamente en los sitios indicados y no descargar sin autorización.</li>
-            <li>Guardar en la ubicación indicada, cerrar programas y dejar limpia el área.</li>
-            <li>Seguir indicaciones de seguridad y reportar contenido inapropiado o situaciones de riesgo.</li>
-          </ol>
-          <div class="monthly-rule"><strong>Cierre mensual:</strong> una vez cerrado el mes no se reciben actividades ordinarias atrasadas de ese mes. Se respetan las recuperaciones por faltas justificadas.</div>
-        </div>
-      </section>
-
-      <section class="feed-post evaluation-card" id="evaluacion">
-        <header class="post-author"><div class="post-avatar">%</div><div><strong>Encuadre de evaluación</strong><span>Primer periodo</span></div></header>
-        <div class="post-content">
-          <div class="evaluation-grid"><div><b>60%</b><span>Actividades, prácticas y tareas</span><small>Cuaderno, libro, ejercicios y archivos.</small></div><div><b>30%</b><span>Proyecto final</span><small>Avance del portafolio tecnológico.</small></div><div><b>10%</b><span>Examen</span><small>Evaluación teórico-práctica.</small></div></div>
-        </div>
-      </section>
-    </main>
-
-    <aside class="social-right">
-      <section class="right-card"><p class="eyebrow">Cómo revisar en casa</p><h2>Lista rápida</h2><ol><li>Busque la actividad por número.</li><li>Revise la evidencia indicada.</li><li>Compruebe datos completos y firma o sello.</li><li>Si faltó, revise el plazo del justificante.</li></ol></section>
-      <section class="right-card"><p class="eyebrow">Turno seleccionado</p><h2 id="shift-title">Matutino</h2><p id="shift-detail">En grupos grandes puede compartirse computadora; cada alumno conserva evidencia individual.</p></section>
-      <section class="right-card status-guide"><p class="eyebrow">Qué significa cada estado</p><p><span class="dot done"></span><b>Realizado:</b> ya debe existir evidencia.</p><p><span class="dot progress"></span><b>En proceso:</b> depende del avance del grupo.</p><p><span class="dot future"></span><b>Próximamente:</b> todavía no es faltante.</p></section>
-      <section class="right-card right-card--warning"><strong>Trabajo local</strong><p>Las actividades digitales no se envían por correo. Se guardan en la computadora y se muestran directamente a la maestra.</p></section>
-    </aside>
+<body>
+<header>
+  <div class="head">
+    <div class="brand">
+      <div class="avatar">MM</div>
+      <div><strong>Aula de Tecnología 3.º</strong><span>Mtra. Miriam Meneses Rojas</span></div>
+    </div>
+    <span class="pill">P2 · En curso</span>
   </div>
+</header>
 
- 
-<nav class="mobile-nav" aria-label="Accesos rápidos"><a href="#inicio">⌂<span>Inicio</span></a><a href="#actividades-realizadas">✓<span>Actividades</span></a><a href="#reglamento">☰<span>Reglamento</span></a></nav>
+<main id="inicio">
+<section class="hero">
+  <div class="eyebrow">Segundo periodo</div>
+  <h1>Tecnología que sirve</h1>
+  <p>Excel, energías renovables y una web para el futuro. Aquí verás qué sigue, qué tienes que hacer y qué evidencia debes entregar.</p>
+  <div class="stats">
+    <div class="stat"><b>70%</b><span>Actividades</span></div>
+    <div class="stat"><b>20%</b><span>Proyecto</span></div>
+    <div class="stat"><b>10%</b><span>Examen</span></div>
+  </div>
+</section>
 
-<script type="module" src="bitacora-publica.js"></script>
-<script src="aviso-proyecto-final-v19.js"></script>
-  
+<section class="now" id="continuar">
+  <span class="nowtag">🟢 CONTINÚA AQUÍ</span>
+  <h2>A1–A2 · Inicio y nivelación</h2>
+  <p>Revisa tu portada del segundo periodo. Si ya está completa, continúa el dictado exactamente donde te quedaste. No repitas trabajo que ya terminaste.</p>
+  <a class="primary" href="#a1">▶ Seguir con mi actividad</a>
+</section>
+
+<div class="section-title" id="actividades"><h2>Feed de actividades</h2><span>Toca “Ver paso a paso”</span></div>
+
+<div class="feed">
+
+<article class="post" id="a1">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">🎨</div><div class="post-title"><b>A1 · Portada</b><span>17–18 nov · Energías renovables</span></div></div>
+    <span class="state now">AHORA</span>
+  </div>
+  <div class="post-body">
+    <p>Deja lista la portada del segundo periodo. Si ya la hiciste, solo revisa requisitos.</p>
+    <div class="meta"><span class="chip">3 puntos</span><span class="chip">Cuaderno</span><span class="chip">No repetir</span></div>
+  </div>
+  <details open>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Escribe <strong>Segundo periodo</strong>.</li>
+      <li>Tema obligatorio: <strong>Energías renovables</strong>.</li>
+      <li>Haz un dibujo de energía solar, eólica, hidráulica, geotérmica o biomasa.</li>
+      <li>Colorea y cuida la presentación.</li>
+      <li>Incluye nombre, grado, grupo, turno, materia y ciclo 2026–2027.</li>
+      <li>Si ya está hecha, revisa y completa. No hagas otra.</li>
+    </ol>
+  </details>
+  <div class="evidence">✅ Entrega: portada completa, coloreada y con datos.</div>
+</article>
+
+<article class="post" id="a2">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">✍️</div><div class="post-title"><b>A2 · Dictado y nivelación</b><span>18–25 nov</span></div></div>
+    <span class="state now">AHORA</span>
+  </div>
+  <div class="post-body">
+    <p>Recupera conceptos que usaremos durante todo el periodo y continúa desde tu último avance.</p>
+    <div class="meta"><span class="chip">7 puntos</span><span class="chip">Cuaderno</span><span class="chip">12 preguntas</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Título: <strong>La tecnología, las herramientas y Excel en mi vida cotidiana</strong>.</li>
+      <li>Continúa desde el apartado marcado por la maestra.</li>
+      <li>Cuida mayúsculas, signos, puntuación y ortografía.</li>
+      <li>Al terminar las cinco partes, responde las <strong>12 preguntas</strong> con oraciones completas.</li>
+      <li>No adelantes otra actividad si A2 sigue incompleta.</li>
+    </ol>
+  </details>
+  <div class="evidence">✅ Entrega: dictado completo + 12 respuestas.</div>
+</article>
+
+<article class="post" id="a3">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">🧰</div><div class="post-title"><b>A3 · Tabla de herramientas</b><span>30 nov–2 dic</span></div></div>
+    <span class="state next">SIGUE</span>
+  </div>
+  <div class="post-body">
+    <p>Retomamos Excel desde cero con una tabla útil de inventario y seguridad.</p>
+    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span><span class="chip">T1 / cuaderno</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Abre Excel y nombra la hoja <strong>HERRAMIENTAS</strong>.</li>
+      <li>Crea columnas: N.º, nombre, descripción, clasificación, accionamiento, material, existencia, precio unitario y norma de seguridad.</li>
+      <li>Captura los datos indicados.</li>
+      <li>Aplica bordes, relleno en encabezados y ajuste de texto.</li>
+      <li>Guarda el archivo con el nombre indicado para tu grupo.</li>
+    </ol>
+  </details>
+  <div class="evidence">✅ Entrega: tabla estructurada, legible y guardada.</div>
+</article>
+
+<article class="post" id="a4">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">🧮</div><div class="post-title"><b>A4 · Excel para la vida diaria</b><span>7–16 dic</span></div></div>
+    <span class="state next">DESPUÉS</span>
+  </div>
+  <div class="post-body">
+    <p>Inventario, compras, presupuesto, cambio, faltantes y costo por persona.</p>
+    <div class="meta"><span class="chip">15 puntos</span><span class="chip">Suma</span><span class="chip">Resta</span><span class="chip">× y ÷</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Multiplicación: <code>=C2*D2</code>.</li>
+      <li>Resta: <code>=C2-E2</code>.</li>
+      <li>Suma: <code>=C2+F2</code>.</li>
+      <li>División: <code>=G2/H2</code>.</li>
+      <li>Resuelve una compra con presupuesto y calcula cambio o faltante.</li>
+      <li>Comprueba manualmente al menos un resultado.</li>
+    </ol>
+  </details>
+  <div class="tip"><strong>Regla clave:</strong> toda fórmula en Excel inicia con <strong>=</strong>.</div>
+  <div class="evidence">✅ Entrega: tabla con operaciones y presupuesto resuelto.</div>
+</article>
+
+<article class="post full" id="a5">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">📊</div><div class="post-title"><b>A5 · Referencias, funciones y porcentajes</b><span>11–27 ene</span></div></div>
+    <span class="state later">MÁS ADELANTE</span>
+  </div>
+  <div class="post-body">
+    <p>Usarás referencias de celda, SUMA, PROMEDIO, MÁXIMO, MÍNIMO, porcentajes y un reto de ecuaciones de primer grado.</p>
+    <div class="meta"><span class="chip">15 puntos</span><span class="chip">Excel</span><span class="chip">Reto matemático</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Ubica referencias como A1, B2 y C3.</li>
+      <li>Haz una lista de compras usando referencias.</li>
+      <li>Practica <code>=SUMA()</code>, <code>=PROMEDIO()</code>, <code>=MAX()</code> y <code>=MIN()</code>.</li>
+      <li>Calcula porcentajes de ahorro, aumento o distribución.</li>
+      <li>Explica qué cambia cuando modificas cantidad o precio.</li>
+    </ol>
+    <div class="eq">Reto: 2x + 5 = 15</div>
+    <ol class="steps">
+      <li>Resta 5 al resultado: 15 − 5 = 10.</li>
+      <li>Ahora tienes 2x = 10.</li>
+      <li>Divide entre 2: x = 5.</li>
+      <li>Comprueba: 2(5) + 5 = 15.</li>
+      <li>En Excel escribe <code>=(C2-B2)/A2</code> para obtener x.</li>
+      <li>Comprueba con <code>=A2*D2+B2</code>.</li>
+    </ol>
+    <div class="eq">Si ax + b = c, entonces x = (c − b) ÷ a</div>
+  </details>
+  <div class="evidence">✅ Entrega: referencias correctas, funciones, porcentaje y conclusión.</div>
+</article>
+
+<article class="post" id="a6">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">🌍</div><div class="post-title"><b>A6 · Energías + libro</b><span>1–3 feb</span></div></div>
+    <span class="state later">MÁS ADELANTE</span>
+  </div>
+  <div class="post-body">
+    <p>Fuentes renovables y no renovables: solar, eólica, hidráulica, geotérmica y biomasa.</p>
+    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Libro</span><span class="chip">Cuadro comparativo</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Define qué es energía.</li>
+      <li>Distingue renovable y no renovable.</li>
+      <li>Trabaja únicamente las páginas del libro indicadas en clase.</li>
+      <li>Haz un cuadro: fuente, origen, ventaja, limitación y ejemplo.</li>
+    </ol>
+  </details>
+  <div class="warn"><strong>Importante:</strong> las páginas exactas se publicarán cuando la maestra revise el ejemplar físico.</div>
+  <div class="evidence">✅ Entrega: libro + cuadro comparativo.</div>
+</article>
+
+<article class="post" id="a7">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">📈</div><div class="post-title"><b>A7 · Energía en datos</b><span>8–10 feb</span></div></div>
+    <span class="state later">MÁS ADELANTE</span>
+  </div>
+  <div class="post-body">
+    <p>Tabla, gráfica, tres conclusiones y propuesta sustentable.</p>
+    <div class="meta"><span class="chip">10 puntos</span><span class="chip">Excel</span><span class="chip">Gráfica</span></div>
+  </div>
+  <details>
+    <summary>Ver paso a paso</summary>
+    <ol class="steps">
+      <li>Organiza datos comparables de distintas fuentes.</li>
+      <li>Crea una tabla en Excel.</li>
+      <li>Inserta una gráfica sencilla.</li>
+      <li>Escribe tres conclusiones basadas en los datos.</li>
+      <li>Propón una acción de ahorro o alternativa sustentable.</li>
+    </ol>
+  </details>
+  <div class="tip">💡 Los paneles fotovoltaicos aprovechan radiación/luz solar; no necesitan calor intenso para producir electricidad.</div>
+  <div class="evidence">✅ Entrega: tabla + gráfica + 3 conclusiones + propuesta.</div>
+</article>
+
+</div>
+
+<div class="section-title" id="proyecto"><h2>Proyecto integrador</h2><span>20%</span></div>
+<article class="post full">
+  <div class="post-head">
+    <div class="post-id"><div class="icon">🌱</div><div class="post-title"><b>Energía renovable + Excel + HTML</b><span>15 feb–3 mar</span></div></div>
+    <span class="state later">PROYECTO</span>
+  </div>
+  <div class="post-body">
+    <p>Investiga una fuente renovable, analiza datos en Excel, crea una representación segura y comunica lo aprendido en una mini página HTML local.</p>
+    <div class="meta"><span class="chip">20 puntos</span><span class="chip">Equipo + evidencia individual</span></div>
+  </div>
+  <details>
+    <summary>Ver etapas del proyecto</summary>
+    <ol class="steps">
+      <li>Elegir energía, problema, roles y dato sorprendente.</li>
+      <li>Investigar funcionamiento, ventajas, limitaciones y uso en México.</li>
+      <li>Construir tabla y gráfica en Excel.</li>
+      <li>Crear maqueta, esquema o representación técnica segura.</li>
+      <li>Escribir una mini página HTML con título, explicación, lista y tabla.</li>
+      <li>Abrirla en Chrome o Edge y corregir con Ctrl+S + F5.</li>
+      <li>Presentar el proyecto y explicar tu aportación individual.</li>
+    </ol>
+    <div class="code">&lt;h1&gt;Energía solar&lt;/h1&gt;
+&lt;h2&gt;¿Cómo funciona?&lt;/h2&gt;
+&lt;p&gt;Escribe aquí tu explicación.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Ventaja 1&lt;/li&gt;
+  &lt;li&gt;Ventaja 2&lt;/li&gt;
+&lt;/ul&gt;</div>
+  </details>
+  <div class="evidence">✅ Producto final: Excel + gráfica + representación + HTML + exposición.</div>
+</article>
+
+<details class="archive" id="periodo1">
+  <summary>📦 Primer periodo · cerrado</summary>
+  <p>El primer periodo queda conservado como historial. Las actividades del Proyecto Final asignadas durante la incapacidad pertenecen al P1 y no se mezclan con el segundo periodo.</p>
+</details>
+
+<details class="archive" id="calendario">
+  <summary>📅 Ver calendario general del P2</summary>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Fechas</th><th>Actividad</th></tr>
+      <tr><td>17–25 nov</td><td>A1 Portada + A2 Dictado y nivelación.</td></tr>
+      <tr><td>30 nov–2 dic</td><td>A3 Tabla de herramientas.</td></tr>
+      <tr><td>7–16 dic</td><td>A4 Inventario, operaciones y presupuesto.</td></tr>
+      <tr><td>11–27 ene</td><td>A5 Referencias, funciones, porcentajes y ecuaciones.</td></tr>
+      <tr><td>1–3 feb</td><td>A6 Energías + libro.</td></tr>
+      <tr><td>8–10 feb</td><td>A7 Tabla y gráfica de energías.</td></tr>
+      <tr><td>15–24 feb</td><td>Proyecto integrador.</td></tr>
+      <tr><td>1–3 mar</td><td>Presentación y examen.</td></tr>
+      <tr><td>5 mar</td><td>Registro de calificaciones.</td></tr>
+    </table>
+  </div>
+</details>
+
+<footer>Escuela Secundaria Mixta 41 · Tecnología 3.º · Ciclo 2026–2027</footer>
+</main>
+
+<nav class="bottomnav" aria-label="Navegación principal">
+  <div class="inner">
+    <a class="active" href="#inicio"><b>🏠</b>Inicio</a>
+    <a href="#actividades"><b>📚</b>Actividades</a>
+    <a href="#proyecto"><b>🌱</b>Proyecto</a>
+    <a href="familias/"><b>👨‍👩‍👧</b>Familias</a>
+  </div>
+</nav>
 </body>
 </html>
